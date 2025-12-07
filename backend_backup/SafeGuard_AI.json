@@ -1,0 +1,78 @@
+{
+  "name": "SafeGuard_AI",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "analyze",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7f36c472-2e25-480f-964d-ffe1bea426a2",
+      "name": "Webhook",
+      "webhookId": "8c2f9e1c-f37a-44ed-b867-bee35a9056c6"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Bu fotoğraftaki iş güvenliği risklerini analiz et. JSON formatında cevap ver: { \"risk\": \"...\", \"oneri\": \"...\" }",
+        "inputType": "binary",
+        "options": {
+          "maxOutputTokens": 4096
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "4ea3edb8-4dfd-45ec-b293-c0ca32dfa02a",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3wPkRpYoeyGaa0GS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e7c5ecfa-8ee7-4095-9267-fcb9855da546",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3aaeb91b105c0f8beeaf421feae01614c73acc6750845e4fa61b8ae4efd76b52"
+  },
+  "id": "a3oqWnXQlB0fQibP",
+  "tags": []
+}
