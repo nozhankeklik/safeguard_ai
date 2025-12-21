@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:safeguard_ai/core/init/injection_container.dart' as di;
+import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
+import 'package:safeguard_ai/features/analysis/presentation/pages/analysis_page.dart';
 
 class AppRouter {
   AppRouter._();
@@ -9,25 +12,11 @@ class AppRouter {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const _HomePage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) => di.sl<AnalysisBloc>(),
+          child: const AnalysisPage(),
+        ),
       ),
     ],
   );
 }
-
-class _HomePage extends StatelessWidget {
-  const _HomePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(
-        child: Text(
-          'SafeGuard AI - Home',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-}
-

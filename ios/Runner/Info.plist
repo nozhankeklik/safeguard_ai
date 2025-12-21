@@ -51,5 +51,11 @@
 	<string>Video kaydı için mikrofona erişim gerekiyor.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Fotoğraf kaydetmek için galeriye erişim gerekiyor.</string>
+	<key>NSCameraUsageDescription</key>
+    <string>Güvenlik analizi için fotoğraf çekmemiz gerekiyor.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Analiz edilecek fotoğrafı seçmeniz için galeriye erişmemiz gerekiyor.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Video kaydı için mikrofon izni gerekiyor.</string>
 </dict>
 </plist>
