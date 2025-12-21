@@ -26,3 +26,12 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+# analysis_options.yaml
+
+analyzer:
+  exclude:
+    - test/**
+    - lib_legacy_backup/** # <-- BU SATIR HATALARI GİZLER
+    - "**/*.g.dart" # (Opsiyonel) Üretilen kodları da görmezden gelir
+    - "**/*.freezed.dart" # (Opsiyonel) Freezed dosyalarını görmezden gelir
