@@ -20,6 +20,9 @@ dependencies:
   # --- NETWORKING (Dio) ---
   dio: ^5.7.0
 
+  # --- DEPENDENCY INJECTION (GetIt) ---
+  get_it: ^7.6.0
+
   # --- LOCAL STORAGE (Hive) ---
   hive: ^2.2.3
   hive_flutter: ^1.1.0
