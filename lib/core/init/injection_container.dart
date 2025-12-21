@@ -4,6 +4,7 @@ import 'package:safeguard_ai/core/constants/api_constants.dart';
 import 'package:safeguard_ai/features/analysis/data/datasources/analysis_remote_datasource.dart';
 import 'package:safeguard_ai/features/analysis/data/repositories/analysis_repository_impl.dart';
 import 'package:safeguard_ai/features/analysis/domain/repositories/analysis_repository.dart';
+import 'package:safeguard_ai/features/analysis/domain/usecases/analyze_image_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -24,4 +25,7 @@ Future<void> init() async {
 
   // Repositories
   sl.registerLazySingleton<AnalysisRepository>(() => AnalysisRepositoryImpl(sl<AnalysisRemoteDataSource>()));
+
+  // Use Cases
+  sl.registerLazySingleton(() => AnalyzeImageUseCase(sl<AnalysisRepository>()));
 }
