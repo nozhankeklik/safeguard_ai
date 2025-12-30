@@ -23,6 +23,10 @@ dependencies:
   # --- DEPENDENCY INJECTION (GetIt) ---
   get_it: ^7.6.0
 
+  # --- JSON SERIALIZATION & CODE GENERATION ---
+  json_annotation: ^4.9.0
+  freezed_annotation: ^2.4.1
+
   # --- LOCAL STORAGE (Hive) ---
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -53,8 +57,6 @@ dev_dependencies:
 
   # Freezed & JSON
   freezed: ^2.4.7
-  freezed_annotation: ^2.4.1
-  json_annotation: ^4.8.1
   json_serializable: ^6.7.1
 
   # Linter

@@ -25,63 +25,93 @@ class _AnalysisPageState extends State<AnalysisPage> {
   }
 
   void _showResultDialog(AnalysisEntity entity) {
+    // Risk seviyesine göre renk belirleme
+    Color getRiskColor(String riskLevel) {
+      switch (riskLevel.toUpperCase()) {
+        case 'YÜKSEK':
+        case 'HIGH':
+          return Colors.red;
+        case 'ORTA':
+        case 'MEDIUM':
+          return Colors.orange;
+        case 'DÜŞÜK':
+        case 'LOW':
+          return Colors.green;
+        default:
+          return Colors.grey;
+      }
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Analiz Raporu', style: Theme.of(context).textTheme.titleLarge),
+        title: Row(
+          children: [
+            Icon(Icons.analytics_outlined, color: Theme.of(context).primaryColor),
+            const SizedBox(width: 8),
+            Text('Analiz Sonucu', style: Theme.of(context).textTheme.titleLarge),
+          ],
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildInfoRow('Risk Seviyesi', entity.riskLevel),
-              const SizedBox(height: 12),
-              _buildInfoRow('Kategori', entity.category),
-              const SizedBox(height: 12),
-              _buildInfoRow('Güven', '${entity.confidence}%'),
-              const Divider(height: 24),
-              Text('Öneri', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text(entity.recommendedAction),
-              const Divider(height: 24),
+              // Risk Seviyesi Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: getRiskColor(entity.riskLevel).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: getRiskColor(entity.riskLevel), width: 2),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: getRiskColor(entity.riskLevel)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Risk Seviyesi: ${entity.riskLevel}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: getRiskColor(entity.riskLevel),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Analiz Metni
               Text(
-                'E-posta Taslağı',
+                'Analiz Detayı',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              _buildInfoRow('Alıcı', entity.reportEmail),
-              const SizedBox(height: 8),
-              _buildInfoRow('Konu', entity.reportSubject),
-              const SizedBox(height: 8),
-              Text('İçerik:', style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: 4),
-              Text(entity.reportBody, style: Theme.of(context).textTheme.bodyMedium),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Text(entity.analysisText, style: Theme.of(context).textTheme.bodyMedium),
+              ),
             ],
           ),
         ),
         actions: [
-          TextButton(
+          TextButton.icon(
             onPressed: () {
               Navigator.of(context).pop();
               context.read<AnalysisBloc>().add(const AnalysisEvent.reset());
             },
-            child: const Text('Tamam'),
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Tamam'),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text('$label:', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-        ),
-        Expanded(child: Text(value, style: Theme.of(context).textTheme.bodyMedium)),
-      ],
     );
   }
 
