@@ -42,14 +42,17 @@ class _AnalysisPageState extends State<AnalysisPage> {
       }
     }
 
+    // BLoC referansını dialog dışında yakalayın
+    final analysisBloc = context.read<AnalysisBloc>();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.analytics_outlined, color: Theme.of(context).primaryColor),
+            Icon(Icons.analytics_outlined, color: Theme.of(dialogContext).primaryColor),
             const SizedBox(width: 8),
-            Text('Analiz Sonucu', style: Theme.of(context).textTheme.titleLarge),
+            Text('Analiz Sonucu', style: Theme.of(dialogContext).textTheme.titleLarge),
           ],
         ),
         content: SingleChildScrollView(
@@ -86,7 +89,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
               // Analiz Metni
               Text(
                 'Analiz Detayı',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(dialogContext).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Container(
@@ -96,7 +99,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                child: Text(entity.analysisText, style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(entity.analysisText, style: Theme.of(dialogContext).textTheme.bodyMedium),
               ),
             ],
           ),
@@ -104,8 +107,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
         actions: [
           TextButton.icon(
             onPressed: () {
-              Navigator.of(context).pop();
-              context.read<AnalysisBloc>().add(const AnalysisEvent.reset());
+              Navigator.of(dialogContext).pop();
+              analysisBloc.add(const AnalysisEvent.reset());
             },
             icon: const Icon(Icons.check_circle_outline),
             label: const Text('Tamam'),
