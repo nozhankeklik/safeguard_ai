@@ -35,7 +35,10 @@ class SafeGuardApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: AppRouter.router,
-      theme: AppTheme.darkTheme,
+      title: 'SafeGuard AI',
+      theme: AppTheme.lightTheme, // Light mode aktif
+      darkTheme: AppTheme.darkTheme, // Dark mode hazır (ayarlardan açılabilir)
+      themeMode: ThemeMode.light, // Varsayılan olarak light mode
       debugShowCheckedModeBanner: false,
     );
   }
