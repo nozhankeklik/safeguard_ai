@@ -1,0 +1,723 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:safeguard_ai/core/constants/app_constants.dart';
+import 'package:safeguard_ai/core/utils/email_template_generator.dart';
+import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
+import 'package:safeguard_ai/features/analysis/domain/entities/report_entity.dart';
+
+class ReportPreviewPage extends StatefulWidget {
+  final AnalysisEntity analysis;
+  final String imagePath;
+
+  const ReportPreviewPage({
+    super.key,
+    required this.analysis,
+    required this.imagePath,
+  });
+
+  @override
+  State<ReportPreviewPage> createState() => _ReportPreviewPageState();
+}
+
+class _ReportPreviewPageState extends State<ReportPreviewPage> {
+  late TextEditingController _subjectController;
+  late TextEditingController _bodyController;
+  late List<String> _recipients;
+  late List<String> _ccRecipients;
+  bool _saveToGoogleDocs = false;
+  bool _generatePdf = false;
+  bool _createFollowUp = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Otomatik mail şablonlarını oluştur
+    final subject = EmailTemplateGenerator.generateSubject(widget.analysis.riskLevel);
+    final body = EmailTemplateGenerator.generateBody(widget.analysis, DateTime.now());
+    final defaultRecipients = EmailTemplateGenerator.getDefaultRecipients(widget.analysis.riskLevel);
+
+    _subjectController = TextEditingController(text: subject);
+    _bodyController = TextEditingController(text: body);
+    _recipients = List.from(defaultRecipients);
+    _ccRecipients = [];
+  }
+
+  @override
+  void dispose() {
+    _subjectController.dispose();
+    _bodyController.dispose();
+    super.dispose();
+  }
+
+  /// Risk seviyesine göre primary renk döndürür (okunabilir)
+  Color _getRiskColor(String riskLevel) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+      case 'HIGH':
+        return RiskColors.highRiskPrimary;
+      case 'ORTA':
+      case 'MEDIUM':
+        return RiskColors.mediumRiskPrimary;
+      case 'DÜŞÜK':
+      case 'LOW':
+        return RiskColors.lowRiskPrimary;
+      default:
+        return RiskColors.defaultPrimary;
+    }
+  }
+
+  /// Risk seviyesine göre arka plan rengi (açık ton)
+  Color _getRiskBackgroundColor(String riskLevel) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+      case 'HIGH':
+        return RiskColors.highRiskLight;
+      case 'ORTA':
+      case 'MEDIUM':
+        return RiskColors.mediumRiskLight;
+      case 'DÜŞÜK':
+      case 'LOW':
+        return RiskColors.lowRiskLight;
+      default:
+        return RiskColors.defaultLight;
+    }
+  }
+
+  IconData _getRiskIcon(String riskLevel) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+      case 'HIGH':
+        return Icons.dangerous;
+      case 'ORTA':
+      case 'MEDIUM':
+        return Icons.warning_amber_rounded;
+      case 'DÜŞÜK':
+      case 'LOW':
+        return Icons.check_circle;
+      default:
+        return Icons.info;
+    }
+  }
+
+  void _addRecipient() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Alıcı Ekle'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'E-posta adresi',
+              hintText: 'ornek@sirket.com',
+              prefixIcon: Icon(Icons.email),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                controller.dispose();
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () {
+                final email = controller.text.trim();
+                
+                // Validasyonlar
+                if (email.isEmpty) {
+                  _showErrorSnackBar('E-posta adresi boş olamaz');
+                  return;
+                }
+                
+                if (!EmailTemplateGenerator.isValidEmail(email)) {
+                  _showErrorSnackBar('Geçersiz e-posta adresi formatı');
+                  return;
+                }
+                
+                // Duplicate kontrolü
+                if (_recipients.contains(email)) {
+                  _showErrorSnackBar('Bu e-posta adresi zaten ekli');
+                  return;
+                }
+                
+                // Başarılı
+                setState(() {
+                  _recipients.add(email);
+                });
+                controller.dispose();
+                Navigator.pop(dialogContext);
+                _showSuccessSnackBar('Alıcı eklendi: $email');
+              },
+              child: const Text('Ekle'),
+            ),
+          ],
+        );
+      },
+    ).then((_) => controller.dispose()); // Cleanup
+  }
+
+  void _addCcRecipient() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('CC Ekle'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'E-posta adresi (CC)',
+              hintText: 'ornek@sirket.com',
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                controller.dispose();
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () {
+                final email = controller.text.trim();
+                
+                // Validasyonlar
+                if (email.isEmpty) {
+                  _showErrorSnackBar('E-posta adresi boş olamaz');
+                  return;
+                }
+                
+                if (!EmailTemplateGenerator.isValidEmail(email)) {
+                  _showErrorSnackBar('Geçersiz e-posta adresi formatı');
+                  return;
+                }
+                
+                // Duplicate kontrolü (CC listesinde ve TO listesinde)
+                if (_ccRecipients.contains(email)) {
+                  _showErrorSnackBar('Bu e-posta adresi CC listesinde zaten ekli');
+                  return;
+                }
+                
+                if (_recipients.contains(email)) {
+                  _showErrorSnackBar('Bu e-posta adresi ana alıcılar arasında zaten var');
+                  return;
+                }
+                
+                // Başarılı
+                setState(() {
+                  _ccRecipients.add(email);
+                });
+                controller.dispose();
+                Navigator.pop(dialogContext);
+                _showSuccessSnackBar('CC eklendi: $email');
+              },
+              child: const Text('Ekle'),
+            ),
+          ],
+        );
+      },
+    ).then((_) => controller.dispose()); // Cleanup
+  }
+
+  /// Hata mesajı göster
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: RiskColors.highRiskPrimary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  /// Başarı mesajı göster
+  void _showSuccessSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: RiskColors.lowRiskPrimary,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Raporu gönder (validasyonlarla)
+  void _sendReport() {
+    // Validasyon 1: Alıcı kontrolü
+    if (_recipients.isEmpty) {
+      _showErrorSnackBar('En az bir alıcı eklemelisiniz');
+      return;
+    }
+
+    // Validasyon 2: Mail başlığı kontrolü
+    final subject = _subjectController.text.trim();
+    if (subject.isEmpty) {
+      _showErrorSnackBar('Mail başlığı boş olamaz');
+      return;
+    }
+    if (subject.length < AppConstants.minCharactersSubject) {
+      _showErrorSnackBar('Mail başlığı en az ${AppConstants.minCharactersSubject} karakter olmalı');
+      return;
+    }
+
+    // Validasyon 3: Mail içeriği kontrolü
+    final body = _bodyController.text.trim();
+    if (body.isEmpty) {
+      _showErrorSnackBar('Mail içeriği boş olamaz');
+      return;
+    }
+    if (body.length < AppConstants.minCharactersBody) {
+      _showErrorSnackBar('Mail içeriği en az ${AppConstants.minCharactersBody} karakter olmalı');
+      return;
+    }
+
+    // Validasyon 4: Resim dosyası kontrolü
+    final imageFile = File(widget.imagePath);
+    if (!imageFile.existsSync()) {
+      _showErrorSnackBar('Resim dosyası bulunamadı');
+      return;
+    }
+
+    // Tüm validasyonlar geçti, raporu oluştur
+    final report = ReportEntity(
+      analysis: widget.analysis,
+      imagePath: widget.imagePath,
+      timestamp: DateTime.now(),
+      emailSubject: _subjectController.text,
+      emailBody: _bodyController.text,
+      recipients: _recipients,
+      ccRecipients: _ccRecipients,
+      saveToGoogleDocs: _saveToGoogleDocs,
+      generatePdf: _generatePdf,
+      createFollowUp: _createFollowUp,
+    );
+
+    // TODO: n8n'e mail gönderme isteği burada yapılacak
+    // Şimdilik sadece başarı mesajı göster
+    _showSuccessDialog(report);
+
+  }
+
+  /// Başarı dialogu göster ve güvenli şekilde geri dön
+  void _showSuccessDialog(ReportEntity report) {
+    // Debug için rapor bilgilerini yazdır
+    debugPrint('📧 RAPOR HAZIR:');
+    debugPrint('Konu: ${report.emailSubject}');
+    debugPrint('Alıcılar: ${report.recipients.join(", ")}');
+    debugPrint('CC: ${report.ccRecipients.join(", ")}');
+    debugPrint('Google Docs: ${report.saveToGoogleDocs}');
+    debugPrint('PDF: ${report.generatePdf}');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Dışarı tıklayınca kapanmasın
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.check_circle, color: RiskColors.lowRiskPrimary),
+            const SizedBox(width: AppConstants.spacingSmall),
+            const Text('Başarılı!'),
+          ],
+        ),
+        content: const Text(
+          'Rapor hazırlandı!\n\n'
+          'n8n workflow hazır olduğunda bu rapor otomatik olarak gönderilecek.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Güvenli şekilde geri dön
+              Navigator.of(dialogContext).pop(); // Dialog kapat
+              if (mounted) {
+                Navigator.of(context).pop(); // Report preview kapat
+              }
+            },
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rapor Önizleme'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Yardım'),
+                  content: const Text(
+                    'Bu sayfada:\n\n'
+                    '• Mail içeriğini düzenleyebilirsiniz\n'
+                    '• Alıcı ekleyip çıkarabilirsiniz\n'
+                    '• Ek seçenekleri aktif edebilirsiniz\n\n'
+                    'Rapor hazır olduğunda "Gönder" butonuna basın.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Tamam'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Fotoğraf Önizleme
+              Card(
+                elevation: 4,
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: Image.file(
+                        File(widget.imagePath),
+                        width: double.infinity,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
+                          const SizedBox(width: 4),
+                          Text(
+                            dateFormat.format(DateTime.now()),
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Risk Seviyesi Badge
+              Container(
+                padding: const EdgeInsets.all(AppConstants.spacingLarge),
+                decoration: BoxDecoration(
+                  color: _getRiskBackgroundColor(widget.analysis.riskLevel),
+                  borderRadius: const BorderRadius.all(Radius.circular(AppConstants.radiusMedium)),
+                  border: Border.all(
+                    color: _getRiskColor(widget.analysis.riskLevel),
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _getRiskIcon(widget.analysis.riskLevel),
+                      color: _getRiskColor(widget.analysis.riskLevel),
+                      size: AppConstants.iconSizeLarge,
+                    ),
+                    const SizedBox(width: AppConstants.spacingMedium),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Risk Seviyesi',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                          Text(
+                            widget.analysis.riskLevel,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: _getRiskColor(widget.analysis.riskLevel),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Mail Başlığı
+              Text(
+                'Mail Başlığı',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _subjectController,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Mail başlığını girin',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                    borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+                  ),
+                  prefixIcon: const Icon(Icons.title),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Mail İçeriği
+              Text(
+                'Mail İçeriği',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _bodyController,
+                maxLines: AppConstants.maxLinesEmailBody,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: Colors.black87,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Mail içeriğini girin',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                    borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+                  ),
+                  alignLabelWithHint: true,
+                  contentPadding: const EdgeInsets.all(AppConstants.spacingLarge),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Alıcılar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Alıcılar',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _addRecipient,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Ekle'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _recipients.map((email) {
+                  return Chip(
+                    label: Text(email),
+                    onDeleted: () {
+                      setState(() {
+                        _recipients.remove(email);
+                      });
+                    },
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+
+              // CC Alıcıları
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'CC (Opsiyonel)',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _addCcRecipient,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Ekle'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (_ccRecipients.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _ccRecipients.map((email) {
+                    return Chip(
+                      label: Text(email),
+                      onDeleted: () {
+                        setState(() {
+                          _ccRecipients.remove(email);
+                        });
+                      },
+                      deleteIcon: const Icon(Icons.close, size: 18),
+                      backgroundColor: Colors.grey.shade200,
+                    );
+                  }).toList(),
+                )
+              else
+                Text(
+                  'CC alıcısı eklenmedi',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                ),
+              const SizedBox(height: 24),
+
+              // Ek Seçenekler
+              Text(
+                'Ek Seçenekler',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                child: Column(
+                  children: [
+                    CheckboxListTile(
+                      title: const Text('Google Docs\'a kaydet'),
+                      subtitle: const Text('Rapor otomatik olarak Google Docs\'a kaydedilir'),
+                      value: _saveToGoogleDocs,
+                      onChanged: (value) {
+                        setState(() {
+                          _saveToGoogleDocs = value ?? false;
+                        });
+                      },
+                      secondary: const Icon(Icons.description),
+                    ),
+                    const Divider(height: 1),
+                    CheckboxListTile(
+                      title: const Text('PDF rapor oluştur'),
+                      subtitle: const Text('Rapor PDF formatında oluşturulur'),
+                      value: _generatePdf,
+                      onChanged: (value) {
+                        setState(() {
+                          _generatePdf = value ?? false;
+                        });
+                      },
+                      secondary: const Icon(Icons.picture_as_pdf),
+                    ),
+                    const Divider(height: 1),
+                    CheckboxListTile(
+                      title: const Text('Takip sistemi oluştur'),
+                      subtitle: const Text('İlgili birimler için takip kaydı açılır'),
+                      value: _createFollowUp,
+                      onChanged: (value) {
+                        setState(() {
+                          _createFollowUp = value ?? false;
+                        });
+                      },
+                      secondary: const Icon(Icons.flag),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Butonlar
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('İptal'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: _sendReport,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: _getRiskColor(widget.analysis.riskLevel),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.send),
+                      label: const Text('Gönder'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
