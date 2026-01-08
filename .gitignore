@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Personal notes and documentation
+notes/
+
+# n8n Docker Data (Sensitive!)
+n8n_data/
+.env
+
+# Backup sensitive files
+backend_backup/*.sqlite
+backend_backup/*_CREDENTIALS_*
