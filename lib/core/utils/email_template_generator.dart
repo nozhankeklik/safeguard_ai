@@ -1,0 +1,128 @@
+import 'package:intl/intl.dart';
+import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
+
+/// Mail şablonları oluşturan yardımcı sınıf
+class EmailTemplateGenerator {
+  EmailTemplateGenerator._();
+
+  /// Risk seviyesine göre mail başlığı oluştur
+  static String generateSubject(String riskLevel) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+      case 'HIGH':
+        return '🚨 ACİL: Yüksek Riskli İş Güvenliği Tespiti';
+      case 'ORTA':
+      case 'MEDIUM':
+        return '⚠️ DİKKAT: Orta Seviye İş Güvenliği Uyarısı';
+      case 'DÜŞÜK':
+      case 'LOW':
+        return 'ℹ️ BİLGİ: İş Güvenliği Kontrol Raporu';
+      default:
+        return '📋 İş Güvenliği Raporu';
+    }
+  }
+
+  /// Risk seviyesine göre mail içeriği oluştur
+  static String generateBody(
+    AnalysisEntity analysis,
+    DateTime timestamp,
+  ) {
+    final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
+    final formattedDate = dateFormat.format(timestamp);
+
+    return '''Sayın İlgili,
+
+$formattedDate tarihinde yapılan iş güvenliği kontrolünde aşağıdaki tespit yapılmıştır:
+
+🔍 TESPİT EDİLEN DURUM:
+${analysis.analysisText}
+
+⚠️ RİSK SEVİYESİ: ${analysis.riskLevel}
+
+📸 Fotoğraf ekte mevcuttur.
+
+${_getActionRecommendation(analysis.riskLevel)}
+
+Saygılarımızla,
+SafeGuard AI Sistemi
+
+---
+Bu rapor otomatik olarak oluşturulmuştur.
+Tarih: $formattedDate
+''';
+  }
+
+  /// Risk seviyesine göre aksiyon önerileri
+  static String _getActionRecommendation(String riskLevel) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+      case 'HIGH':
+        return '''
+🚨 HEMEN YAPILMASI GEREKENLER:
+• İlgili alan derhal kapatılmalı
+• Çalışanlar bilgilendirilmeli
+• Düzeltici aksiyonlar acil başlatılmalı
+• Yönetim ekibi bilgilendirilmeli
+''';
+      case 'ORTA':
+      case 'MEDIUM':
+        return '''
+⚠️ ÖNERİLER:
+• Durum 24 saat içinde kontrol edilmeli
+• Gerekli önlemler alınmalı
+• Personel bilgilendirilmeli
+• Takip raporu hazırlanmalı
+''';
+      case 'DÜŞÜK':
+      case 'LOW':
+        return '''
+ℹ️ BİLGİ:
+• Rutin kontroller devam edilmeli
+• Kayıt altına alınmalı
+• Mevcut güvenlik önlemlerine devam edilmeli
+''';
+      default:
+        return '''
+ℹ️ BİLGİ:
+• İlgili birimler kontrol yapmalı
+• Kayıt altına alınmalı
+''';
+    }
+  }
+
+  /// Risk seviyesine göre öntanımlı alıcı listesi
+  static List<String> getDefaultRecipients(String riskLevel) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+      case 'HIGH':
+        return [
+          'guvenlik@sirket.com',
+          'mudur@sirket.com',
+          'isg@sirket.com',
+        ];
+      case 'ORTA':
+      case 'MEDIUM':
+        return [
+          'isg@sirket.com',
+          'raporlama@sirket.com',
+        ];
+      case 'DÜŞÜK':
+      case 'LOW':
+        return [
+          'raporlama@sirket.com',
+        ];
+      default:
+        return [
+          'isg@sirket.com',
+        ];
+    }
+  }
+
+  /// Email validasyonu
+  static bool isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email.trim());
+  }
+}
