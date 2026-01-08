@@ -16,11 +16,7 @@ class ReportPreviewPage extends StatefulWidget {
   final AnalysisEntity analysis;
   final String imagePath;
 
-  const ReportPreviewPage({
-    super.key,
-    required this.analysis,
-    required this.imagePath,
-  });
+  const ReportPreviewPage({super.key, required this.analysis, required this.imagePath});
 
   @override
   State<ReportPreviewPage> createState() => _ReportPreviewPageState();
@@ -43,11 +39,11 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Dependencies
     _reportDataSource = di.sl<ReportRemoteDataSource>();
     _reportRepository = di.sl<ReportLocalRepository>();
-    
+
     // Otomatik mail şablonlarını oluştur
     final subject = EmailTemplateGenerator.generateSubject(widget.analysis.riskLevel);
     final body = EmailTemplateGenerator.generateBody(widget.analysis, DateTime.now());
@@ -116,133 +112,41 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     }
   }
 
-  void _addRecipient() {
-    final controller = TextEditingController();
-    showDialog(
+  Future<void> _addRecipient() async {
+    await showDialog(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Alıcı Ekle'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              labelText: 'E-posta adresi',
-              hintText: 'ornek@sirket.com',
-              prefixIcon: Icon(Icons.email),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            autofocus: true,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                controller.dispose();
-                Navigator.pop(dialogContext);
-              },
-              child: const Text('İptal'),
-            ),
-            TextButton(
-              onPressed: () {
-                final email = controller.text.trim();
-                
-                // Validasyonlar
-                if (email.isEmpty) {
-                  _showErrorSnackBar('E-posta adresi boş olamaz');
-                  return;
-                }
-                
-                if (!EmailTemplateGenerator.isValidEmail(email)) {
-                  _showErrorSnackBar('Geçersiz e-posta adresi formatı');
-                  return;
-                }
-                
-                // Duplicate kontrolü
-                if (_recipients.contains(email)) {
-                  _showErrorSnackBar('Bu e-posta adresi zaten ekli');
-                  return;
-                }
-                
-                // Başarılı
-                setState(() {
-                  _recipients.add(email);
-                });
-                controller.dispose();
-                Navigator.pop(dialogContext);
-                _showSuccessSnackBar('Alıcı eklendi: $email');
-              },
-              child: const Text('Ekle'),
-            ),
-          ],
+        return _AddRecipientDialog(
+          existingRecipients: _recipients,
+          onAdd: (email) {
+            setState(() {
+              _recipients.add(email);
+            });
+            Navigator.pop(dialogContext);
+            _showSuccessSnackBar('Alıcı eklendi: $email');
+          },
         );
       },
-    ).then((_) => controller.dispose()); // Cleanup
+    );
   }
 
-  void _addCcRecipient() {
-    final controller = TextEditingController();
-    showDialog(
+  Future<void> _addCcRecipient() async {
+    await showDialog(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('CC Ekle'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              labelText: 'E-posta adresi (CC)',
-              hintText: 'ornek@sirket.com',
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            autofocus: true,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                controller.dispose();
-                Navigator.pop(dialogContext);
-              },
-              child: const Text('İptal'),
-            ),
-            TextButton(
-              onPressed: () {
-                final email = controller.text.trim();
-                
-                // Validasyonlar
-                if (email.isEmpty) {
-                  _showErrorSnackBar('E-posta adresi boş olamaz');
-                  return;
-                }
-                
-                if (!EmailTemplateGenerator.isValidEmail(email)) {
-                  _showErrorSnackBar('Geçersiz e-posta adresi formatı');
-                  return;
-                }
-                
-                // Duplicate kontrolü (CC listesinde ve TO listesinde)
-                if (_ccRecipients.contains(email)) {
-                  _showErrorSnackBar('Bu e-posta adresi CC listesinde zaten ekli');
-                  return;
-                }
-                
-                if (_recipients.contains(email)) {
-                  _showErrorSnackBar('Bu e-posta adresi ana alıcılar arasında zaten var');
-                  return;
-                }
-                
-                // Başarılı
-                setState(() {
-                  _ccRecipients.add(email);
-                });
-                controller.dispose();
-                Navigator.pop(dialogContext);
-                _showSuccessSnackBar('CC eklendi: $email');
-              },
-              child: const Text('Ekle'),
-            ),
-          ],
+        return _AddCcRecipientDialog(
+          existingRecipients: _recipients,
+          existingCcRecipients: _ccRecipients,
+          onAdd: (email) {
+            setState(() {
+              _ccRecipients.add(email);
+            });
+            Navigator.pop(dialogContext);
+            _showSuccessSnackBar('CC eklendi: $email');
+          },
         );
       },
-    ).then((_) => controller.dispose()); // Cleanup
+    );
   }
 
   /// Hata mesajı göster
@@ -362,7 +266,6 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
       if (mounted) {
         _showSuccessDialogAndNavigate();
       }
-
     } catch (e) {
       // ❌ Error handling
       if (mounted) {
@@ -392,10 +295,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Rapor başarıyla oluşturuldu ve gönderildi.',
-              style: TextStyle(fontSize: 16),
-            ),
+            const Text('Rapor başarıyla oluşturuldu ve gönderildi.', style: TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -439,10 +339,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               Navigator.of(dialogContext).pop();
               context.go('/history');
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: RiskColors.lowRiskPrimary,
-              foregroundColor: Colors.white,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: RiskColors.lowRiskPrimary, foregroundColor: Colors.white),
             child: const Text('Geçmişi Gör'),
           ),
         ],
@@ -453,7 +350,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rapor Önizleme'),
@@ -473,12 +370,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                     '• Ek seçenekleri aktif edebilirsiniz\n\n'
                     'Rapor hazır olduğunda "Gönder" butonuna basın.',
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Tamam'),
-                    ),
-                  ],
+                  actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tamam'))],
                 ),
               );
             },
@@ -498,12 +390,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                   children: [
                     ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                      child: Image.file(
-                        File(widget.imagePath),
-                        width: double.infinity,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.file(File(widget.imagePath), width: double.infinity, height: 200, fit: BoxFit.cover),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
@@ -529,10 +416,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 decoration: BoxDecoration(
                   color: _getRiskBackgroundColor(widget.analysis.riskLevel),
                   borderRadius: const BorderRadius.all(Radius.circular(AppConstants.radiusMedium)),
-                  border: Border.all(
-                    color: _getRiskColor(widget.analysis.riskLevel),
-                    width: 2,
-                  ),
+                  border: Border.all(color: _getRiskColor(widget.analysis.riskLevel), width: 2),
                 ),
                 child: Row(
                   children: [
@@ -550,7 +434,9 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                             'Risk Seviyesi',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade700,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade700,
                             ),
                           ),
                           Text(
@@ -572,28 +458,33 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               // Mail Başlığı
               Text(
                 'Mail Başlığı',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _subjectController,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
                 decoration: InputDecoration(
                   hintText: 'Mail başlığını girin',
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey.shade900
+                      : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
@@ -607,29 +498,34 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               // Mail İçeriği
               Text(
                 'Mail İçeriği',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _bodyController,
                 maxLines: AppConstants.maxLinesEmailBody,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.5,
-                  color: Colors.black87,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.5),
                 decoration: InputDecoration(
                   hintText: 'Mail içeriğini girin',
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey.shade900
+                      : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade300,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade300,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
@@ -647,15 +543,9 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 children: [
                   Text(
                     'Alıcılar',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  TextButton.icon(
-                    onPressed: _addRecipient,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Ekle'),
-                  ),
+                  TextButton.icon(onPressed: _addRecipient, icon: const Icon(Icons.add), label: const Text('Ekle')),
                 ],
               ),
               const SizedBox(height: 8),
@@ -663,14 +553,16 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 spacing: 8,
                 runSpacing: 8,
                 children: _recipients.map((email) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
                   return Chip(
-                    label: Text(email),
+                    label: Text(email, style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
                     onDeleted: () {
                       setState(() {
                         _recipients.remove(email);
                       });
                     },
-                    deleteIcon: const Icon(Icons.close, size: 18),
+                    deleteIcon: Icon(Icons.close, size: 18, color: isDark ? Colors.white70 : Colors.black54),
+                    backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                   );
                 }).toList(),
               ),
@@ -682,15 +574,9 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 children: [
                   Text(
                     'CC (Opsiyonel)',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  TextButton.icon(
-                    onPressed: _addCcRecipient,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Ekle'),
-                  ),
+                  TextButton.icon(onPressed: _addCcRecipient, icon: const Icon(Icons.add), label: const Text('Ekle')),
                 ],
               ),
               const SizedBox(height: 8),
@@ -699,31 +585,35 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                   spacing: 8,
                   runSpacing: 8,
                   children: _ccRecipients.map((email) {
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
                     return Chip(
-                      label: Text(email),
+                      label: Text(email, style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
                       onDeleted: () {
                         setState(() {
                           _ccRecipients.remove(email);
                         });
                       },
-                      deleteIcon: const Icon(Icons.close, size: 18),
-                      backgroundColor: Colors.grey.shade200,
+                      deleteIcon: Icon(Icons.close, size: 18, color: isDark ? Colors.white70 : Colors.black54),
+                      backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                     );
                   }).toList(),
                 )
               else
                 Text(
                   'CC alıcısı eklenmedi',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
                 ),
               const SizedBox(height: 24),
 
               // Ek Seçenekler
               Text(
                 'Ek Seçenekler',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Card(
@@ -775,9 +665,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _isLoading ? null : () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                       child: const Text('İptal'),
                     ),
                   ),
@@ -791,16 +679,16 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                         backgroundColor: _getRiskColor(widget.analysis.riskLevel),
                         foregroundColor: Colors.white,
                       ),
-                      icon: _isLoading 
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Icon(Icons.send),
+                      icon: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Icon(Icons.send),
                       label: Text(_isLoading ? 'Gönderiliyor...' : 'Gönder'),
                     ),
                   ),
@@ -811,6 +699,194 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Alıcı ekleme dialog widget'ı
+class _AddRecipientDialog extends StatefulWidget {
+  final List<String> existingRecipients;
+  final Function(String) onAdd;
+
+  const _AddRecipientDialog({required this.existingRecipients, required this.onAdd});
+
+  @override
+  State<_AddRecipientDialog> createState() => _AddRecipientDialogState();
+}
+
+class _AddRecipientDialogState extends State<_AddRecipientDialog> {
+  late final TextEditingController _controller;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleAdd() {
+    final email = _controller.text.trim();
+
+    // Validasyonlar
+    if (email.isEmpty) {
+      setState(() => _errorMessage = 'E-posta adresi boş olamaz');
+      return;
+    }
+
+    if (!EmailTemplateGenerator.isValidEmail(email)) {
+      setState(() => _errorMessage = 'Geçersiz e-posta formatı');
+      return;
+    }
+
+    // Duplicate kontrolü
+    if (widget.existingRecipients.contains(email)) {
+      setState(() => _errorMessage = 'Bu e-posta zaten ekli');
+      return;
+    }
+
+    // Başarılı
+    widget.onAdd(email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Alıcı Ekle'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _controller,
+            decoration: const InputDecoration(
+              labelText: 'E-posta adresi',
+              hintText: 'ornek@sirket.com',
+              prefixIcon: Icon(Icons.email),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            autofocus: true,
+            onChanged: (_) {
+              // Error'u temizle
+              if (_errorMessage != null) {
+                setState(() => _errorMessage = null);
+              }
+            },
+            onSubmitted: (_) => _handleAdd(),
+          ),
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(_errorMessage!, style: TextStyle(color: Colors.red.shade700, fontSize: 12)),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+        TextButton(onPressed: _handleAdd, child: const Text('Ekle')),
+      ],
+    );
+  }
+}
+
+/// CC alıcı ekleme dialog widget'ı
+class _AddCcRecipientDialog extends StatefulWidget {
+  final List<String> existingRecipients;
+  final List<String> existingCcRecipients;
+  final Function(String) onAdd;
+
+  const _AddCcRecipientDialog({
+    required this.existingRecipients,
+    required this.existingCcRecipients,
+    required this.onAdd,
+  });
+
+  @override
+  State<_AddCcRecipientDialog> createState() => _AddCcRecipientDialogState();
+}
+
+class _AddCcRecipientDialogState extends State<_AddCcRecipientDialog> {
+  late final TextEditingController _controller;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleAdd() {
+    final email = _controller.text.trim();
+
+    // Validasyonlar
+    if (email.isEmpty) {
+      setState(() => _errorMessage = 'E-posta adresi boş olamaz');
+      return;
+    }
+
+    if (!EmailTemplateGenerator.isValidEmail(email)) {
+      setState(() => _errorMessage = 'Geçersiz e-posta formatı');
+      return;
+    }
+
+    // Duplicate kontrolü (CC listesinde ve TO listesinde)
+    if (widget.existingCcRecipients.contains(email)) {
+      setState(() => _errorMessage = 'Bu e-posta CC\'de zaten var');
+      return;
+    }
+
+    if (widget.existingRecipients.contains(email)) {
+      setState(() => _errorMessage = 'Bu e-posta ana alıcılarda zaten var');
+      return;
+    }
+
+    // Başarılı
+    widget.onAdd(email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('CC Ekle'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _controller,
+            decoration: const InputDecoration(
+              labelText: 'E-posta adresi (CC)',
+              hintText: 'ornek@sirket.com',
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            autofocus: true,
+            onChanged: (_) {
+              // Error'u temizle
+              if (_errorMessage != null) {
+                setState(() => _errorMessage = null);
+              }
+            },
+            onSubmitted: (_) => _handleAdd(),
+          ),
+          if (_errorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(_errorMessage!, style: TextStyle(color: Colors.red.shade700, fontSize: 12)),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+        TextButton(onPressed: _handleAdd, child: const Text('Ekle')),
+      ],
     );
   }
 }

@@ -143,26 +143,19 @@ class _HistoryPageState extends State<HistoryPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.folder_open_outlined,
-            size: 80,
-            color: Colors.grey.shade300,
-          ),
+          Icon(Icons.folder_open_outlined, size: 80, color: Colors.grey.shade300),
           const SizedBox(height: 16),
           Text(
             'Henüz rapor yok',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
             'İlk analizinizi yapmak için\n"Yeni Analiz" sekmesine gidin',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade500,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade500),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -192,14 +185,9 @@ class _ReportCard extends StatelessWidget {
 
     return Card(
       margin: EdgeInsets.only(bottom: AppConstants.spacingMedium),
-      child:       InkWell(
+      child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ReportDetailPage(report: report),
-            ),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ReportDetailPage(report: report)));
         },
         borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
         child: Padding(
@@ -243,11 +231,7 @@ class _ReportCard extends StatelessWidget {
                       ),
                       child: Text(
                         report.riskLevel,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
 
@@ -270,14 +254,10 @@ class _ReportCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           dateFormat.format(report.timestamp),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                         ),
                         const Spacer(),
-                        if (report.emailSent)
-                          Icon(Icons.email, size: 16, color: Colors.green.shade600),
+                        if (report.emailSent) Icon(Icons.email, size: 16, color: Colors.green.shade600),
                         if (report.savedToGoogleDocs)
                           Padding(
                             padding: const EdgeInsets.only(left: 8.0),
@@ -340,17 +320,12 @@ class _ReportCard extends StatelessWidget {
         title: const Text('Raporu Sil'),
         content: const Text('Bu raporu silmek istediğinize emin misiniz?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('İptal')),
           TextButton(
             onPressed: () {
               context.read<HistoryBloc>().add(HistoryEvent.deleteReport(reportId));
               Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Rapor silindi')),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rapor silindi')));
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Sil'),
@@ -368,30 +343,35 @@ class _FilterChip extends StatelessWidget {
   final Color? color;
   final VoidCallback onSelected;
 
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
-    this.color,
-    required this.onSelected,
-  });
+  const _FilterChip({required this.label, required this.isSelected, this.color, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
     final chipColor = color ?? Theme.of(context).primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // "Tümü" chip'i için özel renk (hem açık hem koyu temada belirgin)
+    final effectiveColor = color == null
+        ? (isDark ? Colors.blue.shade400 : chipColor) // Koyu temada daha açık mavi
+        : chipColor;
 
     return FilterChip(
       label: Text(label),
       selected: isSelected,
       onSelected: (_) => onSelected(),
-      backgroundColor: Colors.grey.shade100,
-      selectedColor: chipColor.withOpacity(0.2),
-      checkmarkColor: chipColor,
+      backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
+      selectedColor: isDark
+          ? effectiveColor.withOpacity(0.7) // Koyu temada çok daha belirgin
+          : effectiveColor.withOpacity(0.2),
+      checkmarkColor: effectiveColor,
       labelStyle: TextStyle(
-        color: isSelected ? chipColor : Colors.grey.shade700,
+        color: isSelected
+            ? (isDark ? Colors.white : effectiveColor) // Koyu temada beyaz metin, açık temada mavi
+            : (isDark ? Colors.grey.shade300 : Colors.grey.shade700),
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
       side: BorderSide(
-        color: isSelected ? chipColor : Colors.grey.shade300,
+        color: isSelected ? effectiveColor : (isDark ? Colors.grey.shade600 : Colors.grey.shade300),
         width: isSelected ? 2 : 1,
       ),
     );
