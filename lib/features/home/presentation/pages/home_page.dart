@@ -22,10 +22,7 @@ class _HomePageState extends State<HomePage> {
     final sentEmailsCount = _repository.getSentEmailsCount();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SafeGuard AI Dashboard'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('SafeGuard AI Dashboard'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() {}); // Verileri yenile
@@ -47,16 +44,16 @@ class _HomePageState extends State<HomePage> {
                       Text(
                         '👋 Hoşgeldiniz',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
                       ),
                       SizedBox(height: AppConstants.spacingSmall),
                       Text(
                         'SafeGuard AI ile iş güvenliğinizi yapay zeka ile analiz edin.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
                       ),
                       SizedBox(height: AppConstants.spacingLarge),
                       ElevatedButton.icon(
@@ -80,9 +77,7 @@ class _HomePageState extends State<HomePage> {
               // İstatistikler başlığı
               Text(
                 'İstatistikler',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
 
               SizedBox(height: AppConstants.spacingMedium),
@@ -137,12 +132,7 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: AppConstants.spacingXLarge),
 
               // Aktivite istatistikleri
-              Text(
-                'Aktivite',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+              Text('Aktivite', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
 
               SizedBox(height: AppConstants.spacingMedium),
 
@@ -151,23 +141,11 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.all(AppConstants.spacingMedium),
                   child: Column(
                     children: [
-                      _ActivityTile(
-                        icon: Icons.calendar_today,
-                        title: 'Bu Hafta',
-                        value: '$thisWeekCount rapor',
-                      ),
+                      _ActivityTile(icon: Icons.calendar_today, title: 'Bu Hafta', value: '$thisWeekCount rapor'),
                       Divider(height: AppConstants.spacingLarge),
-                      _ActivityTile(
-                        icon: Icons.calendar_month,
-                        title: 'Bu Ay',
-                        value: '$thisMonthCount rapor',
-                      ),
+                      _ActivityTile(icon: Icons.calendar_month, title: 'Bu Ay', value: '$thisMonthCount rapor'),
                       Divider(height: AppConstants.spacingLarge),
-                      _ActivityTile(
-                        icon: Icons.email,
-                        title: 'Gönderilen Email',
-                        value: '$sentEmailsCount adet',
-                      ),
+                      _ActivityTile(icon: Icons.email, title: 'Gönderilen Email', value: '$sentEmailsCount adet'),
                     ],
                   ),
                 ),
@@ -178,9 +156,7 @@ class _HomePageState extends State<HomePage> {
               // Hızlı Erişim
               Text(
                 'Hızlı Erişim',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
 
               SizedBox(height: AppConstants.spacingMedium),
@@ -219,12 +195,7 @@ class _StatCard extends StatelessWidget {
   final Color color;
   final IconData icon;
 
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.color,
-    required this.icon,
-  });
+  const _StatCard({required this.title, required this.value, required this.color, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -241,20 +212,14 @@ class _StatCard extends StatelessWidget {
                 Icon(icon, color: color, size: 28),
                 Text(
                   value,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
                 ),
               ],
             ),
             SizedBox(height: AppConstants.spacingSmall),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade700,
-                  ),
-            ),
+            Text(title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700)),
           ],
         ),
       ),
@@ -268,11 +233,7 @@ class _ActivityTile extends StatelessWidget {
   final String title;
   final String value;
 
-  const _ActivityTile({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
+  const _ActivityTile({required this.icon, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -287,18 +248,8 @@ class _ActivityTile extends StatelessWidget {
           child: Icon(icon, size: 20, color: Colors.grey.shade700),
         ),
         SizedBox(width: AppConstants.spacingMedium),
-        Expanded(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
+        Expanded(child: Text(title, style: Theme.of(context).textTheme.bodyLarge)),
+        Text(value, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
       ],
     );
   }

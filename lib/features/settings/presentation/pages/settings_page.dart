@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:safeguard_ai/core/constants/app_constants.dart';
+import 'package:safeguard_ai/core/init/injection_container.dart' as di;
+import 'package:safeguard_ai/main.dart' show themeNotifier;
 
 /// Ayarlar Sayfası
 class SettingsPage extends StatefulWidget {
@@ -10,9 +13,28 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _darkModeEnabled = false;
   bool _notificationsEnabled = true;
   bool _mockModeEnabled = true; // TODO: Gerçek değer injection_container'dan gelecek
+  bool _isTestingConnection = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Tema değişikliklerini dinle
+    themeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    themeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {}); // UI'ı yenile
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +86,15 @@ class _SettingsPageState extends State<SettingsPage> {
           // Uygulama Ayarları
           _SectionHeader(title: 'Uygulama Ayarları'),
           _SettingsSwitchTile(
-            icon: Icons.dark_mode_outlined,
+            icon: themeNotifier.isDarkMode ? Icons.dark_mode : Icons.light_mode,
             title: 'Karanlık Mod',
-            subtitle: 'Koyu tema kullan',
-            value: _darkModeEnabled,
-            onChanged: (value) {
-              setState(() => _darkModeEnabled = value);
-              // TODO: Tema değişikliği uygulanacak
+            subtitle: themeNotifier.isDarkMode ? 'Koyu tema aktif' : 'Açık tema aktif',
+            value: themeNotifier.isDarkMode,
+            onChanged: (value) async {
+              await themeNotifier.toggleTheme();
+              _showSuccessSnackBar(
+                '${themeNotifier.isDarkMode ? "🌙 Karanlık" : "☀️ Açık"} tema aktif!',
+              );
             },
           ),
           _SettingsSwitchTile(
@@ -100,13 +124,19 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           _SettingsTile(
-            icon: Icons.wifi_tethering,
+            icon: _isTestingConnection ? Icons.sync : Icons.wifi_tethering,
             title: 'Bağlantı Testi',
-            subtitle: 'n8n API bağlantısını test et',
-            onTap: () {
-              // TODO: Bağlantı testi yapılacak
-              _showComingSoonDialog('Bağlantı Testi');
-            },
+            subtitle: _isTestingConnection 
+                ? 'Test ediliyor...'
+                : 'n8n API bağlantısını test et',
+            trailing: _isTestingConnection 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : null,
+            onTap: _isTestingConnection ? null : _testConnection,
           ),
 
           const Divider(height: 32),
@@ -231,6 +261,81 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  /// n8n bağlantı testi
+  Future<void> _testConnection() async {
+    setState(() => _isTestingConnection = true);
+
+    try {
+      final dio = di.sl<Dio>();
+      
+      // Basit bir GET request ile test
+      final response = await dio.get(
+        '/',
+        options: Options(
+          sendTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+
+      if (mounted) {
+        _showSuccessSnackBar('✅ Bağlantı başarılı! (Status: ${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      if (mounted) {
+        if (e.type == DioExceptionType.connectionTimeout) {
+          _showErrorSnackBar('❌ Bağlantı zaman aşımına uğradı');
+        } else if (e.type == DioExceptionType.receiveTimeout) {
+          _showErrorSnackBar('❌ Sunucu yanıt vermiyor');
+        } else if (e.response?.statusCode == 404) {
+          // 404 bile bağlantı var demektir
+          _showSuccessSnackBar('✅ Bağlantı başarılı! (Endpoint bulunamadı ama sunucu çalışıyor)');
+        } else {
+          _showErrorSnackBar('❌ Bağlantı başarısız: ${e.message}');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('❌ Beklenmeyen hata: ${e.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isTestingConnection = false);
+      }
+    }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   /// Yakında geliyor dialogu
   void _showComingSoonDialog(String feature) {
     showDialog(
@@ -289,13 +394,15 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final Widget? trailing;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.onTap,
+    this.onTap,
+    this.trailing,
   });
 
   @override
@@ -304,7 +411,7 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon),
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: trailing ?? const Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }

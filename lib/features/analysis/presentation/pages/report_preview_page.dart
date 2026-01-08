@@ -1,10 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import 'package:safeguard_ai/core/constants/app_constants.dart';
+import 'package:safeguard_ai/core/init/injection_container.dart' as di;
 import 'package:safeguard_ai/core/utils/email_template_generator.dart';
+import 'package:safeguard_ai/features/analysis/data/datasources/report_remote_datasource.dart';
+import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
+import 'package:safeguard_ai/features/analysis/data/models/send_report_request.dart';
+import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
 import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/report_entity.dart';
 
 class ReportPreviewPage extends StatefulWidget {
   final AnalysisEntity analysis;
@@ -28,10 +34,19 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
   bool _saveToGoogleDocs = false;
   bool _generatePdf = false;
   bool _createFollowUp = false;
+  bool _isLoading = false;
+
+  // Dependencies
+  late final ReportRemoteDataSource _reportDataSource;
+  late final ReportLocalRepository _reportRepository;
 
   @override
   void initState() {
     super.initState();
+    
+    // Dependencies
+    _reportDataSource = di.sl<ReportRemoteDataSource>();
+    _reportRepository = di.sl<ReportLocalRepository>();
     
     // Otomatik mail şablonlarını oluştur
     final subject = EmailTemplateGenerator.generateSubject(widget.analysis.riskLevel);
@@ -269,7 +284,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
   }
 
   /// Raporu gönder (validasyonlarla)
-  void _sendReport() {
+  Future<void> _sendReport() async {
     // Validasyon 1: Alıcı kontrolü
     if (_recipients.isEmpty) {
       _showErrorSnackBar('En az bir alıcı eklemelisiniz');
@@ -305,61 +320,130 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
       return;
     }
 
-    // Tüm validasyonlar geçti, raporu oluştur
-    final report = ReportEntity(
-      analysis: widget.analysis,
-      imagePath: widget.imagePath,
-      timestamp: DateTime.now(),
-      emailSubject: _subjectController.text,
-      emailBody: _bodyController.text,
-      recipients: _recipients,
-      ccRecipients: _ccRecipients,
-      saveToGoogleDocs: _saveToGoogleDocs,
-      generatePdf: _generatePdf,
-      createFollowUp: _createFollowUp,
-    );
+    // Loading başlat
+    setState(() => _isLoading = true);
 
-    // TODO: n8n'e mail gönderme isteği burada yapılacak
-    // Şimdilik sadece başarı mesajı göster
-    _showSuccessDialog(report);
+    try {
+      // 1️⃣ n8n'e gönder
+      final request = SendReportRequest(
+        imagePath: widget.imagePath,
+        analysis: widget.analysis.analysisText,
+        riskLevel: widget.analysis.riskLevel,
+        emailSubject: subject,
+        emailBody: body,
+        recipients: _recipients,
+        ccRecipients: _ccRecipients,
+        saveToGoogleDocs: _saveToGoogleDocs,
+        generatePdf: _generatePdf,
+      );
 
+      final response = await _reportDataSource.sendReport(request);
+
+      // 2️⃣ Hive'a kaydet (local history)
+      final reportId = const Uuid().v4();
+      final hiveReport = ReportHiveModel(
+        id: reportId,
+        analysis: widget.analysis.analysisText,
+        riskLevel: widget.analysis.riskLevel,
+        imagePath: widget.imagePath,
+        timestamp: DateTime.now(),
+        emailSubject: subject,
+        emailBody: body,
+        recipients: _recipients,
+        ccRecipients: _ccRecipients,
+        emailSent: response.emailSent,
+        savedToGoogleDocs: response.docsCreated,
+        pdfGenerated: response.pdfGenerated,
+      );
+
+      await _reportRepository.saveReport(hiveReport);
+
+      // 3️⃣ Success dialog ve History'e git
+      if (mounted) {
+        _showSuccessDialogAndNavigate();
+      }
+
+    } catch (e) {
+      // ❌ Error handling
+      if (mounted) {
+        _showErrorSnackBar(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
-  /// Başarı dialogu göster ve güvenli şekilde geri dön
-  void _showSuccessDialog(ReportEntity report) {
-    // Debug için rapor bilgilerini yazdır
-    debugPrint('📧 RAPOR HAZIR:');
-    debugPrint('Konu: ${report.emailSubject}');
-    debugPrint('Alıcılar: ${report.recipients.join(", ")}');
-    debugPrint('CC: ${report.ccRecipients.join(", ")}');
-    debugPrint('Google Docs: ${report.saveToGoogleDocs}');
-    debugPrint('PDF: ${report.generatePdf}');
-
+  /// Başarı dialogu göster ve History'e yönlendir
+  void _showSuccessDialogAndNavigate() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Dışarı tıklayınca kapanmasın
+      barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.check_circle, color: RiskColors.lowRiskPrimary),
-            const SizedBox(width: AppConstants.spacingSmall),
+            const Icon(Icons.check_circle, color: RiskColors.lowRiskPrimary, size: 32),
+            const SizedBox(width: AppConstants.spacingMedium),
             const Text('Başarılı!'),
           ],
         ),
-        content: const Text(
-          'Rapor hazırlandı!\n\n'
-          'n8n workflow hazır olduğunda bu rapor otomatik olarak gönderilecek.',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Rapor başarıyla oluşturuldu ve gönderildi.',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.email, color: RiskColors.lowRiskPrimary, size: 20),
+                const SizedBox(width: 8),
+                Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
+              ],
+            ),
+            if (_saveToGoogleDocs) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.cloud_done, color: Colors.blue, size: 20),
+                  const SizedBox(width: 8),
+                  Text('Google Docs\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
+                ],
+              ),
+            ],
+            if (_generatePdf) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Text('PDF oluşturuldu', style: TextStyle(color: Colors.grey.shade700)),
+                ],
+              ),
+            ],
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () {
-              // Güvenli şekilde geri dön
-              Navigator.of(dialogContext).pop(); // Dialog kapat
-              if (mounted) {
-                Navigator.of(context).pop(); // Report preview kapat
-              }
+              Navigator.of(dialogContext).pop();
+              context.go('/home');
             },
-            child: const Text('Tamam'),
+            child: const Text('Ana Sayfa'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.go('/history');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: RiskColors.lowRiskPrimary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Geçmişi Gör'),
           ),
         ],
       ),
@@ -690,7 +774,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: _isLoading ? null : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -701,14 +785,23 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton.icon(
-                      onPressed: _sendReport,
+                      onPressed: _isLoading ? null : _sendReport,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: _getRiskColor(widget.analysis.riskLevel),
                         foregroundColor: Colors.white,
                       ),
-                      icon: const Icon(Icons.send),
-                      label: const Text('Gönder'),
+                      icon: _isLoading 
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Icon(Icons.send),
+                      label: Text(_isLoading ? 'Gönderiliyor...' : 'Gönder'),
                     ),
                   ),
                 ],

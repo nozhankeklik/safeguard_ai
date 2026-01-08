@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:safeguard_ai/core/constants/app_constants.dart';
 import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
+import 'package:safeguard_ai/features/analysis/presentation/pages/report_detail_page.dart';
 import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dart';
 import 'package:safeguard_ai/features/history/presentation/bloc/history_event.dart';
 import 'package:safeguard_ai/features/history/presentation/bloc/history_state.dart';
@@ -191,11 +192,13 @@ class _ReportCard extends StatelessWidget {
 
     return Card(
       margin: EdgeInsets.only(bottom: AppConstants.spacingMedium),
-      child: InkWell(
+      child:       InkWell(
         onTap: () {
-          // TODO: Rapor detay sayfasına git
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Rapor detayı: ${report.id}')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReportDetailPage(report: report),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
