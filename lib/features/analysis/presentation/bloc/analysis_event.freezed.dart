@@ -12,8 +12,7 @@ part of 'analysis_event.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$AnalysisEvent {
@@ -21,42 +20,47 @@ mixin _$AnalysisEvent {
   TResult when<TResult extends Object?>({
     required TResult Function(String imagePath) analyzeImage,
     required TResult Function() reset,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String imagePath)? analyzeImage,
     TResult? Function()? reset,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String imagePath)? analyzeImage,
     TResult Function()? reset,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_AnalyzeImage value) analyzeImage,
     required TResult Function(_Reset value) reset,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_AnalyzeImage value)? analyzeImage,
     TResult? Function(_Reset value)? reset,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_AnalyzeImage value)? analyzeImage,
     TResult Function(_Reset value)? reset,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $AnalysisEventCopyWith<$Res> {
   factory $AnalysisEventCopyWith(
-    AnalysisEvent value,
-    $Res Function(AnalysisEvent) then,
-  ) = _$AnalysisEventCopyWithImpl<$Res, AnalysisEvent>;
+          AnalysisEvent value, $Res Function(AnalysisEvent) then) =
+      _$AnalysisEventCopyWithImpl<$Res, AnalysisEvent>;
 }
 
 /// @nodoc
@@ -68,17 +72,13 @@ class _$AnalysisEventCopyWithImpl<$Res, $Val extends AnalysisEvent>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
-
-  /// Create a copy of AnalysisEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 abstract class _$$AnalyzeImageImplCopyWith<$Res> {
   factory _$$AnalyzeImageImplCopyWith(
-    _$AnalyzeImageImpl value,
-    $Res Function(_$AnalyzeImageImpl) then,
-  ) = __$$AnalyzeImageImplCopyWithImpl<$Res>;
+          _$AnalyzeImageImpl value, $Res Function(_$AnalyzeImageImpl) then) =
+      __$$AnalyzeImageImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String imagePath});
 }
@@ -88,23 +88,20 @@ class __$$AnalyzeImageImplCopyWithImpl<$Res>
     extends _$AnalysisEventCopyWithImpl<$Res, _$AnalyzeImageImpl>
     implements _$$AnalyzeImageImplCopyWith<$Res> {
   __$$AnalyzeImageImplCopyWithImpl(
-    _$AnalyzeImageImpl _value,
-    $Res Function(_$AnalyzeImageImpl) _then,
-  ) : super(_value, _then);
+      _$AnalyzeImageImpl _value, $Res Function(_$AnalyzeImageImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of AnalysisEvent
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? imagePath = null}) {
-    return _then(
-      _$AnalyzeImageImpl(
-        null == imagePath
-            ? _value.imagePath
-            : imagePath // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
+  $Res call({
+    Object? imagePath = null,
+  }) {
+    return _then(_$AnalyzeImageImpl(
+      null == imagePath
+          ? _value.imagePath
+          : imagePath // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
@@ -133,9 +130,7 @@ class _$AnalyzeImageImpl implements _AnalyzeImage {
   @override
   int get hashCode => Object.hash(runtimeType, imagePath);
 
-  /// Create a copy of AnalysisEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AnalyzeImageImplCopyWith<_$AnalyzeImageImpl> get copyWith =>
@@ -208,10 +203,7 @@ abstract class _AnalyzeImage implements AnalysisEvent {
   const factory _AnalyzeImage(final String imagePath) = _$AnalyzeImageImpl;
 
   String get imagePath;
-
-  /// Create a copy of AnalysisEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AnalyzeImageImplCopyWith<_$AnalyzeImageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -219,9 +211,8 @@ abstract class _AnalyzeImage implements AnalysisEvent {
 /// @nodoc
 abstract class _$$ResetImplCopyWith<$Res> {
   factory _$$ResetImplCopyWith(
-    _$ResetImpl value,
-    $Res Function(_$ResetImpl) then,
-  ) = __$$ResetImplCopyWithImpl<$Res>;
+          _$ResetImpl value, $Res Function(_$ResetImpl) then) =
+      __$$ResetImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
@@ -229,12 +220,8 @@ class __$$ResetImplCopyWithImpl<$Res>
     extends _$AnalysisEventCopyWithImpl<$Res, _$ResetImpl>
     implements _$$ResetImplCopyWith<$Res> {
   __$$ResetImplCopyWithImpl(
-    _$ResetImpl _value,
-    $Res Function(_$ResetImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of AnalysisEvent
-  /// with the given fields replaced by the non-null parameter values.
+      _$ResetImpl _value, $Res Function(_$ResetImpl) _then)
+      : super(_value, _then);
 }
 
 /// @nodoc

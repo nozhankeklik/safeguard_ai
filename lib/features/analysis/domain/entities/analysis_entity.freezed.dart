@@ -12,8 +12,7 @@ part of 'analysis_entity.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$AnalysisEntity {
@@ -21,9 +20,7 @@ mixin _$AnalysisEntity {
   String get analysisText => throw _privateConstructorUsedError;
   String get riskLevel => throw _privateConstructorUsedError;
 
-  /// Create a copy of AnalysisEntity
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AnalysisEntityCopyWith<AnalysisEntity> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -31,9 +28,8 @@ mixin _$AnalysisEntity {
 /// @nodoc
 abstract class $AnalysisEntityCopyWith<$Res> {
   factory $AnalysisEntityCopyWith(
-    AnalysisEntity value,
-    $Res Function(AnalysisEntity) then,
-  ) = _$AnalysisEntityCopyWithImpl<$Res, AnalysisEntity>;
+          AnalysisEntity value, $Res Function(AnalysisEntity) then) =
+      _$AnalysisEntityCopyWithImpl<$Res, AnalysisEntity>;
   @useResult
   $Res call({bool success, String analysisText, String riskLevel});
 }
@@ -48,8 +44,6 @@ class _$AnalysisEntityCopyWithImpl<$Res, $Val extends AnalysisEntity>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AnalysisEntity
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -57,33 +51,29 @@ class _$AnalysisEntityCopyWithImpl<$Res, $Val extends AnalysisEntity>
     Object? analysisText = null,
     Object? riskLevel = null,
   }) {
-    return _then(
-      _value.copyWith(
-            success: null == success
-                ? _value.success
-                : success // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            analysisText: null == analysisText
-                ? _value.analysisText
-                : analysisText // ignore: cast_nullable_to_non_nullable
-                      as String,
-            riskLevel: null == riskLevel
-                ? _value.riskLevel
-                : riskLevel // ignore: cast_nullable_to_non_nullable
-                      as String,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      success: null == success
+          ? _value.success
+          : success // ignore: cast_nullable_to_non_nullable
+              as bool,
+      analysisText: null == analysisText
+          ? _value.analysisText
+          : analysisText // ignore: cast_nullable_to_non_nullable
+              as String,
+      riskLevel: null == riskLevel
+          ? _value.riskLevel
+          : riskLevel // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$AnalysisEntityImplCopyWith<$Res>
     implements $AnalysisEntityCopyWith<$Res> {
-  factory _$$AnalysisEntityImplCopyWith(
-    _$AnalysisEntityImpl value,
-    $Res Function(_$AnalysisEntityImpl) then,
-  ) = __$$AnalysisEntityImplCopyWithImpl<$Res>;
+  factory _$$AnalysisEntityImplCopyWith(_$AnalysisEntityImpl value,
+          $Res Function(_$AnalysisEntityImpl) then) =
+      __$$AnalysisEntityImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({bool success, String analysisText, String riskLevel});
@@ -94,12 +84,9 @@ class __$$AnalysisEntityImplCopyWithImpl<$Res>
     extends _$AnalysisEntityCopyWithImpl<$Res, _$AnalysisEntityImpl>
     implements _$$AnalysisEntityImplCopyWith<$Res> {
   __$$AnalysisEntityImplCopyWithImpl(
-    _$AnalysisEntityImpl _value,
-    $Res Function(_$AnalysisEntityImpl) _then,
-  ) : super(_value, _then);
+      _$AnalysisEntityImpl _value, $Res Function(_$AnalysisEntityImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of AnalysisEntity
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -107,33 +94,30 @@ class __$$AnalysisEntityImplCopyWithImpl<$Res>
     Object? analysisText = null,
     Object? riskLevel = null,
   }) {
-    return _then(
-      _$AnalysisEntityImpl(
-        success: null == success
-            ? _value.success
-            : success // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        analysisText: null == analysisText
-            ? _value.analysisText
-            : analysisText // ignore: cast_nullable_to_non_nullable
-                  as String,
-        riskLevel: null == riskLevel
-            ? _value.riskLevel
-            : riskLevel // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
+    return _then(_$AnalysisEntityImpl(
+      success: null == success
+          ? _value.success
+          : success // ignore: cast_nullable_to_non_nullable
+              as bool,
+      analysisText: null == analysisText
+          ? _value.analysisText
+          : analysisText // ignore: cast_nullable_to_non_nullable
+              as String,
+      riskLevel: null == riskLevel
+          ? _value.riskLevel
+          : riskLevel // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$AnalysisEntityImpl implements _AnalysisEntity {
-  const _$AnalysisEntityImpl({
-    required this.success,
-    required this.analysisText,
-    required this.riskLevel,
-  });
+  const _$AnalysisEntityImpl(
+      {required this.success,
+      required this.analysisText,
+      required this.riskLevel});
 
   @override
   final bool success;
@@ -163,24 +147,19 @@ class _$AnalysisEntityImpl implements _AnalysisEntity {
   int get hashCode =>
       Object.hash(runtimeType, success, analysisText, riskLevel);
 
-  /// Create a copy of AnalysisEntity
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AnalysisEntityImplCopyWith<_$AnalysisEntityImpl> get copyWith =>
       __$$AnalysisEntityImplCopyWithImpl<_$AnalysisEntityImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 }
 
 abstract class _AnalysisEntity implements AnalysisEntity {
-  const factory _AnalysisEntity({
-    required final bool success,
-    required final String analysisText,
-    required final String riskLevel,
-  }) = _$AnalysisEntityImpl;
+  const factory _AnalysisEntity(
+      {required final bool success,
+      required final String analysisText,
+      required final String riskLevel}) = _$AnalysisEntityImpl;
 
   @override
   bool get success;
@@ -188,11 +167,8 @@ abstract class _AnalysisEntity implements AnalysisEntity {
   String get analysisText;
   @override
   String get riskLevel;
-
-  /// Create a copy of AnalysisEntity
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AnalysisEntityImplCopyWith<_$AnalysisEntityImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

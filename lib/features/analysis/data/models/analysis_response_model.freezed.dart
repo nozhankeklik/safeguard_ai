@@ -12,12 +12,10 @@ part of 'analysis_response_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 AnalysisResponseModel _$AnalysisResponseModelFromJson(
-  Map<String, dynamic> json,
-) {
+    Map<String, dynamic> json) {
   return _AnalysisResponseModel.fromJson(json);
 }
 
@@ -28,35 +26,27 @@ mixin _$AnalysisResponseModel {
   @JsonKey(name: 'risk_level')
   String get riskLevel => throw _privateConstructorUsedError;
 
-  /// Serializes this AnalysisResponseModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of AnalysisResponseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AnalysisResponseModelCopyWith<AnalysisResponseModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $AnalysisResponseModelCopyWith<$Res> {
-  factory $AnalysisResponseModelCopyWith(
-    AnalysisResponseModel value,
-    $Res Function(AnalysisResponseModel) then,
-  ) = _$AnalysisResponseModelCopyWithImpl<$Res, AnalysisResponseModel>;
+  factory $AnalysisResponseModelCopyWith(AnalysisResponseModel value,
+          $Res Function(AnalysisResponseModel) then) =
+      _$AnalysisResponseModelCopyWithImpl<$Res, AnalysisResponseModel>;
   @useResult
-  $Res call({
-    bool success,
-    String analysis,
-    @JsonKey(name: 'risk_level') String riskLevel,
-  });
+  $Res call(
+      {bool success,
+      String analysis,
+      @JsonKey(name: 'risk_level') String riskLevel});
 }
 
 /// @nodoc
-class _$AnalysisResponseModelCopyWithImpl<
-  $Res,
-  $Val extends AnalysisResponseModel
->
+class _$AnalysisResponseModelCopyWithImpl<$Res,
+        $Val extends AnalysisResponseModel>
     implements $AnalysisResponseModelCopyWith<$Res> {
   _$AnalysisResponseModelCopyWithImpl(this._value, this._then);
 
@@ -65,8 +55,6 @@ class _$AnalysisResponseModelCopyWithImpl<
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AnalysisResponseModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -74,23 +62,20 @@ class _$AnalysisResponseModelCopyWithImpl<
     Object? analysis = null,
     Object? riskLevel = null,
   }) {
-    return _then(
-      _value.copyWith(
-            success: null == success
-                ? _value.success
-                : success // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            analysis: null == analysis
-                ? _value.analysis
-                : analysis // ignore: cast_nullable_to_non_nullable
-                      as String,
-            riskLevel: null == riskLevel
-                ? _value.riskLevel
-                : riskLevel // ignore: cast_nullable_to_non_nullable
-                      as String,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      success: null == success
+          ? _value.success
+          : success // ignore: cast_nullable_to_non_nullable
+              as bool,
+      analysis: null == analysis
+          ? _value.analysis
+          : analysis // ignore: cast_nullable_to_non_nullable
+              as String,
+      riskLevel: null == riskLevel
+          ? _value.riskLevel
+          : riskLevel // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
   }
 }
 
@@ -98,30 +83,26 @@ class _$AnalysisResponseModelCopyWithImpl<
 abstract class _$$AnalysisResponseModelImplCopyWith<$Res>
     implements $AnalysisResponseModelCopyWith<$Res> {
   factory _$$AnalysisResponseModelImplCopyWith(
-    _$AnalysisResponseModelImpl value,
-    $Res Function(_$AnalysisResponseModelImpl) then,
-  ) = __$$AnalysisResponseModelImplCopyWithImpl<$Res>;
+          _$AnalysisResponseModelImpl value,
+          $Res Function(_$AnalysisResponseModelImpl) then) =
+      __$$AnalysisResponseModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    bool success,
-    String analysis,
-    @JsonKey(name: 'risk_level') String riskLevel,
-  });
+  $Res call(
+      {bool success,
+      String analysis,
+      @JsonKey(name: 'risk_level') String riskLevel});
 }
 
 /// @nodoc
 class __$$AnalysisResponseModelImplCopyWithImpl<$Res>
-    extends
-        _$AnalysisResponseModelCopyWithImpl<$Res, _$AnalysisResponseModelImpl>
+    extends _$AnalysisResponseModelCopyWithImpl<$Res,
+        _$AnalysisResponseModelImpl>
     implements _$$AnalysisResponseModelImplCopyWith<$Res> {
-  __$$AnalysisResponseModelImplCopyWithImpl(
-    _$AnalysisResponseModelImpl _value,
-    $Res Function(_$AnalysisResponseModelImpl) _then,
-  ) : super(_value, _then);
+  __$$AnalysisResponseModelImplCopyWithImpl(_$AnalysisResponseModelImpl _value,
+      $Res Function(_$AnalysisResponseModelImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of AnalysisResponseModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -129,33 +110,30 @@ class __$$AnalysisResponseModelImplCopyWithImpl<$Res>
     Object? analysis = null,
     Object? riskLevel = null,
   }) {
-    return _then(
-      _$AnalysisResponseModelImpl(
-        success: null == success
-            ? _value.success
-            : success // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        analysis: null == analysis
-            ? _value.analysis
-            : analysis // ignore: cast_nullable_to_non_nullable
-                  as String,
-        riskLevel: null == riskLevel
-            ? _value.riskLevel
-            : riskLevel // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
+    return _then(_$AnalysisResponseModelImpl(
+      success: null == success
+          ? _value.success
+          : success // ignore: cast_nullable_to_non_nullable
+              as bool,
+      analysis: null == analysis
+          ? _value.analysis
+          : analysis // ignore: cast_nullable_to_non_nullable
+              as String,
+      riskLevel: null == riskLevel
+          ? _value.riskLevel
+          : riskLevel // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$AnalysisResponseModelImpl implements _AnalysisResponseModel {
-  const _$AnalysisResponseModelImpl({
-    required this.success,
-    required this.analysis,
-    @JsonKey(name: 'risk_level') required this.riskLevel,
-  });
+  const _$AnalysisResponseModelImpl(
+      {required this.success,
+      required this.analysis,
+      @JsonKey(name: 'risk_level') required this.riskLevel});
 
   factory _$AnalysisResponseModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnalysisResponseModelImplFromJson(json);
@@ -185,34 +163,31 @@ class _$AnalysisResponseModelImpl implements _AnalysisResponseModel {
                 other.riskLevel == riskLevel));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, success, analysis, riskLevel);
 
-  /// Create a copy of AnalysisResponseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AnalysisResponseModelImplCopyWith<_$AnalysisResponseModelImpl>
-  get copyWith =>
-      __$$AnalysisResponseModelImplCopyWithImpl<_$AnalysisResponseModelImpl>(
-        this,
-        _$identity,
-      );
+      get copyWith => __$$AnalysisResponseModelImplCopyWithImpl<
+          _$AnalysisResponseModelImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$AnalysisResponseModelImplToJson(this);
+    return _$$AnalysisResponseModelImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _AnalysisResponseModel implements AnalysisResponseModel {
-  const factory _AnalysisResponseModel({
-    required final bool success,
-    required final String analysis,
-    @JsonKey(name: 'risk_level') required final String riskLevel,
-  }) = _$AnalysisResponseModelImpl;
+  const factory _AnalysisResponseModel(
+          {required final bool success,
+          required final String analysis,
+          @JsonKey(name: 'risk_level') required final String riskLevel}) =
+      _$AnalysisResponseModelImpl;
 
   factory _AnalysisResponseModel.fromJson(Map<String, dynamic> json) =
       _$AnalysisResponseModelImpl.fromJson;
@@ -224,11 +199,8 @@ abstract class _AnalysisResponseModel implements AnalysisResponseModel {
   @override
   @JsonKey(name: 'risk_level')
   String get riskLevel;
-
-  /// Create a copy of AnalysisResponseModel
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AnalysisResponseModelImplCopyWith<_$AnalysisResponseModelImpl>
-  get copyWith => throw _privateConstructorUsedError;
+      get copyWith => throw _privateConstructorUsedError;
 }

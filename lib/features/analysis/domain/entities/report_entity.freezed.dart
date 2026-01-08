@@ -12,8 +12,7 @@ part of 'report_entity.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$ReportEntity {
@@ -29,9 +28,7 @@ mixin _$ReportEntity {
   bool get generatePdf => throw _privateConstructorUsedError;
   bool get createFollowUp => throw _privateConstructorUsedError;
 
-  /// Create a copy of ReportEntity
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $ReportEntityCopyWith<ReportEntity> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -39,23 +36,21 @@ mixin _$ReportEntity {
 /// @nodoc
 abstract class $ReportEntityCopyWith<$Res> {
   factory $ReportEntityCopyWith(
-    ReportEntity value,
-    $Res Function(ReportEntity) then,
-  ) = _$ReportEntityCopyWithImpl<$Res, ReportEntity>;
+          ReportEntity value, $Res Function(ReportEntity) then) =
+      _$ReportEntityCopyWithImpl<$Res, ReportEntity>;
   @useResult
-  $Res call({
-    AnalysisEntity analysis,
-    String imagePath,
-    DateTime timestamp,
-    String emailSubject,
-    String emailBody,
-    List<String> recipients,
-    List<String> ccRecipients,
-    List<String> bccRecipients,
-    bool saveToGoogleDocs,
-    bool generatePdf,
-    bool createFollowUp,
-  });
+  $Res call(
+      {AnalysisEntity analysis,
+      String imagePath,
+      DateTime timestamp,
+      String emailSubject,
+      String emailBody,
+      List<String> recipients,
+      List<String> ccRecipients,
+      List<String> bccRecipients,
+      bool saveToGoogleDocs,
+      bool generatePdf,
+      bool createFollowUp});
 
   $AnalysisEntityCopyWith<$Res> get analysis;
 }
@@ -70,8 +65,6 @@ class _$ReportEntityCopyWithImpl<$Res, $Val extends ReportEntity>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ReportEntity
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -87,59 +80,54 @@ class _$ReportEntityCopyWithImpl<$Res, $Val extends ReportEntity>
     Object? generatePdf = null,
     Object? createFollowUp = null,
   }) {
-    return _then(
-      _value.copyWith(
-            analysis: null == analysis
-                ? _value.analysis
-                : analysis // ignore: cast_nullable_to_non_nullable
-                      as AnalysisEntity,
-            imagePath: null == imagePath
-                ? _value.imagePath
-                : imagePath // ignore: cast_nullable_to_non_nullable
-                      as String,
-            timestamp: null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            emailSubject: null == emailSubject
-                ? _value.emailSubject
-                : emailSubject // ignore: cast_nullable_to_non_nullable
-                      as String,
-            emailBody: null == emailBody
-                ? _value.emailBody
-                : emailBody // ignore: cast_nullable_to_non_nullable
-                      as String,
-            recipients: null == recipients
-                ? _value.recipients
-                : recipients // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            ccRecipients: null == ccRecipients
-                ? _value.ccRecipients
-                : ccRecipients // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            bccRecipients: null == bccRecipients
-                ? _value.bccRecipients
-                : bccRecipients // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            saveToGoogleDocs: null == saveToGoogleDocs
-                ? _value.saveToGoogleDocs
-                : saveToGoogleDocs // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            generatePdf: null == generatePdf
-                ? _value.generatePdf
-                : generatePdf // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            createFollowUp: null == createFollowUp
-                ? _value.createFollowUp
-                : createFollowUp // ignore: cast_nullable_to_non_nullable
-                      as bool,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      analysis: null == analysis
+          ? _value.analysis
+          : analysis // ignore: cast_nullable_to_non_nullable
+              as AnalysisEntity,
+      imagePath: null == imagePath
+          ? _value.imagePath
+          : imagePath // ignore: cast_nullable_to_non_nullable
+              as String,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      emailSubject: null == emailSubject
+          ? _value.emailSubject
+          : emailSubject // ignore: cast_nullable_to_non_nullable
+              as String,
+      emailBody: null == emailBody
+          ? _value.emailBody
+          : emailBody // ignore: cast_nullable_to_non_nullable
+              as String,
+      recipients: null == recipients
+          ? _value.recipients
+          : recipients // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      ccRecipients: null == ccRecipients
+          ? _value.ccRecipients
+          : ccRecipients // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      bccRecipients: null == bccRecipients
+          ? _value.bccRecipients
+          : bccRecipients // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      saveToGoogleDocs: null == saveToGoogleDocs
+          ? _value.saveToGoogleDocs
+          : saveToGoogleDocs // ignore: cast_nullable_to_non_nullable
+              as bool,
+      generatePdf: null == generatePdf
+          ? _value.generatePdf
+          : generatePdf // ignore: cast_nullable_to_non_nullable
+              as bool,
+      createFollowUp: null == createFollowUp
+          ? _value.createFollowUp
+          : createFollowUp // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
   }
 
-  /// Create a copy of ReportEntity
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $AnalysisEntityCopyWith<$Res> get analysis {
@@ -153,24 +141,22 @@ class _$ReportEntityCopyWithImpl<$Res, $Val extends ReportEntity>
 abstract class _$$ReportEntityImplCopyWith<$Res>
     implements $ReportEntityCopyWith<$Res> {
   factory _$$ReportEntityImplCopyWith(
-    _$ReportEntityImpl value,
-    $Res Function(_$ReportEntityImpl) then,
-  ) = __$$ReportEntityImplCopyWithImpl<$Res>;
+          _$ReportEntityImpl value, $Res Function(_$ReportEntityImpl) then) =
+      __$$ReportEntityImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    AnalysisEntity analysis,
-    String imagePath,
-    DateTime timestamp,
-    String emailSubject,
-    String emailBody,
-    List<String> recipients,
-    List<String> ccRecipients,
-    List<String> bccRecipients,
-    bool saveToGoogleDocs,
-    bool generatePdf,
-    bool createFollowUp,
-  });
+  $Res call(
+      {AnalysisEntity analysis,
+      String imagePath,
+      DateTime timestamp,
+      String emailSubject,
+      String emailBody,
+      List<String> recipients,
+      List<String> ccRecipients,
+      List<String> bccRecipients,
+      bool saveToGoogleDocs,
+      bool generatePdf,
+      bool createFollowUp});
 
   @override
   $AnalysisEntityCopyWith<$Res> get analysis;
@@ -181,12 +167,9 @@ class __$$ReportEntityImplCopyWithImpl<$Res>
     extends _$ReportEntityCopyWithImpl<$Res, _$ReportEntityImpl>
     implements _$$ReportEntityImplCopyWith<$Res> {
   __$$ReportEntityImplCopyWithImpl(
-    _$ReportEntityImpl _value,
-    $Res Function(_$ReportEntityImpl) _then,
-  ) : super(_value, _then);
+      _$ReportEntityImpl _value, $Res Function(_$ReportEntityImpl) _then)
+      : super(_value, _then);
 
-  /// Create a copy of ReportEntity
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -202,75 +185,73 @@ class __$$ReportEntityImplCopyWithImpl<$Res>
     Object? generatePdf = null,
     Object? createFollowUp = null,
   }) {
-    return _then(
-      _$ReportEntityImpl(
-        analysis: null == analysis
-            ? _value.analysis
-            : analysis // ignore: cast_nullable_to_non_nullable
-                  as AnalysisEntity,
-        imagePath: null == imagePath
-            ? _value.imagePath
-            : imagePath // ignore: cast_nullable_to_non_nullable
-                  as String,
-        timestamp: null == timestamp
-            ? _value.timestamp
-            : timestamp // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        emailSubject: null == emailSubject
-            ? _value.emailSubject
-            : emailSubject // ignore: cast_nullable_to_non_nullable
-                  as String,
-        emailBody: null == emailBody
-            ? _value.emailBody
-            : emailBody // ignore: cast_nullable_to_non_nullable
-                  as String,
-        recipients: null == recipients
-            ? _value._recipients
-            : recipients // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        ccRecipients: null == ccRecipients
-            ? _value._ccRecipients
-            : ccRecipients // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        bccRecipients: null == bccRecipients
-            ? _value._bccRecipients
-            : bccRecipients // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        saveToGoogleDocs: null == saveToGoogleDocs
-            ? _value.saveToGoogleDocs
-            : saveToGoogleDocs // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        generatePdf: null == generatePdf
-            ? _value.generatePdf
-            : generatePdf // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        createFollowUp: null == createFollowUp
-            ? _value.createFollowUp
-            : createFollowUp // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
+    return _then(_$ReportEntityImpl(
+      analysis: null == analysis
+          ? _value.analysis
+          : analysis // ignore: cast_nullable_to_non_nullable
+              as AnalysisEntity,
+      imagePath: null == imagePath
+          ? _value.imagePath
+          : imagePath // ignore: cast_nullable_to_non_nullable
+              as String,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      emailSubject: null == emailSubject
+          ? _value.emailSubject
+          : emailSubject // ignore: cast_nullable_to_non_nullable
+              as String,
+      emailBody: null == emailBody
+          ? _value.emailBody
+          : emailBody // ignore: cast_nullable_to_non_nullable
+              as String,
+      recipients: null == recipients
+          ? _value._recipients
+          : recipients // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      ccRecipients: null == ccRecipients
+          ? _value._ccRecipients
+          : ccRecipients // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      bccRecipients: null == bccRecipients
+          ? _value._bccRecipients
+          : bccRecipients // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      saveToGoogleDocs: null == saveToGoogleDocs
+          ? _value.saveToGoogleDocs
+          : saveToGoogleDocs // ignore: cast_nullable_to_non_nullable
+              as bool,
+      generatePdf: null == generatePdf
+          ? _value.generatePdf
+          : generatePdf // ignore: cast_nullable_to_non_nullable
+              as bool,
+      createFollowUp: null == createFollowUp
+          ? _value.createFollowUp
+          : createFollowUp // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$ReportEntityImpl implements _ReportEntity {
-  const _$ReportEntityImpl({
-    required this.analysis,
-    required this.imagePath,
-    required this.timestamp,
-    required this.emailSubject,
-    required this.emailBody,
-    required final List<String> recipients,
-    final List<String> ccRecipients = const [],
-    final List<String> bccRecipients = const [],
-    this.saveToGoogleDocs = false,
-    this.generatePdf = false,
-    this.createFollowUp = false,
-  }) : _recipients = recipients,
-       _ccRecipients = ccRecipients,
-       _bccRecipients = bccRecipients;
+  const _$ReportEntityImpl(
+      {required this.analysis,
+      required this.imagePath,
+      required this.timestamp,
+      required this.emailSubject,
+      required this.emailBody,
+      required final List<String> recipients,
+      final List<String> ccRecipients = const [],
+      final List<String> bccRecipients = const [],
+      this.saveToGoogleDocs = false,
+      this.generatePdf = false,
+      this.createFollowUp = false})
+      : _recipients = recipients,
+        _ccRecipients = ccRecipients,
+        _bccRecipients = bccRecipients;
 
   @override
   final AnalysisEntity analysis;
@@ -338,18 +319,12 @@ class _$ReportEntityImpl implements _ReportEntity {
                 other.emailSubject == emailSubject) &&
             (identical(other.emailBody, emailBody) ||
                 other.emailBody == emailBody) &&
-            const DeepCollectionEquality().equals(
-              other._recipients,
-              _recipients,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._ccRecipients,
-              _ccRecipients,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._bccRecipients,
-              _bccRecipients,
-            ) &&
+            const DeepCollectionEquality()
+                .equals(other._recipients, _recipients) &&
+            const DeepCollectionEquality()
+                .equals(other._ccRecipients, _ccRecipients) &&
+            const DeepCollectionEquality()
+                .equals(other._bccRecipients, _bccRecipients) &&
             (identical(other.saveToGoogleDocs, saveToGoogleDocs) ||
                 other.saveToGoogleDocs == saveToGoogleDocs) &&
             (identical(other.generatePdf, generatePdf) ||
@@ -360,23 +335,20 @@ class _$ReportEntityImpl implements _ReportEntity {
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    analysis,
-    imagePath,
-    timestamp,
-    emailSubject,
-    emailBody,
-    const DeepCollectionEquality().hash(_recipients),
-    const DeepCollectionEquality().hash(_ccRecipients),
-    const DeepCollectionEquality().hash(_bccRecipients),
-    saveToGoogleDocs,
-    generatePdf,
-    createFollowUp,
-  );
+      runtimeType,
+      analysis,
+      imagePath,
+      timestamp,
+      emailSubject,
+      emailBody,
+      const DeepCollectionEquality().hash(_recipients),
+      const DeepCollectionEquality().hash(_ccRecipients),
+      const DeepCollectionEquality().hash(_bccRecipients),
+      saveToGoogleDocs,
+      generatePdf,
+      createFollowUp);
 
-  /// Create a copy of ReportEntity
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ReportEntityImplCopyWith<_$ReportEntityImpl> get copyWith =>
@@ -384,19 +356,18 @@ class _$ReportEntityImpl implements _ReportEntity {
 }
 
 abstract class _ReportEntity implements ReportEntity {
-  const factory _ReportEntity({
-    required final AnalysisEntity analysis,
-    required final String imagePath,
-    required final DateTime timestamp,
-    required final String emailSubject,
-    required final String emailBody,
-    required final List<String> recipients,
-    final List<String> ccRecipients,
-    final List<String> bccRecipients,
-    final bool saveToGoogleDocs,
-    final bool generatePdf,
-    final bool createFollowUp,
-  }) = _$ReportEntityImpl;
+  const factory _ReportEntity(
+      {required final AnalysisEntity analysis,
+      required final String imagePath,
+      required final DateTime timestamp,
+      required final String emailSubject,
+      required final String emailBody,
+      required final List<String> recipients,
+      final List<String> ccRecipients,
+      final List<String> bccRecipients,
+      final bool saveToGoogleDocs,
+      final bool generatePdf,
+      final bool createFollowUp}) = _$ReportEntityImpl;
 
   @override
   AnalysisEntity get analysis;
@@ -420,11 +391,8 @@ abstract class _ReportEntity implements ReportEntity {
   bool get generatePdf;
   @override
   bool get createFollowUp;
-
-  /// Create a copy of ReportEntity
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ReportEntityImplCopyWith<_$ReportEntityImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

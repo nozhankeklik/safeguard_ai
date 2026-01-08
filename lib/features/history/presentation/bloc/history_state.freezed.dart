@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'analysis_state.dart';
+part of 'history_state.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -15,12 +15,15 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
-mixin _$AnalysisState {
+mixin _$HistoryState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(AnalysisEntity entity) success,
+    required TResult Function(
+            List<ReportHiveModel> reports, String? currentFilter)
+        loaded,
+    required TResult Function() empty,
     required TResult Function(String message) failure,
   }) =>
       throw _privateConstructorUsedError;
@@ -28,7 +31,9 @@ mixin _$AnalysisState {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(AnalysisEntity entity)? success,
+    TResult? Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult? Function()? empty,
     TResult? Function(String message)? failure,
   }) =>
       throw _privateConstructorUsedError;
@@ -36,7 +41,9 @@ mixin _$AnalysisState {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(AnalysisEntity entity)? success,
+    TResult Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult Function()? empty,
     TResult Function(String message)? failure,
     required TResult orElse(),
   }) =>
@@ -45,7 +52,8 @@ mixin _$AnalysisState {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
-    required TResult Function(_Success value) success,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Empty value) empty,
     required TResult Function(_Failure value) failure,
   }) =>
       throw _privateConstructorUsedError;
@@ -53,7 +61,8 @@ mixin _$AnalysisState {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
-    TResult? Function(_Success value)? success,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Empty value)? empty,
     TResult? Function(_Failure value)? failure,
   }) =>
       throw _privateConstructorUsedError;
@@ -61,7 +70,8 @@ mixin _$AnalysisState {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
-    TResult Function(_Success value)? success,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Empty value)? empty,
     TResult Function(_Failure value)? failure,
     required TResult orElse(),
   }) =>
@@ -69,16 +79,16 @@ mixin _$AnalysisState {
 }
 
 /// @nodoc
-abstract class $AnalysisStateCopyWith<$Res> {
-  factory $AnalysisStateCopyWith(
-          AnalysisState value, $Res Function(AnalysisState) then) =
-      _$AnalysisStateCopyWithImpl<$Res, AnalysisState>;
+abstract class $HistoryStateCopyWith<$Res> {
+  factory $HistoryStateCopyWith(
+          HistoryState value, $Res Function(HistoryState) then) =
+      _$HistoryStateCopyWithImpl<$Res, HistoryState>;
 }
 
 /// @nodoc
-class _$AnalysisStateCopyWithImpl<$Res, $Val extends AnalysisState>
-    implements $AnalysisStateCopyWith<$Res> {
-  _$AnalysisStateCopyWithImpl(this._value, this._then);
+class _$HistoryStateCopyWithImpl<$Res, $Val extends HistoryState>
+    implements $HistoryStateCopyWith<$Res> {
+  _$HistoryStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -95,7 +105,7 @@ abstract class _$$InitialImplCopyWith<$Res> {
 
 /// @nodoc
 class __$$InitialImplCopyWithImpl<$Res>
-    extends _$AnalysisStateCopyWithImpl<$Res, _$InitialImpl>
+    extends _$HistoryStateCopyWithImpl<$Res, _$InitialImpl>
     implements _$$InitialImplCopyWith<$Res> {
   __$$InitialImplCopyWithImpl(
       _$InitialImpl _value, $Res Function(_$InitialImpl) _then)
@@ -109,7 +119,7 @@ class _$InitialImpl implements _Initial {
 
   @override
   String toString() {
-    return 'AnalysisState.initial()';
+    return 'HistoryState.initial()';
   }
 
   @override
@@ -126,7 +136,10 @@ class _$InitialImpl implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(AnalysisEntity entity) success,
+    required TResult Function(
+            List<ReportHiveModel> reports, String? currentFilter)
+        loaded,
+    required TResult Function() empty,
     required TResult Function(String message) failure,
   }) {
     return initial();
@@ -137,7 +150,9 @@ class _$InitialImpl implements _Initial {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(AnalysisEntity entity)? success,
+    TResult? Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult? Function()? empty,
     TResult? Function(String message)? failure,
   }) {
     return initial?.call();
@@ -148,7 +163,9 @@ class _$InitialImpl implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(AnalysisEntity entity)? success,
+    TResult Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult Function()? empty,
     TResult Function(String message)? failure,
     required TResult orElse(),
   }) {
@@ -163,7 +180,8 @@ class _$InitialImpl implements _Initial {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
-    required TResult Function(_Success value) success,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Empty value) empty,
     required TResult Function(_Failure value) failure,
   }) {
     return initial(this);
@@ -174,7 +192,8 @@ class _$InitialImpl implements _Initial {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
-    TResult? Function(_Success value)? success,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Empty value)? empty,
     TResult? Function(_Failure value)? failure,
   }) {
     return initial?.call(this);
@@ -185,7 +204,8 @@ class _$InitialImpl implements _Initial {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
-    TResult Function(_Success value)? success,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Empty value)? empty,
     TResult Function(_Failure value)? failure,
     required TResult orElse(),
   }) {
@@ -196,7 +216,7 @@ class _$InitialImpl implements _Initial {
   }
 }
 
-abstract class _Initial implements AnalysisState {
+abstract class _Initial implements HistoryState {
   const factory _Initial() = _$InitialImpl;
 }
 
@@ -209,7 +229,7 @@ abstract class _$$LoadingImplCopyWith<$Res> {
 
 /// @nodoc
 class __$$LoadingImplCopyWithImpl<$Res>
-    extends _$AnalysisStateCopyWithImpl<$Res, _$LoadingImpl>
+    extends _$HistoryStateCopyWithImpl<$Res, _$LoadingImpl>
     implements _$$LoadingImplCopyWith<$Res> {
   __$$LoadingImplCopyWithImpl(
       _$LoadingImpl _value, $Res Function(_$LoadingImpl) _then)
@@ -223,7 +243,7 @@ class _$LoadingImpl implements _Loading {
 
   @override
   String toString() {
-    return 'AnalysisState.loading()';
+    return 'HistoryState.loading()';
   }
 
   @override
@@ -240,7 +260,10 @@ class _$LoadingImpl implements _Loading {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(AnalysisEntity entity) success,
+    required TResult Function(
+            List<ReportHiveModel> reports, String? currentFilter)
+        loaded,
+    required TResult Function() empty,
     required TResult Function(String message) failure,
   }) {
     return loading();
@@ -251,7 +274,9 @@ class _$LoadingImpl implements _Loading {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(AnalysisEntity entity)? success,
+    TResult? Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult? Function()? empty,
     TResult? Function(String message)? failure,
   }) {
     return loading?.call();
@@ -262,7 +287,9 @@ class _$LoadingImpl implements _Loading {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(AnalysisEntity entity)? success,
+    TResult Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult Function()? empty,
     TResult Function(String message)? failure,
     required TResult orElse(),
   }) {
@@ -277,7 +304,8 @@ class _$LoadingImpl implements _Loading {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
-    required TResult Function(_Success value) success,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Empty value) empty,
     required TResult Function(_Failure value) failure,
   }) {
     return loading(this);
@@ -288,7 +316,8 @@ class _$LoadingImpl implements _Loading {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
-    TResult? Function(_Success value)? success,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Empty value)? empty,
     TResult? Function(_Failure value)? failure,
   }) {
     return loading?.call(this);
@@ -299,7 +328,8 @@ class _$LoadingImpl implements _Loading {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
-    TResult Function(_Success value)? success,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Empty value)? empty,
     TResult Function(_Failure value)? failure,
     required TResult orElse(),
   }) {
@@ -310,90 +340,101 @@ class _$LoadingImpl implements _Loading {
   }
 }
 
-abstract class _Loading implements AnalysisState {
+abstract class _Loading implements HistoryState {
   const factory _Loading() = _$LoadingImpl;
 }
 
 /// @nodoc
-abstract class _$$SuccessImplCopyWith<$Res> {
-  factory _$$SuccessImplCopyWith(
-          _$SuccessImpl value, $Res Function(_$SuccessImpl) then) =
-      __$$SuccessImplCopyWithImpl<$Res>;
+abstract class _$$LoadedImplCopyWith<$Res> {
+  factory _$$LoadedImplCopyWith(
+          _$LoadedImpl value, $Res Function(_$LoadedImpl) then) =
+      __$$LoadedImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({AnalysisEntity entity});
-
-  $AnalysisEntityCopyWith<$Res> get entity;
+  $Res call({List<ReportHiveModel> reports, String? currentFilter});
 }
 
 /// @nodoc
-class __$$SuccessImplCopyWithImpl<$Res>
-    extends _$AnalysisStateCopyWithImpl<$Res, _$SuccessImpl>
-    implements _$$SuccessImplCopyWith<$Res> {
-  __$$SuccessImplCopyWithImpl(
-      _$SuccessImpl _value, $Res Function(_$SuccessImpl) _then)
+class __$$LoadedImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$LoadedImpl>
+    implements _$$LoadedImplCopyWith<$Res> {
+  __$$LoadedImplCopyWithImpl(
+      _$LoadedImpl _value, $Res Function(_$LoadedImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? entity = null,
+    Object? reports = null,
+    Object? currentFilter = freezed,
   }) {
-    return _then(_$SuccessImpl(
-      null == entity
-          ? _value.entity
-          : entity // ignore: cast_nullable_to_non_nullable
-              as AnalysisEntity,
+    return _then(_$LoadedImpl(
+      reports: null == reports
+          ? _value._reports
+          : reports // ignore: cast_nullable_to_non_nullable
+              as List<ReportHiveModel>,
+      currentFilter: freezed == currentFilter
+          ? _value.currentFilter
+          : currentFilter // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $AnalysisEntityCopyWith<$Res> get entity {
-    return $AnalysisEntityCopyWith<$Res>(_value.entity, (value) {
-      return _then(_value.copyWith(entity: value));
-    });
   }
 }
 
 /// @nodoc
 
-class _$SuccessImpl implements _Success {
-  const _$SuccessImpl(this.entity);
+class _$LoadedImpl implements _Loaded {
+  const _$LoadedImpl(
+      {required final List<ReportHiveModel> reports, this.currentFilter})
+      : _reports = reports;
+
+  final List<ReportHiveModel> _reports;
+  @override
+  List<ReportHiveModel> get reports {
+    if (_reports is EqualUnmodifiableListView) return _reports;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_reports);
+  }
 
   @override
-  final AnalysisEntity entity;
+  final String? currentFilter;
 
   @override
   String toString() {
-    return 'AnalysisState.success(entity: $entity)';
+    return 'HistoryState.loaded(reports: $reports, currentFilter: $currentFilter)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$SuccessImpl &&
-            (identical(other.entity, entity) || other.entity == entity));
+            other is _$LoadedImpl &&
+            const DeepCollectionEquality().equals(other._reports, _reports) &&
+            (identical(other.currentFilter, currentFilter) ||
+                other.currentFilter == currentFilter));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, entity);
+  int get hashCode => Object.hash(runtimeType,
+      const DeepCollectionEquality().hash(_reports), currentFilter);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$SuccessImplCopyWith<_$SuccessImpl> get copyWith =>
-      __$$SuccessImplCopyWithImpl<_$SuccessImpl>(this, _$identity);
+  _$$LoadedImplCopyWith<_$LoadedImpl> get copyWith =>
+      __$$LoadedImplCopyWithImpl<_$LoadedImpl>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(AnalysisEntity entity) success,
+    required TResult Function(
+            List<ReportHiveModel> reports, String? currentFilter)
+        loaded,
+    required TResult Function() empty,
     required TResult Function(String message) failure,
   }) {
-    return success(entity);
+    return loaded(reports, currentFilter);
   }
 
   @override
@@ -401,10 +442,12 @@ class _$SuccessImpl implements _Success {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(AnalysisEntity entity)? success,
+    TResult? Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult? Function()? empty,
     TResult? Function(String message)? failure,
   }) {
-    return success?.call(entity);
+    return loaded?.call(reports, currentFilter);
   }
 
   @override
@@ -412,12 +455,14 @@ class _$SuccessImpl implements _Success {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(AnalysisEntity entity)? success,
+    TResult Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult Function()? empty,
     TResult Function(String message)? failure,
     required TResult orElse(),
   }) {
-    if (success != null) {
-      return success(entity);
+    if (loaded != null) {
+      return loaded(reports, currentFilter);
     }
     return orElse();
   }
@@ -427,10 +472,11 @@ class _$SuccessImpl implements _Success {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
-    required TResult Function(_Success value) success,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Empty value) empty,
     required TResult Function(_Failure value) failure,
   }) {
-    return success(this);
+    return loaded(this);
   }
 
   @override
@@ -438,10 +484,11 @@ class _$SuccessImpl implements _Success {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
-    TResult? Function(_Success value)? success,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Empty value)? empty,
     TResult? Function(_Failure value)? failure,
   }) {
-    return success?.call(this);
+    return loaded?.call(this);
   }
 
   @override
@@ -449,24 +496,152 @@ class _$SuccessImpl implements _Success {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
-    TResult Function(_Success value)? success,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Empty value)? empty,
     TResult Function(_Failure value)? failure,
     required TResult orElse(),
   }) {
-    if (success != null) {
-      return success(this);
+    if (loaded != null) {
+      return loaded(this);
     }
     return orElse();
   }
 }
 
-abstract class _Success implements AnalysisState {
-  const factory _Success(final AnalysisEntity entity) = _$SuccessImpl;
+abstract class _Loaded implements HistoryState {
+  const factory _Loaded(
+      {required final List<ReportHiveModel> reports,
+      final String? currentFilter}) = _$LoadedImpl;
 
-  AnalysisEntity get entity;
+  List<ReportHiveModel> get reports;
+  String? get currentFilter;
   @JsonKey(ignore: true)
-  _$$SuccessImplCopyWith<_$SuccessImpl> get copyWith =>
+  _$$LoadedImplCopyWith<_$LoadedImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$EmptyImplCopyWith<$Res> {
+  factory _$$EmptyImplCopyWith(
+          _$EmptyImpl value, $Res Function(_$EmptyImpl) then) =
+      __$$EmptyImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$EmptyImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$EmptyImpl>
+    implements _$$EmptyImplCopyWith<$Res> {
+  __$$EmptyImplCopyWithImpl(
+      _$EmptyImpl _value, $Res Function(_$EmptyImpl) _then)
+      : super(_value, _then);
+}
+
+/// @nodoc
+
+class _$EmptyImpl implements _Empty {
+  const _$EmptyImpl();
+
+  @override
+  String toString() {
+    return 'HistoryState.empty()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$EmptyImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(
+            List<ReportHiveModel> reports, String? currentFilter)
+        loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) failure,
+  }) {
+    return empty();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? failure,
+  }) {
+    return empty?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? failure,
+    required TResult orElse(),
+  }) {
+    if (empty != null) {
+      return empty();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Empty value) empty,
+    required TResult Function(_Failure value) failure,
+  }) {
+    return empty(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_Loading value)? loading,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Empty value)? empty,
+    TResult? Function(_Failure value)? failure,
+  }) {
+    return empty?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Empty value)? empty,
+    TResult Function(_Failure value)? failure,
+    required TResult orElse(),
+  }) {
+    if (empty != null) {
+      return empty(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Empty implements HistoryState {
+  const factory _Empty() = _$EmptyImpl;
 }
 
 /// @nodoc
@@ -480,7 +655,7 @@ abstract class _$$FailureImplCopyWith<$Res> {
 
 /// @nodoc
 class __$$FailureImplCopyWithImpl<$Res>
-    extends _$AnalysisStateCopyWithImpl<$Res, _$FailureImpl>
+    extends _$HistoryStateCopyWithImpl<$Res, _$FailureImpl>
     implements _$$FailureImplCopyWith<$Res> {
   __$$FailureImplCopyWithImpl(
       _$FailureImpl _value, $Res Function(_$FailureImpl) _then)
@@ -510,7 +685,7 @@ class _$FailureImpl implements _Failure {
 
   @override
   String toString() {
-    return 'AnalysisState.failure(message: $message)';
+    return 'HistoryState.failure(message: $message)';
   }
 
   @override
@@ -535,7 +710,10 @@ class _$FailureImpl implements _Failure {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
-    required TResult Function(AnalysisEntity entity) success,
+    required TResult Function(
+            List<ReportHiveModel> reports, String? currentFilter)
+        loaded,
+    required TResult Function() empty,
     required TResult Function(String message) failure,
   }) {
     return failure(message);
@@ -546,7 +724,9 @@ class _$FailureImpl implements _Failure {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
-    TResult? Function(AnalysisEntity entity)? success,
+    TResult? Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult? Function()? empty,
     TResult? Function(String message)? failure,
   }) {
     return failure?.call(message);
@@ -557,7 +737,9 @@ class _$FailureImpl implements _Failure {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
-    TResult Function(AnalysisEntity entity)? success,
+    TResult Function(List<ReportHiveModel> reports, String? currentFilter)?
+        loaded,
+    TResult Function()? empty,
     TResult Function(String message)? failure,
     required TResult orElse(),
   }) {
@@ -572,7 +754,8 @@ class _$FailureImpl implements _Failure {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
-    required TResult Function(_Success value) success,
+    required TResult Function(_Loaded value) loaded,
+    required TResult Function(_Empty value) empty,
     required TResult Function(_Failure value) failure,
   }) {
     return failure(this);
@@ -583,7 +766,8 @@ class _$FailureImpl implements _Failure {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
-    TResult? Function(_Success value)? success,
+    TResult? Function(_Loaded value)? loaded,
+    TResult? Function(_Empty value)? empty,
     TResult? Function(_Failure value)? failure,
   }) {
     return failure?.call(this);
@@ -594,7 +778,8 @@ class _$FailureImpl implements _Failure {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
-    TResult Function(_Success value)? success,
+    TResult Function(_Loaded value)? loaded,
+    TResult Function(_Empty value)? empty,
     TResult Function(_Failure value)? failure,
     required TResult orElse(),
   }) {
@@ -605,7 +790,7 @@ class _$FailureImpl implements _Failure {
   }
 }
 
-abstract class _Failure implements AnalysisState {
+abstract class _Failure implements HistoryState {
   const factory _Failure(final String message) = _$FailureImpl;
 
   String get message;

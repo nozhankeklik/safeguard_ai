@@ -5,9 +5,11 @@ import 'package:safeguard_ai/core/utils/platform_config.dart';
 import 'package:safeguard_ai/features/analysis/data/datasources/analysis_remote_datasource.dart';
 import 'package:safeguard_ai/features/analysis/data/datasources/analysis_mock_datasource.dart';
 import 'package:safeguard_ai/features/analysis/data/repositories/analysis_repository_impl.dart';
+import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
 import 'package:safeguard_ai/features/analysis/domain/repositories/analysis_repository.dart';
 import 'package:safeguard_ai/features/analysis/domain/usecases/analyze_image_usecase.dart';
 import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
+import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -58,10 +60,12 @@ Future<void> init() async {
 
   // Repositories
   sl.registerLazySingleton<AnalysisRepository>(() => AnalysisRepositoryImpl(sl<AnalysisRemoteDataSource>()));
+  sl.registerLazySingleton<ReportLocalRepository>(() => ReportLocalRepository());
 
   // Use Cases
   sl.registerLazySingleton(() => AnalyzeImageUseCase(sl<AnalysisRepository>()));
 
   // BLoCs (Factory - Her çağrıldığında yeni instance)
   sl.registerFactory(() => AnalysisBloc(sl<AnalyzeImageUseCase>()));
+  sl.registerFactory(() => HistoryBloc(sl<ReportLocalRepository>()));
 }
