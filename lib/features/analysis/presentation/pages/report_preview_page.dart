@@ -229,9 +229,55 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
 
     try {
       // 1️⃣ n8n'e gönder
+      // Email body'den analiz metnini çıkar (düzenlenmiş halini kullan)
+      // Email body'de "TESPİT EDİLEN DURUM:" sonrası analiz metni var (çok satırlı olabilir)
+      String editedAnalysis = widget.analysis.analysisText;
+      final bodyLines = body.split('\n');
+      int analysisStartIndex = -1;
+      int analysisEndIndex = bodyLines.length;
+      
+      // "TESPİT EDİLEN DURUM" satırını bul
+      for (int i = 0; i < bodyLines.length; i++) {
+        final line = bodyLines[i].trim();
+        if (line.contains('TESPİT EDİLEN DURUM') || 
+            line.contains('Tespit Edilen Durum') ||
+            line.contains('TESPİT') && line.contains('DURUM')) {
+          analysisStartIndex = i + 1; // Bir sonraki satırdan başla
+          break;
+        }
+      }
+      
+      // "RİSK SEVİYESİ" satırını bul (analiz metninin sonu)
+      if (analysisStartIndex > 0) {
+        for (int i = analysisStartIndex; i < bodyLines.length; i++) {
+          final line = bodyLines[i].trim();
+          if (line.contains('RİSK SEVİYESİ') || 
+              line.contains('Risk Seviyesi') ||
+              line.contains('RİSK') && line.contains('SEVİYESİ')) {
+            analysisEndIndex = i;
+            break;
+          }
+        }
+        
+        // Analiz metnini çıkar
+        if (analysisStartIndex < analysisEndIndex) {
+          editedAnalysis = bodyLines
+              .sublist(analysisStartIndex, analysisEndIndex)
+              .map((line) => line.trim())
+              .where((line) => line.isNotEmpty)
+              .join('\n')
+              .trim();
+        }
+      }
+      
+      // Eğer analiz metni çok kısa veya bulunamadıysa, orijinal analizi kullan
+      if (editedAnalysis.isEmpty || editedAnalysis.length < 10) {
+        editedAnalysis = widget.analysis.analysisText;
+      }
+
       final request = SendReportRequest(
         imagePath: widget.imagePath,
-        analysis: widget.analysis.analysisText,
+        analysis: editedAnalysis, // Düzenlenmiş analiz metni
         riskLevel: widget.analysis.riskLevel,
         emailSubject: subject,
         emailBody: body,
@@ -247,7 +293,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
       final reportId = const Uuid().v4();
       final hiveReport = ReportHiveModel(
         id: reportId,
-        analysis: widget.analysis.analysisText,
+        analysis: editedAnalysis, // Düzenlenmiş analiz metni
         riskLevel: widget.analysis.riskLevel,
         imagePath: widget.imagePath,
         timestamp: DateTime.now(),

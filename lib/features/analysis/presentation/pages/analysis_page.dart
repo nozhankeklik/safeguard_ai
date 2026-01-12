@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:safeguard_ai/core/constants/app_constants.dart';
 import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
 import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
 import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_event.dart';
 import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_state.dart';
-import 'package:safeguard_ai/features/analysis/presentation/pages/report_preview_page.dart';
 
 class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});
@@ -44,14 +44,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
     context.read<AnalysisBloc>().add(const AnalysisEvent.reset());
 
     // Report preview sayfasına git
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReportPreviewPage(
-          analysis: entity,
-          imagePath: _lastImagePath!,
-        ),
-      ),
+    context.push(
+      '/report-preview',
+      extra: {
+        'analysis': entity,
+        'imagePath': _lastImagePath!,
+      },
     );
   }
 
