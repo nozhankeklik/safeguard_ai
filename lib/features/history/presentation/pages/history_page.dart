@@ -66,7 +66,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   _FilterChip(
                     label: 'Yüksek Risk',
                     isSelected: _selectedFilter == 'Yüksek Risk',
-                    color: RiskColors.highRiskPrimary,
                     onSelected: () {
                       setState(() => _selectedFilter = 'Yüksek Risk');
                       context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel('YÜKSEK'));
@@ -76,7 +75,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   _FilterChip(
                     label: 'Orta Risk',
                     isSelected: _selectedFilter == 'Orta Risk',
-                    color: RiskColors.mediumRiskPrimary,
                     onSelected: () {
                       setState(() => _selectedFilter = 'Orta Risk');
                       context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel('ORTA'));
@@ -86,7 +84,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   _FilterChip(
                     label: 'Düşük Risk',
                     isSelected: _selectedFilter == 'Düşük Risk',
-                    color: RiskColors.lowRiskPrimary,
                     onSelected: () {
                       setState(() => _selectedFilter = 'Düşük Risk');
                       context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel('DÜŞÜK'));
@@ -110,9 +107,9 @@ class _HistoryPageState extends State<HistoryPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                        Icon(Icons.error_outline, size: 64, color: Colors.grey.shade400),
                         const SizedBox(height: 16),
-                        Text(message, style: TextStyle(color: Colors.red.shade700)),
+                        Text(message, style: TextStyle(color: Colors.grey.shade700)),
                       ],
                     ),
                   ),
@@ -180,7 +177,6 @@ class _ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final riskColor = _getRiskColor(report.riskLevel);
     final dateFormat = DateFormat('dd MMM yyyy, HH:mm');
 
     return Card(
@@ -229,7 +225,7 @@ class _ReportCard extends StatelessWidget {
                         vertical: AppConstants.spacingXSmall,
                       ),
                       decoration: BoxDecoration(
-                        color: riskColor,
+                        color: Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
                       ),
                       child: Text(
@@ -303,18 +299,6 @@ class _ReportCard extends StatelessWidget {
     );
   }
 
-  Color _getRiskColor(String riskLevel) {
-    switch (riskLevel.toUpperCase()) {
-      case 'YÜKSEK':
-        return RiskColors.highRiskPrimary;
-      case 'ORTA':
-        return RiskColors.mediumRiskPrimary;
-      case 'DÜŞÜK':
-        return RiskColors.lowRiskPrimary;
-      default:
-        return RiskColors.defaultPrimary;
-    }
-  }
 
   void _showDeleteDialog(BuildContext context, String reportId) {
     showDialog(
@@ -330,7 +314,7 @@ class _ReportCard extends StatelessWidget {
               Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rapor silindi')));
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
             child: const Text('Sil'),
           ),
         ],
@@ -343,20 +327,14 @@ class _ReportCard extends StatelessWidget {
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
-  final Color? color;
   final VoidCallback onSelected;
 
-  const _FilterChip({required this.label, required this.isSelected, this.color, required this.onSelected});
+  const _FilterChip({required this.label, required this.isSelected, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
-    final chipColor = color ?? Theme.of(context).primaryColor;
+    final primaryColor = Theme.of(context).colorScheme.primary;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // "Tümü" chip'i için özel renk (hem açık hem koyu temada belirgin)
-    final effectiveColor = color == null
-        ? (isDark ? Colors.blue.shade400 : chipColor) // Koyu temada daha açık mavi
-        : chipColor;
 
     return FilterChip(
       label: Text(label),
@@ -364,18 +342,18 @@ class _FilterChip extends StatelessWidget {
       onSelected: (_) => onSelected(),
       backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
       selectedColor: isDark
-          ? effectiveColor.withOpacity(0.7) // Koyu temada çok daha belirgin
-          : effectiveColor.withOpacity(0.2),
-      checkmarkColor: effectiveColor,
+          ? primaryColor.withOpacity(0.2)
+          : primaryColor.withOpacity(0.1),
+      checkmarkColor: primaryColor,
       labelStyle: TextStyle(
         color: isSelected
-            ? (isDark ? Colors.white : effectiveColor) // Koyu temada beyaz metin, açık temada mavi
+            ? primaryColor
             : (isDark ? Colors.grey.shade300 : Colors.grey.shade700),
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
       side: BorderSide(
-        color: isSelected ? effectiveColor : (isDark ? Colors.grey.shade600 : Colors.grey.shade300),
-        width: isSelected ? 2 : 1,
+        color: isSelected ? primaryColor : (isDark ? Colors.grey.shade600 : Colors.grey.shade300),
+        width: isSelected ? 1.5 : 1,
       ),
     );
   }

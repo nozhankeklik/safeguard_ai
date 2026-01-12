@@ -13,7 +13,7 @@ class ReportDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd MMMM yyyy, HH:mm');
-    final riskColor = _getRiskColor(report.riskLevel);
+    final riskColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(
@@ -261,18 +261,5 @@ class ReportDetailPage extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Color _getRiskColor(String riskLevel) {
-    switch (riskLevel.toUpperCase()) {
-      case 'YÜKSEK':
-        return RiskColors.highRiskPrimary;
-      case 'ORTA':
-        return RiskColors.mediumRiskPrimary;
-      case 'DÜŞÜK':
-        return RiskColors.lowRiskPrimary;
-      default:
-        return RiskColors.defaultPrimary;
-    }
   }
 }

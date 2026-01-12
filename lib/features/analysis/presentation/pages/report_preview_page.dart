@@ -62,38 +62,14 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     super.dispose();
   }
 
-  /// Risk seviyesine göre primary renk döndürür (okunabilir)
+  /// Risk seviyesine göre primary renk döndürür (monokrom - primary color)
   Color _getRiskColor(String riskLevel) {
-    switch (riskLevel.toUpperCase()) {
-      case 'YÜKSEK':
-      case 'HIGH':
-        return RiskColors.highRiskPrimary;
-      case 'ORTA':
-      case 'MEDIUM':
-        return RiskColors.mediumRiskPrimary;
-      case 'DÜŞÜK':
-      case 'LOW':
-        return RiskColors.lowRiskPrimary;
-      default:
-        return RiskColors.defaultPrimary;
-    }
+    return Theme.of(context).colorScheme.primary;
   }
 
-  /// Risk seviyesine göre arka plan rengi (açık ton)
+  /// Risk seviyesine göre arka plan rengi (monokrom - light gray)
   Color _getRiskBackgroundColor(String riskLevel) {
-    switch (riskLevel.toUpperCase()) {
-      case 'YÜKSEK':
-      case 'HIGH':
-        return RiskColors.highRiskLight;
-      case 'ORTA':
-      case 'MEDIUM':
-        return RiskColors.mediumRiskLight;
-      case 'DÜŞÜK':
-      case 'LOW':
-        return RiskColors.lowRiskLight;
-      default:
-        return RiskColors.defaultLight;
-    }
+    return Colors.grey.shade50;
   }
 
   IconData _getRiskIcon(String riskLevel) {
@@ -161,7 +137,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: RiskColors.highRiskPrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
       ),
@@ -180,7 +156,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: RiskColors.lowRiskPrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -332,7 +308,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
       builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.check_circle, color: RiskColors.lowRiskPrimary, size: 32),
+            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 32),
             const SizedBox(width: AppConstants.spacingMedium),
             const Text('Başarılı!'),
           ],
@@ -345,7 +321,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.email, color: RiskColors.lowRiskPrimary, size: 20),
+                Icon(Icons.email, color: Theme.of(context).colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
                 Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
               ],
@@ -354,7 +330,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.cloud_done, color: Colors.blue, size: 20),
+                  Icon(Icons.cloud_done, color: Theme.of(context).colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
                   Text('Google Docs\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
                 ],
@@ -364,7 +340,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.picture_as_pdf, color: Colors.red, size: 20),
+                  Icon(Icons.picture_as_pdf, color: Theme.of(context).colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
                   Text('PDF oluşturuldu', style: TextStyle(color: Colors.grey.shade700)),
                 ],

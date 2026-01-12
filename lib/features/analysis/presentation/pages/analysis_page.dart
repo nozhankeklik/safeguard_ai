@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:safeguard_ai/core/constants/app_constants.dart';
 import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
 import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
 import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_event.dart';
@@ -31,9 +30,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
   void _navigateToReportPreview(AnalysisEntity entity) {
     if (_lastImagePath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Resim yolu bulunamadı'),
-          backgroundColor: RiskColors.highRiskPrimary,
+        SnackBar(
+          content: const Text('Resim yolu bulunamadı'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -44,13 +43,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     context.read<AnalysisBloc>().add(const AnalysisEvent.reset());
 
     // Report preview sayfasına git
-    context.push(
-      '/report-preview',
-      extra: {
-        'analysis': entity,
-        'imagePath': _lastImagePath!,
-      },
-    );
+    context.push('/report-preview', extra: {'analysis': entity, 'imagePath': _lastImagePath!});
   }
 
   @override
@@ -75,7 +68,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                       Expanded(child: Text(message)),
                     ],
                   ),
-                  backgroundColor: RiskColors.highRiskPrimary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -91,21 +84,22 @@ class _AnalysisPageState extends State<AnalysisPage> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('📸 Fotoğraf Çek'),
+                    icon: const Icon(Icons.camera_alt, size: 20),
+                    label: const Text('Fotoğraf Çek'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       minimumSize: const Size(200, 50),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
                     onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text('🖼️ Galeriden Seç'),
-                    style: ElevatedButton.styleFrom(
+                    icon: const Icon(Icons.photo_library, size: 20),
+                    label: const Text('Galeriden Seç'),
+                    style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       minimumSize: const Size(200, 50),
+                      side: BorderSide(color: Colors.grey.shade300),
                     ),
                   ),
                 ],

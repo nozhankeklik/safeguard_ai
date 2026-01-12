@@ -42,26 +42,26 @@ class AppConstants {
   static const Duration animationDurationLong = Duration(milliseconds: 500);
 }
 
-/// Risk seviyeleri için renkler (Material Design 3 uyumlu)
+/// Risk seviyeleri için renkler (Monokrom - gri tonları)
 class RiskColors {
   RiskColors._();
 
-  // YÜKSEK - Kırmızı tonları (okunabilir)
-  static const highRiskPrimary = Color(0xFFD32F2F); // Material Red 700
-  static const highRiskLight = Color(0xFFFFCDD2); // Material Red 100
-  static const highRiskDark = Color(0xFFB71C1C); // Material Red 900
+  // YÜKSEK - Koyu gri
+  static const highRiskPrimary = Color(0xFF1A1A1A); // Dark Gray
+  static const highRiskLight = Color(0xFFF5F5F5); // Light Gray
+  static const highRiskDark = Color(0xFF0A0A0A); // Very Dark Gray
 
-  // ORTA - Turuncu tonları (okunabilir)
-  static const mediumRiskPrimary = Color(0xFFF57C00); // Material Orange 700
-  static const mediumRiskLight = Color(0xFFFFE0B2); // Material Orange 100
-  static const mediumRiskDark = Color(0xFFE65100); // Material Orange 900
+  // ORTA - Orta gri
+  static const mediumRiskPrimary = Color(0xFF4A4A4A); // Medium Gray
+  static const mediumRiskLight = Color(0xFFF5F5F5); // Light Gray
+  static const mediumRiskDark = Color(0xFF2A2A2A); // Dark Gray
 
-  // DÜŞÜK - Yeşil tonları (okunabilir)
-  static const lowRiskPrimary = Color(0xFF388E3C); // Material Green 700
-  static const lowRiskLight = Color(0xFFC8E6C9); // Material Green 100
-  static const lowRiskDark = Color(0xFF1B5E20); // Material Green 900
+  // DÜŞÜK - Açık gri
+  static const lowRiskPrimary = Color(0xFF6B7280); // Light Gray
+  static const lowRiskLight = Color(0xFFF5F5F5); // Light Gray
+  static const lowRiskDark = Color(0xFF4A4A4A); // Medium Gray
 
   // Varsayılan
-  static const defaultPrimary = Color(0xFF757575); // Material Grey 600
-  static const defaultLight = Color(0xFFEEEEEE); // Material Grey 200
+  static const defaultPrimary = Color(0xFF6B7280); // Gray
+  static const defaultLight = Color(0xFFF9FAFB); // Light Gray
 }

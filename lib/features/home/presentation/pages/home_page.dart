@@ -35,25 +35,26 @@ class _HomePageState extends State<HomePage> {
             children: [
               // Hoşgeldiniz kartı
               Card(
-                color: Theme.of(context).colorScheme.primaryContainer,
                 child: Padding(
-                  padding: EdgeInsets.all(AppConstants.spacingLarge),
+                  padding: EdgeInsets.all(AppConstants.spacingXLarge),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '👋 Hoşgeldiniz',
+                        'Hoşgeldiniz',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          letterSpacing: -0.5,
                         ),
                       ),
                       SizedBox(height: AppConstants.spacingSmall),
                       Text(
                         'SafeGuard AI ile iş güvenliğinizi yapay zeka ile analiz edin.',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade600,
+                          height: 1.5,
+                        ),
                       ),
                       SizedBox(height: AppConstants.spacingLarge),
                       ElevatedButton.icon(
@@ -77,7 +78,10 @@ class _HomePageState extends State<HomePage> {
               // İstatistikler başlığı
               Text(
                 'İstatistikler',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                ),
               ),
 
               SizedBox(height: AppConstants.spacingMedium),
@@ -89,7 +93,6 @@ class _HomePageState extends State<HomePage> {
                     child: _StatCard(
                       title: 'Yüksek Risk',
                       value: stats['YÜKSEK']?.toString() ?? '0',
-                      color: RiskColors.highRiskPrimary,
                       icon: Icons.warning,
                     ),
                   ),
@@ -98,7 +101,6 @@ class _HomePageState extends State<HomePage> {
                     child: _StatCard(
                       title: 'Orta Risk',
                       value: stats['ORTA']?.toString() ?? '0',
-                      color: RiskColors.mediumRiskPrimary,
                       icon: Icons.info,
                     ),
                   ),
@@ -113,7 +115,6 @@ class _HomePageState extends State<HomePage> {
                     child: _StatCard(
                       title: 'Düşük Risk',
                       value: stats['DÜŞÜK']?.toString() ?? '0',
-                      color: RiskColors.lowRiskPrimary,
                       icon: Icons.check_circle,
                     ),
                   ),
@@ -122,7 +123,6 @@ class _HomePageState extends State<HomePage> {
                     child: _StatCard(
                       title: 'Toplam',
                       value: ((stats['YÜKSEK'] ?? 0) + (stats['ORTA'] ?? 0) + (stats['DÜŞÜK'] ?? 0)).toString(),
-                      color: Colors.deepPurpleAccent,
                       icon: Icons.folder,
                     ),
                   ),
@@ -132,7 +132,13 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: AppConstants.spacingXLarge),
 
               // Aktivite istatistikleri
-              Text('Aktivite', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                'Aktivite',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                ),
+              ),
 
               SizedBox(height: AppConstants.spacingMedium),
 
@@ -156,7 +162,10 @@ class _HomePageState extends State<HomePage> {
               // Hızlı Erişim
               Text(
                 'Hızlı Erişim',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                ),
               ),
 
               SizedBox(height: AppConstants.spacingMedium),
@@ -165,16 +174,16 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.history, color: Colors.blue),
+                      leading: Icon(Icons.history, color: Colors.grey.shade600),
                       title: const Text('Geçmiş Raporlar'),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey.shade400),
                       onTap: () => context.go('/history'),
                     ),
-                    const Divider(height: 1),
+                    Divider(height: 1, color: Colors.grey.shade200),
                     ListTile(
-                      leading: const Icon(Icons.settings, color: Colors.grey),
+                      leading: Icon(Icons.settings, color: Colors.grey.shade600),
                       title: const Text('Ayarlar'),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey.shade400),
                       onTap: () => context.go('/settings'),
                     ),
                   ],
@@ -192,15 +201,13 @@ class _HomePageState extends State<HomePage> {
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
-  final Color color;
   final IconData icon;
 
-  const _StatCard({required this.title, required this.value, required this.color, required this.icon});
+  const _StatCard({required this.title, required this.value, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: AppConstants.elevationMedium,
       child: Padding(
         padding: EdgeInsets.all(AppConstants.spacingLarge),
         child: Column(
@@ -209,17 +216,31 @@ class _StatCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: color, size: 28),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+                ),
                 Text(
                   value,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                    letterSpacing: -0.5,
+                  ),
                 ),
               ],
             ),
             SizedBox(height: AppConstants.spacingSmall),
-            Text(title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700)),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+            ),
           ],
         ),
       ),
