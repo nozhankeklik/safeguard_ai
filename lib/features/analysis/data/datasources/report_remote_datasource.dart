@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:safeguard_ai/core/constants/api_constants.dart';
 import 'package:safeguard_ai/features/analysis/data/models/send_report_request.dart';
 import 'package:safeguard_ai/features/analysis/data/models/send_report_response.dart';
 
@@ -17,7 +18,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
   Future<SendReportResponse> sendReport(SendReportRequest request) async {
     try {
       final response = await dio.post(
-        '/send-report', // n8n webhook endpoint
+        ApiConstants.sendReportEndpoint, // n8n webhook endpoint
         data: request.toJson(),
       );
 
@@ -56,12 +57,8 @@ class ReportMockDataSource implements ReportRemoteDataSource {
       emailSent: true,
       docsCreated: request.saveToGoogleDocs,
       pdfGenerated: request.generatePdf,
-      docsUrl: request.saveToGoogleDocs 
-          ? 'https://docs.google.com/document/d/mock-doc-id' 
-          : null,
-      pdfUrl: request.generatePdf 
-          ? 'https://storage.googleapis.com/mock-bucket/report.pdf' 
-          : null,
+      docsUrl: request.saveToGoogleDocs ? 'https://docs.google.com/document/d/mock-doc-id' : null,
+      pdfUrl: request.generatePdf ? 'https://storage.googleapis.com/mock-bucket/report.pdf' : null,
       message: 'Rapor başarıyla gönderildi (Mock Mode)',
     );
   }
