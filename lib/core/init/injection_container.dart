@@ -17,50 +17,42 @@ final sl = GetIt.instance;
 // 🎛️ MOCK MODE SWITCH - n8n hazır olmadan geliştirme için
 // true = Mock kullan (sahte veri ile geliştirme)
 // false = Gerçek n8n API kullan (production)
-const bool _useMockData = true; // 👈 n8n hazır olunca false yap
+const bool _useMockData = false; // 👈 n8n hazır olunca false yap
 
 Future<void> init() async {
   // External (Dış Servisler)
   sl.registerLazySingleton<Dio>(
-    () => Dio(
-      BaseOptions(
-        baseUrl: PlatformConfig.getActiveBaseUrl(),
-        connectTimeout: ApiConstants.connectionTimeout,
-        receiveTimeout: ApiConstants.receiveTimeout,
-        headers: {
-          'Accept': 'application/json',
-        },
-      ),
-    )..interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-        requestHeader: true,
-        responseHeader: false,
-        error: true,
-      ),
-    ),
+    () =>
+        Dio(
+            BaseOptions(
+              baseUrl: PlatformConfig.getActiveBaseUrl(),
+              connectTimeout: ApiConstants.connectionTimeout,
+              receiveTimeout: ApiConstants.receiveTimeout,
+              headers: {'Accept': 'application/json'},
+            ),
+          )
+          ..interceptors.add(
+            LogInterceptor(
+              requestBody: true,
+              responseBody: true,
+              requestHeader: true,
+              responseHeader: false,
+              error: true,
+            ),
+          ),
   );
 
   // Data Sources - Mock/Production Switch
   if (_useMockData) {
     // 🎭 MOCK MODE - Geliştirme için sahte veri
-    sl.registerLazySingleton<AnalysisRemoteDataSource>(
-      () => AnalysisMockDataSource(),
-    );
-    sl.registerLazySingleton<ReportRemoteDataSource>(
-      () => ReportMockDataSource(),
-    );
+    sl.registerLazySingleton<AnalysisRemoteDataSource>(() => AnalysisMockDataSource());
+    sl.registerLazySingleton<ReportRemoteDataSource>(() => ReportMockDataSource());
     // ignore: avoid_print
     print('🎭 MOCK MODE: Sahte veri kullanılıyor (n8n bağlantısı yok)');
   } else {
     // 🚀 PRODUCTION MODE - Gerçek n8n API
-    sl.registerLazySingleton<AnalysisRemoteDataSource>(
-      () => AnalysisRemoteDataSourceImpl(sl<Dio>()),
-    );
-    sl.registerLazySingleton<ReportRemoteDataSource>(
-      () => ReportRemoteDataSourceImpl(sl<Dio>()),
-    );
+    sl.registerLazySingleton<AnalysisRemoteDataSource>(() => AnalysisRemoteDataSourceImpl(sl<Dio>()));
+    sl.registerLazySingleton<ReportRemoteDataSource>(() => ReportRemoteDataSourceImpl(sl<Dio>()));
     // ignore: avoid_print
     print('🚀 PRODUCTION MODE: n8n API kullanılıyor');
   }
