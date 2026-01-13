@@ -204,12 +204,12 @@ class _ReportCard extends StatelessWidget {
                     height: 80,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholderImage();
+                      return _buildPlaceholderImage(context);
                     },
                   ),
                 )
               else
-                _buildPlaceholderImage(),
+                _buildPlaceholderImage(context),
 
               SizedBox(width: AppConstants.spacingMedium),
 
@@ -287,15 +287,15 @@ class _ReportCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildPlaceholderImage(BuildContext context) {
     return Container(
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
       ),
-      child: Icon(Icons.image, size: 40, color: Colors.grey.shade400),
+      child: Icon(Icons.image, size: 40, color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
     );
   }
 

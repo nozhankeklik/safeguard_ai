@@ -217,10 +217,10 @@ class _StatCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(6),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
@@ -263,10 +263,10 @@ class _ActivityTile extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(AppConstants.spacingSmall),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
             borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
           ),
-          child: Icon(icon, size: 20, color: Colors.grey.shade700),
+          child: Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
         ),
         SizedBox(width: AppConstants.spacingMedium),
         Expanded(child: Text(title, style: Theme.of(context).textTheme.bodyLarge)),

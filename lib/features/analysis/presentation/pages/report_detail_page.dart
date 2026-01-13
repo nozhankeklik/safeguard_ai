@@ -35,12 +35,12 @@ class ReportDetailPage extends StatelessWidget {
                   height: 250,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholderImage();
+                    return _buildPlaceholderImage(context);
                   },
                 ),
               )
             else
-              _buildPlaceholderImage(),
+              _buildPlaceholderImage(context),
 
             SizedBox(height: AppConstants.spacingLarge),
 
@@ -188,15 +188,15 @@ class ReportDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildPlaceholderImage(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 250,
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
       ),
-      child: Icon(Icons.image, size: 80, color: Colors.grey.shade400),
+      child: Icon(Icons.image, size: 80, color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
     );
   }
 

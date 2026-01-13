@@ -13,8 +13,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _notificationsEnabled = true;
-  bool _mockModeEnabled = true; // TODO: Gerçek değer injection_container'dan gelecek
   bool _isTestingConnection = false;
 
   @override
@@ -39,10 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ayarlar'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Ayarlar'), centerTitle: true),
       body: ListView(
         children: [
           // Email Yönetimi Bölümü
@@ -92,19 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
             value: themeNotifier.isDarkMode,
             onChanged: (value) async {
               await themeNotifier.toggleTheme();
-              _showSuccessSnackBar(
-                '${themeNotifier.isDarkMode ? "🌙 Karanlık" : "☀️ Açık"} tema aktif!',
-              );
-            },
-          ),
-          _SettingsSwitchTile(
-            icon: Icons.notifications_outlined,
-            title: 'Bildirimler',
-            subtitle: 'Push bildirimler açık',
-            value: _notificationsEnabled,
-            onChanged: (value) {
-              setState(() => _notificationsEnabled = value);
-              // TODO: Bildirim ayarları kaydedilecek
+              _showSuccessSnackBar('${themeNotifier.isDarkMode ? "🌙 Karanlık" : "☀️ Açık"} tema aktif!');
             },
           ),
 
@@ -112,29 +95,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
           // n8n Bağlantı Durumu
           _SectionHeader(title: 'Backend Bağlantısı'),
-          _SettingsSwitchTile(
-            icon: _mockModeEnabled ? Icons.code : Icons.cloud_done,
-            title: _mockModeEnabled ? '🎭 Mock Mode Aktif' : '🚀 Production Mode',
-            subtitle: _mockModeEnabled
-                ? 'Sahte veri kullanılıyor (n8n bağlantısı yok)'
-                : 'n8n API kullanılıyor',
-            value: _mockModeEnabled,
-            onChanged: (value) {
-              _showMockModeWarningDialog(value);
-            },
-          ),
           _SettingsTile(
             icon: _isTestingConnection ? Icons.sync : Icons.wifi_tethering,
             title: 'Bağlantı Testi',
-            subtitle: _isTestingConnection 
-                ? 'Test ediliyor...'
-                : 'n8n API bağlantısını test et',
-            trailing: _isTestingConnection 
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+            subtitle: _isTestingConnection ? 'Test ediliyor...' : 'n8n API bağlantısını test et',
+            trailing: _isTestingConnection
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : null,
             onTap: _isTestingConnection ? null : _testConnection,
           ),
@@ -174,73 +140,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  /// Mock mode değişikliği uyarısı
-  void _showMockModeWarningDialog(bool newValue) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(
-              newValue ? Icons.code : Icons.cloud_done,
-              color: newValue ? Colors.orange : Colors.green,
-            ),
-            const SizedBox(width: 8),
-            const Text('Mod Değişikliği'),
-          ],
-        ),
-        content: Text(
-          newValue
-              ? 'Mock Mode\'a geçmek istediğinize emin misiniz?\n\n'
-                  'Bu modda:\n'
-                  '• Sahte veri kullanılır\n'
-                  '• n8n\'e bağlanılmaz\n'
-                  '• Mail gönderilmez\n\n'
-                  'Değişikliği yapmak için uygulamayı yeniden başlatmanız gerekir.'
-              : 'Production Mode\'a geçmek istediğinize emin misiniz?\n\n'
-                  'Bu modda:\n'
-                  '• Gerçek n8n API kullanılır\n'
-                  '• Mailler gerçekten gönderilir\n'
-                  '• n8n workflow\'unun hazır olması gerekir\n\n'
-                  'Değişikliği yapmak için uygulamayı yeniden başlatmanız gerekir.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: injection_container.dart'taki _useMockData değerini değiştir
-              _showRestartRequiredDialog();
-            },
-            child: const Text('Değiştir'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Yeniden başlatma gerekli uyarısı
-  void _showRestartRequiredDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yeniden Başlatma Gerekli'),
-        content: const Text(
-          'Değişikliğin uygulanması için uygulamayı kapatıp yeniden başlatın.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// Hakkında dialogu
   void _showAboutDialog() {
     showAboutDialog(
@@ -249,9 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
       applicationVersion: '1.0.0',
       applicationIcon: const Icon(Icons.security, size: 48),
       children: [
-        const Text(
-          'AI destekli iş güvenliği analiz ve raporlama uygulaması.',
-        ),
+        const Text('AI destekli iş güvenliği analiz ve raporlama uygulaması.'),
         const SizedBox(height: 16),
         const Text(
           'Geliştirici: SafeGuard Team\n'
@@ -267,14 +164,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       final dio = di.sl<Dio>();
-      
+
       // Basit bir GET request ile test
       final response = await dio.get(
         '/',
-        options: Options(
-          sendTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-        ),
+        options: Options(sendTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
       );
 
       if (mounted) {
@@ -348,16 +242,8 @@ class _SettingsPageState extends State<SettingsPage> {
             Text('Yakında Geliyor'),
           ],
         ),
-        content: Text(
-          '"$feature" özelliği yakında eklenecek!\n\n'
-          'Şimdilik Mock Mode ile tüm özellikleri test edebilirsiniz.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
-          ),
-        ],
+        content: Text('"$feature" özelliği yakında eklenecek!'),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tamam'))],
       ),
     );
   }
@@ -380,10 +266,9 @@ class _SectionHeader extends StatelessWidget {
       ),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).primaryColor,
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -397,13 +282,7 @@ class _SettingsTile extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? trailing;
 
-  const _SettingsTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-    this.trailing,
-  });
+  const _SettingsTile({required this.icon, required this.title, required this.subtitle, this.onTap, this.trailing});
 
   @override
   Widget build(BuildContext context) {
