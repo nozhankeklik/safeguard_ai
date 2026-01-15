@@ -36,7 +36,7 @@ class ReportHiveModel extends HiveObject {
   final bool emailSent;
 
   @HiveField(10)
-  final bool savedToGoogleDocs;
+  final bool savedToGoogleDrive;
 
   @HiveField(11)
   final bool pdfGenerated;
@@ -52,7 +52,7 @@ class ReportHiveModel extends HiveObject {
     required this.recipients,
     this.ccRecipients = const [],
     this.emailSent = false,
-    this.savedToGoogleDocs = false,
+    this.savedToGoogleDrive = false,
     this.pdfGenerated = false,
   });
 
@@ -68,7 +68,7 @@ class ReportHiveModel extends HiveObject {
     required List<String> recipients,
     List<String> ccRecipients = const [],
     bool emailSent = false,
-    bool savedToGoogleDocs = false,
+    bool savedToGoogleDrive = false,
     bool pdfGenerated = false,
   }) {
     return ReportHiveModel(
@@ -82,7 +82,7 @@ class ReportHiveModel extends HiveObject {
       recipients: recipients,
       ccRecipients: ccRecipients,
       emailSent: emailSent,
-      savedToGoogleDocs: savedToGoogleDocs,
+      savedToGoogleDrive: savedToGoogleDrive,
       pdfGenerated: pdfGenerated,
     );
   }

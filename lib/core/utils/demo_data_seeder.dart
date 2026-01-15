@@ -49,7 +49,7 @@ class DemoDataSeeder {
       recipients: _getRandomRecipients(riskLevel),
       ccRecipients: _random.nextBool() ? ['yonetim@sirket.com'] : [],
       emailSent: _random.nextBool(),
-      savedToGoogleDocs: _random.nextBool(),
+      savedToGoogleDrive: _random.nextBool(),
       pdfGenerated: _random.nextBool(),
     );
   }

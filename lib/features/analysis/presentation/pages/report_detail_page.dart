@@ -166,8 +166,8 @@ class ReportDetailPage extends StatelessWidget {
                     _buildStatusTile(
                       context,
                       icon: Icons.cloud_done,
-                      label: 'Google Docs\'a Kaydedildi',
-                      isCompleted: report.savedToGoogleDocs,
+                      label: 'Google Drive\'a Kaydedildi',
+                      isCompleted: report.savedToGoogleDrive,
                     ),
                     Divider(height: AppConstants.spacingLarge),
                     _buildStatusTile(

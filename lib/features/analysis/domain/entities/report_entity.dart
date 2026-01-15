@@ -15,7 +15,7 @@ class ReportEntity with _$ReportEntity {
     required List<String> recipients,
     @Default([]) List<String> ccRecipients,
     @Default([]) List<String> bccRecipients,
-    @Default(false) bool saveToGoogleDocs,
+    @Default(false) bool saveToGoogleDrive,
     @Default(false) bool generatePdf,
     @Default(false) bool createFollowUp,
   }) = _ReportEntity;

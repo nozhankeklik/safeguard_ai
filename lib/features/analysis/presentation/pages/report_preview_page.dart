@@ -27,7 +27,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
   late TextEditingController _bodyController;
   late List<String> _recipients;
   late List<String> _ccRecipients;
-  bool _saveToGoogleDocs = false;
+  bool _saveToGoogleDrive = false;
   bool _generatePdf = false;
   bool _createFollowUp = false;
   bool _isLoading = false;
@@ -259,7 +259,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
         emailBody: body,
         recipients: _recipients,
         ccRecipients: _ccRecipients,
-        saveToGoogleDocs: _saveToGoogleDocs,
+        saveToGoogleDrive: _saveToGoogleDrive,
         generatePdf: _generatePdf,
       );
 
@@ -278,7 +278,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
         recipients: _recipients,
         ccRecipients: _ccRecipients,
         emailSent: response.emailSent,
-        savedToGoogleDocs: response.docsCreated,
+        savedToGoogleDrive: response.driveFileCreated,
         pdfGenerated: response.pdfGenerated,
       );
 
@@ -326,13 +326,13 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
               ],
             ),
-            if (_saveToGoogleDocs) ...[
+            if (_saveToGoogleDrive) ...[
               const SizedBox(height: 8),
               Row(
                 children: [
                   Icon(Icons.cloud_done, color: Theme.of(context).colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
-                  Text('Google Docs\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
+                  Text('Google Drive\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
                 ],
               ),
             ],
@@ -642,15 +642,15 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 child: Column(
                   children: [
                     CheckboxListTile(
-                      title: const Text('Google Docs\'a kaydet'),
-                      subtitle: const Text('Rapor otomatik olarak Google Docs\'a kaydedilir'),
-                      value: _saveToGoogleDocs,
+                      title: const Text('Google Drive\'a kaydet'),
+                      subtitle: const Text('Rapor otomatik olarak Google Drive\'a kaydedilir'),
+                      value: _saveToGoogleDrive,
                       onChanged: (value) {
                         setState(() {
-                          _saveToGoogleDocs = value ?? false;
+                          _saveToGoogleDrive = value ?? false;
                         });
                       },
-                      secondary: const Icon(Icons.description),
+                      secondary: const Icon(Icons.cloud_upload),
                     ),
                     const Divider(height: 1),
                     CheckboxListTile(

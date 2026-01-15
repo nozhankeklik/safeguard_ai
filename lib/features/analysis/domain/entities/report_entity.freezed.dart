@@ -24,7 +24,7 @@ mixin _$ReportEntity {
   List<String> get recipients => throw _privateConstructorUsedError;
   List<String> get ccRecipients => throw _privateConstructorUsedError;
   List<String> get bccRecipients => throw _privateConstructorUsedError;
-  bool get saveToGoogleDocs => throw _privateConstructorUsedError;
+  bool get saveToGoogleDrive => throw _privateConstructorUsedError;
   bool get generatePdf => throw _privateConstructorUsedError;
   bool get createFollowUp => throw _privateConstructorUsedError;
 
@@ -48,7 +48,7 @@ abstract class $ReportEntityCopyWith<$Res> {
       List<String> recipients,
       List<String> ccRecipients,
       List<String> bccRecipients,
-      bool saveToGoogleDocs,
+      bool saveToGoogleDrive,
       bool generatePdf,
       bool createFollowUp});
 
@@ -76,7 +76,7 @@ class _$ReportEntityCopyWithImpl<$Res, $Val extends ReportEntity>
     Object? recipients = null,
     Object? ccRecipients = null,
     Object? bccRecipients = null,
-    Object? saveToGoogleDocs = null,
+    Object? saveToGoogleDrive = null,
     Object? generatePdf = null,
     Object? createFollowUp = null,
   }) {
@@ -113,9 +113,9 @@ class _$ReportEntityCopyWithImpl<$Res, $Val extends ReportEntity>
           ? _value.bccRecipients
           : bccRecipients // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      saveToGoogleDocs: null == saveToGoogleDocs
-          ? _value.saveToGoogleDocs
-          : saveToGoogleDocs // ignore: cast_nullable_to_non_nullable
+      saveToGoogleDrive: null == saveToGoogleDrive
+          ? _value.saveToGoogleDrive
+          : saveToGoogleDrive // ignore: cast_nullable_to_non_nullable
               as bool,
       generatePdf: null == generatePdf
           ? _value.generatePdf
@@ -154,7 +154,7 @@ abstract class _$$ReportEntityImplCopyWith<$Res>
       List<String> recipients,
       List<String> ccRecipients,
       List<String> bccRecipients,
-      bool saveToGoogleDocs,
+      bool saveToGoogleDrive,
       bool generatePdf,
       bool createFollowUp});
 
@@ -181,7 +181,7 @@ class __$$ReportEntityImplCopyWithImpl<$Res>
     Object? recipients = null,
     Object? ccRecipients = null,
     Object? bccRecipients = null,
-    Object? saveToGoogleDocs = null,
+    Object? saveToGoogleDrive = null,
     Object? generatePdf = null,
     Object? createFollowUp = null,
   }) {
@@ -218,9 +218,9 @@ class __$$ReportEntityImplCopyWithImpl<$Res>
           ? _value._bccRecipients
           : bccRecipients // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      saveToGoogleDocs: null == saveToGoogleDocs
-          ? _value.saveToGoogleDocs
-          : saveToGoogleDocs // ignore: cast_nullable_to_non_nullable
+      saveToGoogleDrive: null == saveToGoogleDrive
+          ? _value.saveToGoogleDrive
+          : saveToGoogleDrive // ignore: cast_nullable_to_non_nullable
               as bool,
       generatePdf: null == generatePdf
           ? _value.generatePdf
@@ -246,7 +246,7 @@ class _$ReportEntityImpl implements _ReportEntity {
       required final List<String> recipients,
       final List<String> ccRecipients = const [],
       final List<String> bccRecipients = const [],
-      this.saveToGoogleDocs = false,
+      this.saveToGoogleDrive = false,
       this.generatePdf = false,
       this.createFollowUp = false})
       : _recipients = recipients,
@@ -291,7 +291,7 @@ class _$ReportEntityImpl implements _ReportEntity {
 
   @override
   @JsonKey()
-  final bool saveToGoogleDocs;
+  final bool saveToGoogleDrive;
   @override
   @JsonKey()
   final bool generatePdf;
@@ -301,7 +301,7 @@ class _$ReportEntityImpl implements _ReportEntity {
 
   @override
   String toString() {
-    return 'ReportEntity(analysis: $analysis, imagePath: $imagePath, timestamp: $timestamp, emailSubject: $emailSubject, emailBody: $emailBody, recipients: $recipients, ccRecipients: $ccRecipients, bccRecipients: $bccRecipients, saveToGoogleDocs: $saveToGoogleDocs, generatePdf: $generatePdf, createFollowUp: $createFollowUp)';
+    return 'ReportEntity(analysis: $analysis, imagePath: $imagePath, timestamp: $timestamp, emailSubject: $emailSubject, emailBody: $emailBody, recipients: $recipients, ccRecipients: $ccRecipients, bccRecipients: $bccRecipients, saveToGoogleDrive: $saveToGoogleDrive, generatePdf: $generatePdf, createFollowUp: $createFollowUp)';
   }
 
   @override
@@ -325,8 +325,8 @@ class _$ReportEntityImpl implements _ReportEntity {
                 .equals(other._ccRecipients, _ccRecipients) &&
             const DeepCollectionEquality()
                 .equals(other._bccRecipients, _bccRecipients) &&
-            (identical(other.saveToGoogleDocs, saveToGoogleDocs) ||
-                other.saveToGoogleDocs == saveToGoogleDocs) &&
+            (identical(other.saveToGoogleDrive, saveToGoogleDrive) ||
+                other.saveToGoogleDrive == saveToGoogleDrive) &&
             (identical(other.generatePdf, generatePdf) ||
                 other.generatePdf == generatePdf) &&
             (identical(other.createFollowUp, createFollowUp) ||
@@ -344,7 +344,7 @@ class _$ReportEntityImpl implements _ReportEntity {
       const DeepCollectionEquality().hash(_recipients),
       const DeepCollectionEquality().hash(_ccRecipients),
       const DeepCollectionEquality().hash(_bccRecipients),
-      saveToGoogleDocs,
+      saveToGoogleDrive,
       generatePdf,
       createFollowUp);
 
@@ -365,7 +365,7 @@ abstract class _ReportEntity implements ReportEntity {
       required final List<String> recipients,
       final List<String> ccRecipients,
       final List<String> bccRecipients,
-      final bool saveToGoogleDocs,
+      final bool saveToGoogleDrive,
       final bool generatePdf,
       final bool createFollowUp}) = _$ReportEntityImpl;
 
@@ -386,7 +386,7 @@ abstract class _ReportEntity implements ReportEntity {
   @override
   List<String> get bccRecipients;
   @override
-  bool get saveToGoogleDocs;
+  bool get saveToGoogleDrive;
   @override
   bool get generatePdf;
   @override

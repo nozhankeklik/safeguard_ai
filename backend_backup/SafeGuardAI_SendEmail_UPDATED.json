@@ -1,0 +1,282 @@
+{
+  "name": "SafeGuardAI_SendEmail",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "send-report",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8611d5a3-35c8-4133-afcf-f4a1dd5509c5",
+      "name": "Webhook",
+      "webhookId": "ddbc93fd-cbb0-481e-bd3d-1fb294a3f6ac"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Webhook'tan gelen veriyi al\nconst items = $input.all();\nconst request = items[0].json.body || items[0].json;\n\n// Base64 image'ı decode et (email attachment için)\nlet imageBuffer = null;\nlet imageName = 'analysis.jpg';\n\nif (request.image) {\n  imageBuffer = Buffer.from(request.image, 'base64');\n  imageName = request.imageName || 'analysis.jpg';\n}\n\n// Recipients kontrolü\nconst recipients = request.recipients || [];\nconst ccRecipients = request.ccRecipients || [];\n\n// Analiz metnini temizle - risk seviyesi kelimelerini kaldır\nlet cleanAnalysis = request.analysis || '';\ncleanAnalysis = cleanAnalysis.replace(/^(ÜKSEK|ÜŞÜK|YÜKSEK|DÜŞÜK|ORTA|HIGH|LOW|MEDIUM)\\s+/gi, \"\").trim();\ncleanAnalysis = cleanAnalysis.replace(/^\\d+\\.\\s*/g, \"\").trim(); // Numaraları kaldır\ncleanAnalysis = cleanAnalysis.replace(/^(Risk|Risk Level|RİSK|RİSK SEVİYESİ):\\s*\\w+\\s*/gi, \"\").trim();\n\n// Risk seviyesine göre metin\nlet riskText = 'ORTA SEVİYE';\nif (request.riskLevel === 'YÜKSEK' || request.riskLevel === 'HIGH') {\n  riskText = 'YÜKSEK SEVİYE';\n} else if (request.riskLevel === 'DÜŞÜK' || request.riskLevel === 'LOW') {\n  riskText = 'DÜŞÜK SEVİYE';\n}\n\n// Formatlı tarih\nconst timestamp = request.timestamp ? new Date(request.timestamp) : new Date();\nconst formattedDate = timestamp.toLocaleDateString('tr-TR', {\n  day: '2-digit',\n  month: '2-digit',\n  year: 'numeric',\n  hour: '2-digit',\n  minute: '2-digit'\n});\n\n// Sade ve resmi HTML email body\nconst htmlBody = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <style>\n    body {\n      font-family: 'Calibri', 'Arial', sans-serif;\n      line-height: 1.8;\n      color: #000000;\n      margin: 0;\n      padding: 0;\n      background-color: #ffffff;\n    }\n    .email-container {\n      max-width: 650px;\n      margin: 0 auto;\n      background-color: #ffffff;\n      padding: 40px;\n    }\n    .header {\n      margin-bottom: 30px;\n      padding-bottom: 20px;\n      border-bottom: 2px solid #000000;\n    }\n    .header h1 {\n      margin: 0;\n      font-size: 20px;\n      font-weight: bold;\n      color: #000000;\n      text-transform: uppercase;\n      letter-spacing: 1px;\n    }\n    .greeting {\n      font-size: 14px;\n      margin-bottom: 20px;\n    }\n    .content {\n      font-size: 14px;\n      color: #000000;\n      margin-bottom: 25px;\n    }\n    .section-title {\n      font-weight: bold;\n      font-size: 14px;\n      margin: 25px 0 10px 0;\n      text-transform: uppercase;\n    }\n    .analysis-text {\n      font-size: 14px;\n      line-height: 1.8;\n      margin: 15px 0;\n      color: #000000;\n    }\n    .risk-level {\n      font-weight: bold;\n      font-size: 14px;\n      margin: 15px 0;\n    }\n    .actions-title {\n      font-weight: bold;\n      font-size: 14px;\n      margin: 25px 0 10px 0;\n    }\n    .actions-list {\n      margin: 10px 0;\n      padding-left: 25px;\n      font-size: 14px;\n      line-height: 2;\n    }\n    .attachment-note {\n      font-size: 14px;\n      margin: 20px 0;\n      font-style: italic;\n    }\n    .footer {\n      margin-top: 40px;\n      padding-top: 20px;\n      border-top: 1px solid #cccccc;\n      font-size: 12px;\n      color: #666666;\n    }\n    .signature {\n      font-weight: bold;\n      margin: 15px 0 5px 0;\n      font-size: 14px;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"email-container\">\n    <div class=\"header\">\n      <h1>İş Güvenliği Kontrol Raporu</h1>\n    </div>\n    \n    <div class=\"greeting\">Sayın İlgili,</div>\n    \n    <div class=\"content\">\n      ${formattedDate} tarihinde gerçekleştirilen iş güvenliği kontrolü kapsamında aşağıdaki tespitler yapılmıştır.\n    </div>\n    \n    <div class=\"section-title\">Tespit Edilen Durum</div>\n    <div class=\"analysis-text\">${cleanAnalysis.replace(/\\n/g, '<br>')}</div>\n    \n    <div class=\"section-title\">Risk Seviyesi</div>\n    <div class=\"risk-level\">${riskText}</div>\n    \n    ${request.riskLevel === 'YÜKSEK' || request.riskLevel === 'HIGH' ? `\n    <div class=\"actions-title\">Acil Yapılması Gerekenler</div>\n    <ul class=\"actions-list\">\n      <li>İlgili alanın derhal kapatılması</li>\n      <li>Çalışanların acilen bilgilendirilmesi</li>\n      <li>Düzeltici aksiyonların ivedilikle başlatılması</li>\n      <li>Yönetim ekibinin konu hakkında bilgilendirilmesi</li>\n    </ul>\n    ` : request.riskLevel === 'ORTA' || request.riskLevel === 'MEDIUM' ? `\n    <div class=\"actions-title\">Önerilen Aksiyonlar</div>\n    <ul class=\"actions-list\">\n      <li>Durumun 24 saat içinde kontrol edilmesi</li>\n      <li>Gerekli önlemlerin alınması</li>\n      <li>İlgili personelin bilgilendirilmesi</li>\n      <li>Takip raporunun hazırlanması</li>\n    </ul>\n    ` : ''}\n    \n    <div class=\"attachment-note\">\n      Detaylı fotoğraf ekte sunulmaktadır.\n    </div>\n    \n    <div class=\"footer\">\n      <div class=\"signature\">Saygılarımızla,<br>SafeGuard AI Sistemi</div>\n      <div style=\"margin-top: 15px;\">\n        İş Güvenliği ve Sağlığı Yönetim Sistemi\n      </div>\n      <div style=\"margin-top: 15px; font-style: italic;\">\n        Bu rapor otomatik olarak oluşturulmuştur.<br>\n        Rapor Tarihi: ${formattedDate}\n      </div>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\n// Çıktıyı hazırla\nconst outputItem = {\n  json: {\n    to: Array.isArray(recipients) && recipients.length > 0 \n        ? recipients.join(', ') \n        : '',\n    cc: Array.isArray(ccRecipients) && ccRecipients.length > 0 \n        ? ccRecipients.join(', ') \n        : '',\n    subject: request.emailSubject || 'İş Güvenliği Kontrol Raporu',\n    body: htmlBody,\n    analysis: cleanAnalysis,\n    riskLevel: request.riskLevel || 'ORTA',\n    saveToGoogleDrive: request.saveToGoogleDrive || false, // DÜZELTME: saveToGoogleDocs → saveToGoogleDrive\n    generatePdf: request.generatePdf || false,\n    // Google Drive için gerekli data\n    imageBuffer: imageBuffer,\n    imageName: imageName,\n    timestamp: request.timestamp || new Date().toISOString(),\n    originalRequest: request // Tüm request'i sakla\n  }\n};\n\n// Binary data'yı doğru formatta ekle\nif (imageBuffer) {\n  outputItem.binary = {\n    data: {\n      data: imageBuffer,\n      mimeType: 'image/jpeg',\n      fileName: imageName\n    }\n  };\n}\n\nreturn [outputItem];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0fb0a715-6dd0-47a4-ac56-67d52461146a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.saveToGoogleDrive }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "if-save-to-drive",
+      "name": "Save to Drive?"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $json.imageName || 'safeguard_report_' + $now.toFormat('yyyy-MM-dd_HH-mm-ss') + '.jpg' }}",
+        "binaryData": true,
+        "options": {
+          "convert": false
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        624,
+        -100
+      ],
+      "id": "google-drive-upload",
+      "name": "Upload Image to Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-credentials-id",
+          "name": "Google Drive Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "resource": "document",
+        "name": "={{ 'SafeGuard_Report_' + $now.toFormat('yyyy-MM-dd_HH-mm-ss') + '.txt' }}",
+        "options": {
+          "content": "=GÜVENLİK RAPORU\n\nTarih: {{ $('Code in JavaScript').item.json.originalRequest.timestamp || $now.toFormat('yyyy-MM-dd HH:mm:ss') }}\nRisk Seviyesi: {{ $('Code in JavaScript').item.json.riskLevel }}\n\nANALİZ:\n{{ $('Code in JavaScript').item.json.analysis }}\n\nE-posta Konusu: {{ $('Code in JavaScript').item.json.subject }}\nE-posta İçeriği:\n{{ $('Code in JavaScript').item.json.originalRequest.emailBody || '' }}\n\nAlıcılar: {{ $('Code in JavaScript').item.json.originalRequest.recipients ? $('Code in JavaScript').item.json.originalRequest.recipients.join(', ') : '' }}\nCC: {{ $('Code in JavaScript').item.json.originalRequest.ccRecipients ? $('Code in JavaScript').item.json.originalRequest.ccRecipients.join(', ') : 'Yok' }}\n"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "google-drive-create-doc",
+      "name": "Create Report Document",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google-drive-credentials-id",
+          "name": "Google Drive Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json.to }}",
+        "subject": "={{ $('Code in JavaScript').item.json.subject }}",
+        "message": "={{ $('Code in JavaScript').item.json.body }}{{ $('Save to Drive?').item.json.saveToGoogleDrive ? '\\n\\n---\\n\\nRapor Google Drive\\'a kaydedilmiştir: ' + ($('Upload Image to Drive').item.json.webViewLink || $('Create Report Document').item.json.webViewLink || '') : '' }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          },
+          "ccList": "={{ $('Code in JavaScript').item.json.cc }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "94a25eb3-6fa5-4251-bc9a-34564d174712",
+      "name": "Send a message",
+      "webhookId": "0e9698c8-5f20-4e2b-a37c-e340d1720379",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SlMQXANNecaKGmaC",
+          "name": "GoogleAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gmail'den gelen sonucu al\nconst items = $input.all();\nconst gmailResult = items[0].json;\n\n// Google Drive sonuçlarını kontrol et\nlet driveFileCreated = false;\nlet driveFileUrl = null;\n\n// Eğer Save to Drive? node'undan geçtiyse\nconst saveToDrive = $('Code in JavaScript').item.json.saveToGoogleDrive || false;\n\nif (saveToDrive) {\n  // Upload Image to Drive node'unun sonucunu kontrol et\n  const uploadNode = $('Upload Image to Drive');\n  const createDocNode = $('Create Report Document');\n  \n  if (uploadNode && uploadNode.item && uploadNode.item.json.webViewLink) {\n    driveFileCreated = true;\n    driveFileUrl = uploadNode.item.json.webViewLink;\n  } else if (createDocNode && createDocNode.item && createDocNode.item.json.webViewLink) {\n    driveFileCreated = true;\n    driveFileUrl = createDocNode.item.json.webViewLink;\n  }\n}\n\n// Flutter'ın beklediği format\nreturn [{\n  json: {\n    success: true,\n    emailSent: true,\n    driveFileCreated: driveFileCreated,\n    driveFileUrl: driveFileUrl,\n    pdfGenerated: $('Code in JavaScript').item.json.generatePdf || false,\n    message: driveFileCreated ? 'Email başarıyla gönderildi ve Google Drive\\'a kaydedildi' : 'Email başarıyla gönderildi',\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "27293405-654e-47c2-b16c-54ee45c97ef8",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "db3b543f-0f60-4316-8ab8-6017c69d2a37",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Save to Drive?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Drive?": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Report Document",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to Drive": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Report Document": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "fc1f32f1-b56f-4671-9a1c-1967f60a59f0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "157cea3e3d437849207f265d427c496387f8da36e05a5ca4aa02fd2bedad9089"
+  },
+  "id": "Coi8bEkI6V97KayIsT2JM",
+  "tags": []
+}

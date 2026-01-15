@@ -10,7 +10,7 @@ class SendReportRequest {
   final String emailBody;
   final List<String> recipients;
   final List<String> ccRecipients;
-  final bool saveToGoogleDocs;
+  final bool saveToGoogleDrive;
   final bool generatePdf;
 
   SendReportRequest({
@@ -21,7 +21,7 @@ class SendReportRequest {
     required this.emailBody,
     required this.recipients,
     this.ccRecipients = const [],
-    this.saveToGoogleDocs = false,
+    this.saveToGoogleDrive = false,
     this.generatePdf = false,
   });
 
@@ -40,7 +40,7 @@ class SendReportRequest {
       'emailBody': emailBody,
       'recipients': recipients,
       'ccRecipients': ccRecipients,
-      'saveToGoogleDocs': saveToGoogleDocs,
+      'saveToGoogleDrive': saveToGoogleDrive,
       'generatePdf': generatePdf,
       'timestamp': DateTime.now().toIso8601String(),
     };

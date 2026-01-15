@@ -55,9 +55,9 @@ class ReportMockDataSource implements ReportRemoteDataSource {
     return SendReportResponse(
       success: true,
       emailSent: true,
-      docsCreated: request.saveToGoogleDocs,
+      driveFileCreated: request.saveToGoogleDrive,
       pdfGenerated: request.generatePdf,
-      docsUrl: request.saveToGoogleDocs ? 'https://docs.google.com/document/d/mock-doc-id' : null,
+      driveFileUrl: request.saveToGoogleDrive ? 'https://drive.google.com/file/d/mock-file-id/view' : null,
       pdfUrl: request.generatePdf ? 'https://storage.googleapis.com/mock-bucket/report.pdf' : null,
       message: 'Rapor başarıyla gönderildi (Mock Mode)',
     );

@@ -9,8 +9,8 @@ class ApiConstants {
   // n8n webhook endpoint (tam path: /webhook-test/test)
   static const analyzeEndpoint = '/webhook-test/test';
 
-  // n8n email gönderme endpoint (tam path: /webhook-test/send-report)
-  static const sendReportEndpoint = '/webhook-test/send-report';
+  // n8n email gönderme endpoint (tam path: /webhook/send-report)
+  static const sendReportEndpoint = '/webhook/send-report';
 
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 60);

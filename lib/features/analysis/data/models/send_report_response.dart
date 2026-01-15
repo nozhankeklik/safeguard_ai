@@ -2,18 +2,18 @@
 class SendReportResponse {
   final bool success;
   final bool emailSent;
-  final bool docsCreated;
+  final bool driveFileCreated;
   final bool pdfGenerated;
-  final String? docsUrl;
+  final String? driveFileUrl;
   final String? pdfUrl;
   final String? message;
 
   SendReportResponse({
     required this.success,
     this.emailSent = false,
-    this.docsCreated = false,
+    this.driveFileCreated = false,
     this.pdfGenerated = false,
-    this.docsUrl,
+    this.driveFileUrl,
     this.pdfUrl,
     this.message,
   });
@@ -22,9 +22,9 @@ class SendReportResponse {
     return SendReportResponse(
       success: json['success'] ?? false,
       emailSent: json['emailSent'] ?? false,
-      docsCreated: json['docsCreated'] ?? false,
+      driveFileCreated: json['driveFileCreated'] ?? false,
       pdfGenerated: json['pdfGenerated'] ?? false,
-      docsUrl: json['docsUrl'],
+      driveFileUrl: json['driveFileUrl'],
       pdfUrl: json['pdfUrl'],
       message: json['message'],
     );

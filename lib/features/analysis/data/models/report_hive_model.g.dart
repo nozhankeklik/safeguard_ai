@@ -27,7 +27,7 @@ class ReportHiveModelAdapter extends TypeAdapter<ReportHiveModel> {
       recipients: (fields[7] as List).cast<String>(),
       ccRecipients: (fields[8] as List).cast<String>(),
       emailSent: fields[9] as bool,
-      savedToGoogleDocs: fields[10] as bool,
+      savedToGoogleDrive: fields[10] as bool,
       pdfGenerated: fields[11] as bool,
     );
   }
@@ -57,7 +57,7 @@ class ReportHiveModelAdapter extends TypeAdapter<ReportHiveModel> {
       ..writeByte(9)
       ..write(obj.emailSent)
       ..writeByte(10)
-      ..write(obj.savedToGoogleDocs)
+      ..write(obj.savedToGoogleDrive)
       ..writeByte(11)
       ..write(obj.pdfGenerated);
   }

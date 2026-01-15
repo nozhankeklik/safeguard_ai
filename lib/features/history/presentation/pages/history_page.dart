@@ -257,7 +257,7 @@ class _ReportCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         if (report.emailSent) Icon(Icons.email, size: 16, color: Colors.green.shade600),
-                        if (report.savedToGoogleDocs)
+                        if (report.savedToGoogleDrive)
                           Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Icon(Icons.cloud_done, size: 16, color: Colors.blue.shade600),
