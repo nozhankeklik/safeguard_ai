@@ -9,7 +9,7 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFF4A4A4A); // Medium Gray
   static const Color backgroundColor = Color(0xFFFAFAFA); // Off-white
 
-  /// Light Theme (Varsayılan)
+  /// Light Theme (Varsayılan)""
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -39,9 +39,7 @@ class AppTheme {
         color: Colors.white,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.08),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -49,40 +47,24 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          textStyle: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.2,
-          ),
+          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500, letterSpacing: -0.2),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryColor,
-          textStyle: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.2,
-          ),
+          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500, letterSpacing: -0.2),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
           side: BorderSide(color: Colors.grey.shade300),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          textStyle: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.2,
-          ),
+          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500, letterSpacing: -0.2),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -108,22 +90,11 @@ class AppTheme {
         unselectedItemColor: Colors.grey.shade600,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          letterSpacing: -0.2,
-        ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.2,
-        ),
+        selectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: -0.2),
+        unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: -0.2),
       ),
       textTheme: GoogleFonts.interTextTheme(
-        ThemeData.light().textTheme.apply(
-          bodyColor: primaryColor,
-          displayColor: primaryColor,
-        ),
+        ThemeData.light().textTheme.apply(bodyColor: primaryColor, displayColor: primaryColor),
       ),
     );
   }
@@ -146,24 +117,15 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.inter(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
+        titleTextStyle: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
       ),
       cardTheme: CardThemeData(
         color: const Color(0xFF1E1E1E),
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      textTheme: GoogleFonts.interTextTheme(
-        ThemeData.dark().textTheme,
-      ),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
     );
   }
 }
-

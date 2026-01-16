@@ -47,12 +47,29 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     // Otomatik mail şablonlarını oluştur
     final subject = EmailTemplateGenerator.generateSubject(widget.analysis.riskLevel);
     final body = EmailTemplateGenerator.generateBody(widget.analysis, DateTime.now());
-    final defaultRecipients = EmailTemplateGenerator.getDefaultRecipients(widget.analysis.riskLevel);
+    // Default recipients için sync versiyon kullan (initState async olamaz)
+    final defaultRecipients = EmailTemplateGenerator.getDefaultRecipientsSync(widget.analysis.riskLevel);
 
     _subjectController = TextEditingController(text: subject);
     _bodyController = TextEditingController(text: body);
     _recipients = List.from(defaultRecipients);
     _ccRecipients = [];
+
+    // Async olarak SharedPreferences'tan güncel değerleri yükle
+    _loadDefaultRecipients();
+  }
+
+  /// SharedPreferences'tan default recipients'ları yükle
+  Future<void> _loadDefaultRecipients() async {
+    final defaultRecipients = await EmailTemplateGenerator.getDefaultRecipients(widget.analysis.riskLevel);
+    if (mounted) {
+      setState(() {
+        // Eğer recipients boşsa veya sadece eski default değerler varsa, yeni değerlerle güncelle
+        if (_recipients.isEmpty || _recipients.length == 1 && _recipients.first == 'raporlama@sirket.com') {
+          _recipients = List.from(defaultRecipients);
+        }
+      });
+    }
   }
 
   @override
@@ -211,30 +228,30 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
       final bodyLines = body.split('\n');
       int analysisStartIndex = -1;
       int analysisEndIndex = bodyLines.length;
-      
+
       // "TESPİT EDİLEN DURUM" satırını bul
       for (int i = 0; i < bodyLines.length; i++) {
         final line = bodyLines[i].trim();
-        if (line.contains('TESPİT EDİLEN DURUM') || 
+        if (line.contains('TESPİT EDİLEN DURUM') ||
             line.contains('Tespit Edilen Durum') ||
             line.contains('TESPİT') && line.contains('DURUM')) {
           analysisStartIndex = i + 1; // Bir sonraki satırdan başla
           break;
         }
       }
-      
+
       // "RİSK SEVİYESİ" satırını bul (analiz metninin sonu)
       if (analysisStartIndex > 0) {
         for (int i = analysisStartIndex; i < bodyLines.length; i++) {
           final line = bodyLines[i].trim();
-          if (line.contains('RİSK SEVİYESİ') || 
+          if (line.contains('RİSK SEVİYESİ') ||
               line.contains('Risk Seviyesi') ||
               line.contains('RİSK') && line.contains('SEVİYESİ')) {
             analysisEndIndex = i;
             break;
           }
         }
-        
+
         // Analiz metnini çıkar
         if (analysisStartIndex < analysisEndIndex) {
           editedAnalysis = bodyLines
@@ -245,7 +262,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               .trim();
         }
       }
-      
+
       // Eğer analiz metni çok kısa veya bulunamadıysa, orijinal analizi kullan
       if (editedAnalysis.isEmpty || editedAnalysis.length < 10) {
         editedAnalysis = widget.analysis.analysisText;

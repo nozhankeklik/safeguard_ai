@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:safeguard_ai/core/constants/app_constants.dart';
 import 'package:safeguard_ai/core/init/injection_container.dart' as di;
+import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
+import 'package:safeguard_ai/features/settings/presentation/pages/predefined_recipients_page.dart';
 import 'package:safeguard_ai/main.dart' show themeNotifier;
 
 /// Ayarlar Sayfası
@@ -14,6 +16,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool _isTestingConnection = false;
+  final _reportRepository = ReportLocalRepository();
 
   @override
   void initState() {
@@ -44,35 +47,10 @@ class _SettingsPageState extends State<SettingsPage> {
           _SectionHeader(title: 'Email Yönetimi'),
           _SettingsTile(
             icon: Icons.email_outlined,
-            title: 'Önceden Tanımlı Alıcılar',
-            subtitle: 'Risk seviyelerine göre email grupları',
+            title: 'E-posta Alıcı Yönetimi',
+            subtitle: 'Risk seviyelerine göre otomatik e-posta alıcılarını yönet',
             onTap: () {
-              // TODO: Email yönetimi sayfasına git
-              _showComingSoonDialog('Email Yönetimi');
-            },
-          ),
-          _SettingsTile(
-            icon: Icons.group_outlined,
-            title: 'Yüksek Risk Alıcıları',
-            subtitle: '3 alıcı tanımlı', // TODO: Gerçek sayı gelecek
-            onTap: () {
-              _showComingSoonDialog('Yüksek Risk Alıcıları');
-            },
-          ),
-          _SettingsTile(
-            icon: Icons.warning_amber_outlined,
-            title: 'Orta Risk Alıcıları',
-            subtitle: '2 alıcı tanımlı', // TODO: Gerçek sayı gelecek
-            onTap: () {
-              _showComingSoonDialog('Orta Risk Alıcıları');
-            },
-          ),
-          _SettingsTile(
-            icon: Icons.info_outline,
-            title: 'Düşük Risk Alıcıları',
-            subtitle: '1 alıcı tanımlı', // TODO: Gerçek sayı gelecek
-            onTap: () {
-              _showComingSoonDialog('Düşük Risk Alıcıları');
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const PredefinedRecipientsPage()));
             },
           ),
 
@@ -93,6 +71,17 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const Divider(height: 32),
 
+          // Veri Yönetimi
+          _SectionHeader(title: 'Veri Yönetimi'),
+          _SettingsTile(
+            icon: Icons.delete_sweep_outlined,
+            title: 'Rapor Geçmişini Temizle',
+            subtitle: 'Tüm kayıtlı raporları sil (${_reportRepository.getAllReports().length} rapor)',
+            onTap: _showClearDataDialog,
+          ),
+
+          const Divider(height: 32),
+
           // n8n Bağlantı Durumu
           _SectionHeader(title: 'Backend Bağlantısı'),
           _SettingsTile(
@@ -105,58 +94,26 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: _isTestingConnection ? null : _testConnection,
           ),
 
-          const Divider(height: 32),
-
-          // Hakkında
-          _SectionHeader(title: 'Hakkında'),
-          _SettingsTile(
-            icon: Icons.info_outline,
-            title: 'Uygulama Bilgisi',
-            subtitle: 'Versiyon 1.0.0',
-            onTap: () {
-              _showAboutDialog();
-            },
-          ),
-          _SettingsTile(
-            icon: Icons.description_outlined,
-            title: 'Lisans',
-            subtitle: 'Açık kaynak lisansları',
-            onTap: () {
-              showLicensePage(context: context);
-            },
-          ),
-          _SettingsTile(
-            icon: Icons.help_outline,
-            title: 'Yardım & Destek',
-            subtitle: 'Dokümantasyon ve SSS',
-            onTap: () {
-              _showComingSoonDialog('Yardım & Destek');
-            },
-          ),
-
           const SizedBox(height: 32),
+
+          // Uygulama Versiyonu (Footer)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'SafeGuard AI v1.0.0',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  /// Hakkında dialogu
-  void _showAboutDialog() {
-    showAboutDialog(
-      context: context,
-      applicationName: 'SafeGuard AI',
-      applicationVersion: '1.0.0',
-      applicationIcon: const Icon(Icons.security, size: 48),
-      children: [
-        const Text('AI destekli iş güvenliği analiz ve raporlama uygulaması.'),
-        const SizedBox(height: 16),
-        const Text(
-          'Geliştirici: SafeGuard Team\n'
-          'Powered by Google Gemini & n8n',
-        ),
-      ],
-    );
-  }
 
   /// n8n bağlantı testi
   Future<void> _testConnection() async {
@@ -230,23 +187,62 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  /// Yakında geliyor dialogu
-  void _showComingSoonDialog(String feature) {
+  /// Veri temizleme dialogu
+  void _showClearDataDialog() {
+    final reportCount = _reportRepository.getAllReports().length;
+
+    if (reportCount == 0) {
+      _showErrorSnackBar('Temizlenecek rapor bulunamadı');
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.construction, color: Colors.orange),
+            Icon(Icons.warning_amber_rounded, color: Colors.orange),
             SizedBox(width: 8),
-            Text('Yakında Geliyor'),
+            Text('Veri Temizleme'),
           ],
         ),
-        content: Text('"$feature" özelliği yakında eklenecek!'),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tamam'))],
+        content: Text(
+          'Tüm rapor geçmişi silinecek ($reportCount rapor).\n\n'
+          'Bu işlem geri alınamaz. Emin misiniz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _clearAllReports();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Temizle'),
+          ),
+        ],
       ),
     );
   }
+
+  /// Tüm raporları temizle
+  Future<void> _clearAllReports() async {
+    try {
+      await _reportRepository.deleteAllReports();
+      if (mounted) {
+        _showSuccessSnackBar('Tüm raporlar başarıyla silindi');
+        setState(() {}); // UI'ı yenile (rapor sayısını güncelle)
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Veri temizlenirken hata oluştu: $e');
+      }
+    }
+  }
+
 }
 
 /// Bölüm başlığı widget'ı

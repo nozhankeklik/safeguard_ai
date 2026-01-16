@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:safeguard_ai/core/services/default_recipients_service.dart';
 import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
 
 /// Mail şablonları oluşturan yardımcı sınıf
@@ -91,31 +92,38 @@ Tarih: $formattedDate
   }
 
   /// Risk seviyesine göre öntanımlı alıcı listesi
-  static List<String> getDefaultRecipients(String riskLevel) {
+  /// Not: Bu fonksiyon async değil, bu yüzden sync bir versiyon da sağlıyoruz
+  /// Async versiyon için DefaultRecipientsService.getDefaultRecipients() kullanın
+  static List<String> getDefaultRecipientsSync(String riskLevel) {
     switch (riskLevel.toUpperCase()) {
       case 'YÜKSEK':
       case 'HIGH':
         return [
-          'guvenlik@sirket.com',
-          'mudur@sirket.com',
-          'isg@sirket.com',
+          'ozhankeklik2001@gmail.com',
+          'nozhankeklik@gmail.com',
+          'nihatozhan.keklik@agu.edu.tr',
         ];
       case 'ORTA':
       case 'MEDIUM':
         return [
-          'isg@sirket.com',
-          'raporlama@sirket.com',
+          'ozhankeklik2001@gmail.com',
+          'nozhankeklik@gmail.com',
         ];
       case 'DÜŞÜK':
       case 'LOW':
         return [
-          'raporlama@sirket.com',
+          'ozhankeklik2001@gmail.com',
         ];
       default:
         return [
-          'isg@sirket.com',
+          'ozhankeklik2001@gmail.com',
         ];
     }
+  }
+
+  /// Risk seviyesine göre öntanımlı alıcı listesi (async - SharedPreferences'tan okur)
+  static Future<List<String>> getDefaultRecipients(String riskLevel) async {
+    return DefaultRecipientsService.getDefaultRecipients(riskLevel);
   }
 
   /// Email validasyonu
