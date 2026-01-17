@@ -29,9 +29,19 @@ class AnalysisRemoteDataSourceImpl implements AnalysisRemoteDataSource {
 
       return AnalysisResponseModel.fromJson(response.data);
     } on DioException catch (e) {
-      throw ServerException(
-        'Analiz hatası: ${e.message ?? 'Bilinmeyen hata'}',
-      );
+      String errorMessage = 'Analiz hatası: ';
+      
+      if (e.response?.statusCode == 404) {
+        errorMessage += 'Endpoint bulunamadı (404). n8n webhook path\'ini kontrol edin.';
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        errorMessage += 'Bağlantı zaman aşımı. n8n servisinin çalıştığından emin olun.';
+      } else if (e.type == DioExceptionType.connectionError) {
+        errorMessage += 'Bağlantı hatası. Base URL\'i kontrol edin (localhost yerine IP adresi gerekebilir).';
+      } else {
+        errorMessage += e.message ?? 'Bilinmeyen hata';
+      }
+      
+      throw ServerException(errorMessage);
     } catch (e) {
       throw ServerException('Analiz hatası: $e');
     }

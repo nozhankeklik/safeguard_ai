@@ -16,10 +16,7 @@ class ReportDetailPage extends StatelessWidget {
     final riskColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Rapor Detayı'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Rapor Detayı'), centerTitle: true),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(AppConstants.spacingLarge),
         child: Column(
@@ -58,43 +55,25 @@ class ReportDetailPage extends StatelessWidget {
                   ),
                   child: Text(
                     report.riskLevel,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
                 const Spacer(),
                 Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
                 const SizedBox(width: 4),
-                Text(
-                  dateFormat.format(report.timestamp),
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
-                ),
+                Text(dateFormat.format(report.timestamp), style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
               ],
             ),
 
             SizedBox(height: AppConstants.spacingLarge),
 
             // Analiz
-            Text(
-              'Analiz Sonucu',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+            Text('Analiz Sonucu', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             SizedBox(height: AppConstants.spacingSmall),
             Card(
               child: Padding(
                 padding: EdgeInsets.all(AppConstants.spacingMedium),
-                child: Text(
-                  report.analysis,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+                child: Text(report.analysis, style: Theme.of(context).textTheme.bodyLarge),
               ),
             ),
 
@@ -103,9 +82,7 @@ class ReportDetailPage extends StatelessWidget {
             // Email Bilgileri
             Text(
               'Email Bilgileri',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             SizedBox(height: AppConstants.spacingSmall),
             Card(
@@ -114,19 +91,9 @@ class ReportDetailPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildInfoRow(
-                      context,
-                      icon: Icons.email,
-                      label: 'Konu',
-                      value: report.emailSubject,
-                    ),
+                    _buildInfoRow(context, icon: Icons.email, label: 'Konu', value: report.emailSubject),
                     Divider(height: AppConstants.spacingLarge),
-                    _buildInfoRow(
-                      context,
-                      icon: Icons.people,
-                      label: 'Alıcılar',
-                      value: report.recipients.join(', '),
-                    ),
+                    _buildInfoRow(context, icon: Icons.people, label: 'Alıcılar', value: report.recipients.join(', ')),
                     if (report.ccRecipients.isNotEmpty) ...[
                       Divider(height: AppConstants.spacingLarge),
                       _buildInfoRow(
@@ -144,12 +111,7 @@ class ReportDetailPage extends StatelessWidget {
             SizedBox(height: AppConstants.spacingLarge),
 
             // Durum Bilgileri
-            Text(
-              'İşlem Durumu',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+            Text('İşlem Durumu', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             SizedBox(height: AppConstants.spacingSmall),
             Card(
               child: Padding(
@@ -167,14 +129,7 @@ class ReportDetailPage extends StatelessWidget {
                       context,
                       icon: Icons.cloud_done,
                       label: 'Google Drive\'a Kaydedildi',
-                      isCompleted: report.savedToGoogleDrive,
-                    ),
-                    Divider(height: AppConstants.spacingLarge),
-                    _buildStatusTile(
-                      context,
-                      icon: Icons.picture_as_pdf,
-                      label: 'PDF Oluşturuldu',
-                      isCompleted: report.pdfGenerated,
+                      isCompleted: report.savedToGoogleDrive && report.pdfGenerated,
                     ),
                   ],
                 ),
@@ -200,12 +155,7 @@ class ReportDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
+  Widget _buildInfoRow(BuildContext context, {required IconData icon, required String label, required String value}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -217,17 +167,10 @@ class ReportDetailPage extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 4),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(value, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
@@ -243,18 +186,9 @@ class ReportDetailPage extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 24,
-          color: isCompleted ? Colors.green.shade600 : Colors.grey.shade400,
-        ),
+        Icon(icon, size: 24, color: isCompleted ? Colors.green.shade600 : Colors.grey.shade400),
         SizedBox(width: AppConstants.spacingMedium),
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
+        Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyLarge)),
         Icon(
           isCompleted ? Icons.check_circle : Icons.cancel,
           color: isCompleted ? Colors.green.shade600 : Colors.grey.shade400,

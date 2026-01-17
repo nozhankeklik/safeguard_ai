@@ -1,28 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 
-/// n8n'e rapor gönderme request modeli
+/// V2 Backend - n8n'e final rapor gönderme request modeli
+/// Basitleştirilmiş format: sadece gerekli alanlar
 class SendReportRequest {
   final String imagePath;
-  final String analysis;
+  final String finalMessage; // Kullanıcının düzenlediği analiz metni
   final String riskLevel;
-  final String emailSubject;
-  final String emailBody;
-  final List<String> recipients;
-  final List<String> ccRecipients;
-  final bool saveToGoogleDrive;
-  final bool generatePdf;
+  final String recipient; // Tek bir alıcı email
+  final String subject; // Email başlığı
 
   SendReportRequest({
     required this.imagePath,
-    required this.analysis,
+    required this.finalMessage,
     required this.riskLevel,
-    required this.emailSubject,
-    required this.emailBody,
-    required this.recipients,
-    this.ccRecipients = const [],
-    this.saveToGoogleDrive = false,
-    this.generatePdf = false,
+    required this.recipient,
+    required this.subject,
   });
 
   Map<String, dynamic> toJson() {
@@ -31,18 +24,13 @@ class SendReportRequest {
     final imageBytes = imageFile.readAsBytesSync();
     final base64Image = base64Encode(imageBytes);
 
+    // V2 Backend formatı - sadece gerekli alanlar
     return {
       'image': base64Image,
-      'imageName': imagePath.split('/').last,
-      'analysis': analysis,
+      'final_message': finalMessage,
       'riskLevel': riskLevel,
-      'emailSubject': emailSubject,
-      'emailBody': emailBody,
-      'recipients': recipients,
-      'ccRecipients': ccRecipients,
-      'saveToGoogleDrive': saveToGoogleDrive,
-      'generatePdf': generatePdf,
-      'timestamp': DateTime.now().toIso8601String(),
+      'recipient': recipient,
+      'subject': subject,
     };
   }
 }

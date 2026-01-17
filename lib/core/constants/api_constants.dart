@@ -6,11 +6,12 @@ class ApiConstants {
   // iOS Simulator/Fiziksel Cihaz için: Local IP veya localhost
   static const String baseUrl = 'http://localhost:5678';
 
-  // n8n webhook endpoint (tam path: /webhook-test/test)
-  static const analyzeEndpoint = '/webhook-test/test';
+  // V2 Backend - n8n webhook endpoints
+  // Analyze endpoint: POST http://localhost:5678/webhook-test/analyze
+  static const analyzeEndpoint = '/webhook-test/analyze';
 
-  // n8n email gönderme endpoint (tam path: /webhook/send-report)
-  static const sendReportEndpoint = '/webhook/send-report';
+  // Send final report endpoint: POST http://localhost:5678/webhook-test/send
+  static const sendReportEndpoint = '/webhook-test/send';
 
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 60);

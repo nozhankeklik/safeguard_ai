@@ -52,13 +52,14 @@ class ReportMockDataSource implements ReportRemoteDataSource {
     await Future.delayed(const Duration(seconds: 2));
 
     // Mock başarılı response
+    // Google Drive ve PDF artık her zaman zorunlu
     return SendReportResponse(
       success: true,
       emailSent: true,
-      driveFileCreated: request.saveToGoogleDrive,
-      pdfGenerated: request.generatePdf,
-      driveFileUrl: request.saveToGoogleDrive ? 'https://drive.google.com/file/d/mock-file-id/view' : null,
-      pdfUrl: request.generatePdf ? 'https://storage.googleapis.com/mock-bucket/report.pdf' : null,
+      driveFileCreated: true,
+      pdfGenerated: true,
+      driveFileUrl: 'https://drive.google.com/file/d/mock-file-id/view',
+      pdfUrl: 'https://storage.googleapis.com/mock-bucket/report.pdf',
       message: 'Rapor başarıyla gönderildi (Mock Mode)',
     );
   }

@@ -24,12 +24,8 @@ class ReportPreviewPage extends StatefulWidget {
 
 class _ReportPreviewPageState extends State<ReportPreviewPage> {
   late TextEditingController _subjectController;
-  late TextEditingController _bodyController;
+  late TextEditingController _finalMessageController; // V2: Sadece final_message (analiz metni)
   late List<String> _recipients;
-  late List<String> _ccRecipients;
-  bool _saveToGoogleDrive = false;
-  bool _generatePdf = false;
-  bool _createFollowUp = false;
   bool _isLoading = false;
 
   // Dependencies
@@ -44,16 +40,14 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     _reportDataSource = di.sl<ReportRemoteDataSource>();
     _reportRepository = di.sl<ReportLocalRepository>();
 
-    // Otomatik mail şablonlarını oluştur
+    // V2: Basitleştirilmiş - sadece gerekli alanlar
     final subject = EmailTemplateGenerator.generateSubject(widget.analysis.riskLevel);
-    final body = EmailTemplateGenerator.generateBody(widget.analysis, DateTime.now());
     // Default recipients için sync versiyon kullan (initState async olamaz)
     final defaultRecipients = EmailTemplateGenerator.getDefaultRecipientsSync(widget.analysis.riskLevel);
 
     _subjectController = TextEditingController(text: subject);
-    _bodyController = TextEditingController(text: body);
+    _finalMessageController = TextEditingController(text: widget.analysis.analysisText);
     _recipients = List.from(defaultRecipients);
-    _ccRecipients = [];
 
     // Async olarak SharedPreferences'tan güncel değerleri yükle
     _loadDefaultRecipients();
@@ -75,7 +69,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
   @override
   void dispose() {
     _subjectController.dispose();
-    _bodyController.dispose();
+    _finalMessageController.dispose();
     super.dispose();
   }
 
@@ -123,25 +117,6 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     );
   }
 
-  Future<void> _addCcRecipient() async {
-    await showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return _AddCcRecipientDialog(
-          existingRecipients: _recipients,
-          existingCcRecipients: _ccRecipients,
-          onAdd: (email) {
-            setState(() {
-              _ccRecipients.add(email);
-            });
-            Navigator.pop(dialogContext);
-            _showSuccessSnackBar('CC eklendi: $email');
-          },
-        );
-      },
-    );
-  }
-
   /// Hata mesajı göster
   void _showErrorSnackBar(String message) {
     if (!mounted) return;
@@ -180,7 +155,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     );
   }
 
-  /// Raporu gönder (validasyonlarla)
+  /// V2 Backend - Raporu gönder (basitleştirilmiş validasyonlarla)
   Future<void> _sendReport() async {
     // Validasyon 1: Alıcı kontrolü
     if (_recipients.isEmpty) {
@@ -199,14 +174,14 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
       return;
     }
 
-    // Validasyon 3: Mail içeriği kontrolü
-    final body = _bodyController.text.trim();
-    if (body.isEmpty) {
-      _showErrorSnackBar('Mail içeriği boş olamaz');
+    // Validasyon 3: Final message (analiz metni) kontrolü
+    final finalMessage = _finalMessageController.text.trim();
+    if (finalMessage.isEmpty) {
+      _showErrorSnackBar('Analiz metni boş olamaz');
       return;
     }
-    if (body.length < AppConstants.minCharactersBody) {
-      _showErrorSnackBar('Mail içeriği en az ${AppConstants.minCharactersBody} karakter olmalı');
+    if (finalMessage.length < AppConstants.minCharactersBody) {
+      _showErrorSnackBar('Analiz metni en az ${AppConstants.minCharactersBody} karakter olmalı');
       return;
     }
 
@@ -221,79 +196,29 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     setState(() => _isLoading = true);
 
     try {
-      // 1️⃣ n8n'e gönder
-      // Email body'den analiz metnini çıkar (düzenlenmiş halini kullan)
-      // Email body'de "TESPİT EDİLEN DURUM:" sonrası analiz metni var (çok satırlı olabilir)
-      String editedAnalysis = widget.analysis.analysisText;
-      final bodyLines = body.split('\n');
-      int analysisStartIndex = -1;
-      int analysisEndIndex = bodyLines.length;
-
-      // "TESPİT EDİLEN DURUM" satırını bul
-      for (int i = 0; i < bodyLines.length; i++) {
-        final line = bodyLines[i].trim();
-        if (line.contains('TESPİT EDİLEN DURUM') ||
-            line.contains('Tespit Edilen Durum') ||
-            line.contains('TESPİT') && line.contains('DURUM')) {
-          analysisStartIndex = i + 1; // Bir sonraki satırdan başla
-          break;
-        }
-      }
-
-      // "RİSK SEVİYESİ" satırını bul (analiz metninin sonu)
-      if (analysisStartIndex > 0) {
-        for (int i = analysisStartIndex; i < bodyLines.length; i++) {
-          final line = bodyLines[i].trim();
-          if (line.contains('RİSK SEVİYESİ') ||
-              line.contains('Risk Seviyesi') ||
-              line.contains('RİSK') && line.contains('SEVİYESİ')) {
-            analysisEndIndex = i;
-            break;
-          }
-        }
-
-        // Analiz metnini çıkar
-        if (analysisStartIndex < analysisEndIndex) {
-          editedAnalysis = bodyLines
-              .sublist(analysisStartIndex, analysisEndIndex)
-              .map((line) => line.trim())
-              .where((line) => line.isNotEmpty)
-              .join('\n')
-              .trim();
-        }
-      }
-
-      // Eğer analiz metni çok kısa veya bulunamadıysa, orijinal analizi kullan
-      if (editedAnalysis.isEmpty || editedAnalysis.length < 10) {
-        editedAnalysis = widget.analysis.analysisText;
-      }
-
+      // V2 Backend - Basitleştirilmiş request
       final request = SendReportRequest(
         imagePath: widget.imagePath,
-        analysis: editedAnalysis, // Düzenlenmiş analiz metni
+        finalMessage: finalMessage, // Kullanıcının düzenlediği analiz metni
         riskLevel: widget.analysis.riskLevel,
-        emailSubject: subject,
-        emailBody: body,
-        recipients: _recipients,
-        ccRecipients: _ccRecipients,
-        saveToGoogleDrive: _saveToGoogleDrive,
-        generatePdf: _generatePdf,
+        recipient: _recipients.first, // V2: Tek bir alıcı
+        subject: subject,
       );
 
       final response = await _reportDataSource.sendReport(request);
 
-      // 2️⃣ Hive'a kaydet (local history)
+      // Hive'a kaydet (local history)
       final reportId = const Uuid().v4();
       final hiveReport = ReportHiveModel(
         id: reportId,
-        analysis: editedAnalysis, // Düzenlenmiş analiz metni
+        analysis: finalMessage,
         riskLevel: widget.analysis.riskLevel,
         imagePath: widget.imagePath,
         timestamp: DateTime.now(),
         emailSubject: subject,
-        emailBody: body,
+        emailBody: finalMessage, // V2: Email body yok, sadece final_message
         recipients: _recipients,
-        ccRecipients: _ccRecipients,
+        ccRecipients: [], // V2: CC yok
         emailSent: response.emailSent,
         savedToGoogleDrive: response.driveFileCreated,
         pdfGenerated: response.pdfGenerated,
@@ -301,7 +226,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
 
       await _reportRepository.saveReport(hiveReport);
 
-      // 3️⃣ Success dialog ve History'e git
+      // Success dialog ve History'e git
       if (mounted) {
         _showSuccessDialogAndNavigate();
       }
@@ -343,26 +268,16 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                 Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
               ],
             ),
-            if (_saveToGoogleDrive) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.cloud_done, color: Theme.of(context).colorScheme.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Text('Google Drive\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
-                ],
-              ),
-            ],
-            if (_generatePdf) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.picture_as_pdf, color: Theme.of(context).colorScheme.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Text('PDF oluşturuldu', style: TextStyle(color: Colors.grey.shade700)),
-                ],
-              ),
-            ],
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.cloud_done, color: Theme.of(context).colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('Google Drive\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
+                ),
+              ],
+            ),
           ],
         ),
         actions: [
@@ -404,9 +319,11 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                   title: const Text('Yardım'),
                   content: const Text(
                     'Bu sayfada:\n\n'
-                    '• Mail içeriğini düzenleyebilirsiniz\n'
-                    '• Alıcı ekleyip çıkarabilirsiniz\n'
-                    '• Ek seçenekleri aktif edebilirsiniz\n\n'
+                    '• Analiz metnini düzenleyebilirsiniz\n'
+                    '• Mail başlığını değiştirebilirsiniz\n'
+                    '• Alıcı ekleyip çıkarabilirsiniz\n\n'
+                    'Rapor gönderildiğinde otomatik olarak:\n'
+                    '• Google Drive\'a kaydedilir\n\n'
                     'Rapor hazır olduğunda "Gönder" butonuna basın.',
                   ),
                   actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tamam'))],
@@ -534,18 +451,25 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
               ),
               const SizedBox(height: 20),
 
-              // Mail İçeriği
+              // V2: Analiz Metni (Final Message) - Düzenlenebilir
               Text(
-                'Mail İçeriği',
+                'Analiz Metni',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
+              Text(
+                'AI tarafından oluşturulan analiz metnini buradan düzenleyebilirsiniz.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(height: 8),
               TextField(
-                controller: _bodyController,
-                maxLines: AppConstants.maxLinesEmailBody,
+                controller: _finalMessageController,
+                maxLines: 8,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.5),
                 decoration: InputDecoration(
-                  hintText: 'Mail içeriğini girin',
+                  hintText: 'Analiz metnini buradan düzenleyin...',
                   filled: true,
                   fillColor: Theme.of(context).brightness == Brightness.dark
                       ? Colors.grey.shade900
@@ -605,95 +529,44 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 16),
-
-              // CC Alıcıları
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'CC (Opsiyonel)',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  TextButton.icon(onPressed: _addCcRecipient, icon: const Icon(Icons.add), label: const Text('Ekle')),
-                ],
-              ),
-              const SizedBox(height: 8),
-              if (_ccRecipients.isNotEmpty)
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _ccRecipients.map((email) {
-                    final isDark = Theme.of(context).brightness == Brightness.dark;
-                    return Chip(
-                      label: Text(email, style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                      onDeleted: () {
-                        setState(() {
-                          _ccRecipients.remove(email);
-                        });
-                      },
-                      deleteIcon: Icon(Icons.close, size: 18, color: isDark ? Colors.white70 : Colors.black54),
-                      backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                    );
-                  }).toList(),
-                )
-              else
-                Text(
-                  'CC alıcısı eklenmedi',
-                  style: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey.shade400
-                        : Colors.grey.shade600,
-                    fontSize: 12,
-                  ),
-                ),
               const SizedBox(height: 24),
 
-              // Ek Seçenekler
-              Text(
-                'Ek Seçenekler',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
+              // Otomatik İşlemler Bilgilendirmesi
               Card(
-                child: Column(
-                  children: [
-                    CheckboxListTile(
-                      title: const Text('Google Drive\'a kaydet'),
-                      subtitle: const Text('Rapor otomatik olarak Google Drive\'a kaydedilir'),
-                      value: _saveToGoogleDrive,
-                      onChanged: (value) {
-                        setState(() {
-                          _saveToGoogleDrive = value ?? false;
-                        });
-                      },
-                      secondary: const Icon(Icons.cloud_upload),
-                    ),
-                    const Divider(height: 1),
-                    CheckboxListTile(
-                      title: const Text('PDF rapor oluştur'),
-                      subtitle: const Text('Rapor PDF formatında oluşturulur'),
-                      value: _generatePdf,
-                      onChanged: (value) {
-                        setState(() {
-                          _generatePdf = value ?? false;
-                        });
-                      },
-                      secondary: const Icon(Icons.picture_as_pdf),
-                    ),
-                    const Divider(height: 1),
-                    CheckboxListTile(
-                      title: const Text('Takip sistemi oluştur'),
-                      subtitle: const Text('İlgili birimler için takip kaydı açılır'),
-                      value: _createFollowUp,
-                      onChanged: (value) {
-                        setState(() {
-                          _createFollowUp = value ?? false;
-                        });
-                      },
-                      secondary: const Icon(Icons.flag),
-                    ),
-                  ],
+                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Otomatik İşlemler',
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(Icons.cloud_done, size: 18, color: Colors.grey.shade700),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Rapor Google Drive\'a kaydedilir',
+                              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -806,105 +679,6 @@ class _AddRecipientDialogState extends State<_AddRecipientDialog> {
               labelText: 'E-posta adresi',
               hintText: 'ornek@sirket.com',
               prefixIcon: Icon(Icons.email),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            autofocus: true,
-            onChanged: (_) {
-              // Error'u temizle
-              if (_errorMessage != null) {
-                setState(() => _errorMessage = null);
-              }
-            },
-            onSubmitted: (_) => _handleAdd(),
-          ),
-          if (_errorMessage != null) ...[
-            const SizedBox(height: 8),
-            Text(_errorMessage!, style: TextStyle(color: Colors.red.shade700, fontSize: 12)),
-          ],
-        ],
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
-        TextButton(onPressed: _handleAdd, child: const Text('Ekle')),
-      ],
-    );
-  }
-}
-
-/// CC alıcı ekleme dialog widget'ı
-class _AddCcRecipientDialog extends StatefulWidget {
-  final List<String> existingRecipients;
-  final List<String> existingCcRecipients;
-  final Function(String) onAdd;
-
-  const _AddCcRecipientDialog({
-    required this.existingRecipients,
-    required this.existingCcRecipients,
-    required this.onAdd,
-  });
-
-  @override
-  State<_AddCcRecipientDialog> createState() => _AddCcRecipientDialogState();
-}
-
-class _AddCcRecipientDialogState extends State<_AddCcRecipientDialog> {
-  late final TextEditingController _controller;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleAdd() {
-    final email = _controller.text.trim();
-
-    // Validasyonlar
-    if (email.isEmpty) {
-      setState(() => _errorMessage = 'E-posta adresi boş olamaz');
-      return;
-    }
-
-    if (!EmailTemplateGenerator.isValidEmail(email)) {
-      setState(() => _errorMessage = 'Geçersiz e-posta formatı');
-      return;
-    }
-
-    // Duplicate kontrolü (CC listesinde ve TO listesinde)
-    if (widget.existingCcRecipients.contains(email)) {
-      setState(() => _errorMessage = 'Bu e-posta CC\'de zaten var');
-      return;
-    }
-
-    if (widget.existingRecipients.contains(email)) {
-      setState(() => _errorMessage = 'Bu e-posta ana alıcılarda zaten var');
-      return;
-    }
-
-    // Başarılı
-    widget.onAdd(email);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('CC Ekle'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              labelText: 'E-posta adresi (CC)',
-              hintText: 'ornek@sirket.com',
-              prefixIcon: Icon(Icons.email_outlined),
             ),
             keyboardType: TextInputType.emailAddress,
             autofocus: true,
