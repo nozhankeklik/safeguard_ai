@@ -17,6 +17,7 @@ class AnalysisResponseModel with _$AnalysisResponseModel {
     required bool success,
     required String analysis,
     @JsonKey(name: 'risk_level') required String riskLevel,
+    @JsonKey(name: 'corrective_actions') List<String>? correctiveActions,
   }) = _AnalysisResponseModel;
 
   factory AnalysisResponseModel.fromJson(Map<String, dynamic> json) =>
@@ -30,6 +31,7 @@ extension AnalysisResponseModelExtension on AnalysisResponseModel {
       success: success,
       analysisText: analysis,
       riskLevel: riskLevel,
+      correctiveActions: correctiveActions,
     );
   }
 }

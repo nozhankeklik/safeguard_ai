@@ -25,6 +25,8 @@ mixin _$AnalysisResponseModel {
   String get analysis => throw _privateConstructorUsedError;
   @JsonKey(name: 'risk_level')
   String get riskLevel => throw _privateConstructorUsedError;
+  @JsonKey(name: 'corrective_actions')
+  List<String>? get correctiveActions => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -41,7 +43,8 @@ abstract class $AnalysisResponseModelCopyWith<$Res> {
   $Res call(
       {bool success,
       String analysis,
-      @JsonKey(name: 'risk_level') String riskLevel});
+      @JsonKey(name: 'risk_level') String riskLevel,
+      @JsonKey(name: 'corrective_actions') List<String>? correctiveActions});
 }
 
 /// @nodoc
@@ -61,6 +64,7 @@ class _$AnalysisResponseModelCopyWithImpl<$Res,
     Object? success = null,
     Object? analysis = null,
     Object? riskLevel = null,
+    Object? correctiveActions = freezed,
   }) {
     return _then(_value.copyWith(
       success: null == success
@@ -75,6 +79,10 @@ class _$AnalysisResponseModelCopyWithImpl<$Res,
           ? _value.riskLevel
           : riskLevel // ignore: cast_nullable_to_non_nullable
               as String,
+      correctiveActions: freezed == correctiveActions
+          ? _value.correctiveActions
+          : correctiveActions // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ) as $Val);
   }
 }
@@ -91,7 +99,8 @@ abstract class _$$AnalysisResponseModelImplCopyWith<$Res>
   $Res call(
       {bool success,
       String analysis,
-      @JsonKey(name: 'risk_level') String riskLevel});
+      @JsonKey(name: 'risk_level') String riskLevel,
+      @JsonKey(name: 'corrective_actions') List<String>? correctiveActions});
 }
 
 /// @nodoc
@@ -109,6 +118,7 @@ class __$$AnalysisResponseModelImplCopyWithImpl<$Res>
     Object? success = null,
     Object? analysis = null,
     Object? riskLevel = null,
+    Object? correctiveActions = freezed,
   }) {
     return _then(_$AnalysisResponseModelImpl(
       success: null == success
@@ -123,6 +133,10 @@ class __$$AnalysisResponseModelImplCopyWithImpl<$Res>
           ? _value.riskLevel
           : riskLevel // ignore: cast_nullable_to_non_nullable
               as String,
+      correctiveActions: freezed == correctiveActions
+          ? _value._correctiveActions
+          : correctiveActions // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }
@@ -133,7 +147,10 @@ class _$AnalysisResponseModelImpl implements _AnalysisResponseModel {
   const _$AnalysisResponseModelImpl(
       {required this.success,
       required this.analysis,
-      @JsonKey(name: 'risk_level') required this.riskLevel});
+      @JsonKey(name: 'risk_level') required this.riskLevel,
+      @JsonKey(name: 'corrective_actions')
+      final List<String>? correctiveActions})
+      : _correctiveActions = correctiveActions;
 
   factory _$AnalysisResponseModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnalysisResponseModelImplFromJson(json);
@@ -145,10 +162,21 @@ class _$AnalysisResponseModelImpl implements _AnalysisResponseModel {
   @override
   @JsonKey(name: 'risk_level')
   final String riskLevel;
+  final List<String>? _correctiveActions;
+  @override
+  @JsonKey(name: 'corrective_actions')
+  List<String>? get correctiveActions {
+    final value = _correctiveActions;
+    if (value == null) return null;
+    if (_correctiveActions is EqualUnmodifiableListView)
+      return _correctiveActions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'AnalysisResponseModel(success: $success, analysis: $analysis, riskLevel: $riskLevel)';
+    return 'AnalysisResponseModel(success: $success, analysis: $analysis, riskLevel: $riskLevel, correctiveActions: $correctiveActions)';
   }
 
   @override
@@ -160,12 +188,15 @@ class _$AnalysisResponseModelImpl implements _AnalysisResponseModel {
             (identical(other.analysis, analysis) ||
                 other.analysis == analysis) &&
             (identical(other.riskLevel, riskLevel) ||
-                other.riskLevel == riskLevel));
+                other.riskLevel == riskLevel) &&
+            const DeepCollectionEquality()
+                .equals(other._correctiveActions, _correctiveActions));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, success, analysis, riskLevel);
+  int get hashCode => Object.hash(runtimeType, success, analysis, riskLevel,
+      const DeepCollectionEquality().hash(_correctiveActions));
 
   @JsonKey(ignore: true)
   @override
@@ -184,10 +215,11 @@ class _$AnalysisResponseModelImpl implements _AnalysisResponseModel {
 
 abstract class _AnalysisResponseModel implements AnalysisResponseModel {
   const factory _AnalysisResponseModel(
-          {required final bool success,
-          required final String analysis,
-          @JsonKey(name: 'risk_level') required final String riskLevel}) =
-      _$AnalysisResponseModelImpl;
+      {required final bool success,
+      required final String analysis,
+      @JsonKey(name: 'risk_level') required final String riskLevel,
+      @JsonKey(name: 'corrective_actions')
+      final List<String>? correctiveActions}) = _$AnalysisResponseModelImpl;
 
   factory _AnalysisResponseModel.fromJson(Map<String, dynamic> json) =
       _$AnalysisResponseModelImpl.fromJson;
@@ -199,6 +231,9 @@ abstract class _AnalysisResponseModel implements AnalysisResponseModel {
   @override
   @JsonKey(name: 'risk_level')
   String get riskLevel;
+  @override
+  @JsonKey(name: 'corrective_actions')
+  List<String>? get correctiveActions;
   @override
   @JsonKey(ignore: true)
   _$$AnalysisResponseModelImplCopyWith<_$AnalysisResponseModelImpl>

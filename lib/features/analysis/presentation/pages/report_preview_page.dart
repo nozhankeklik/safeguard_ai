@@ -203,6 +203,7 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
         riskLevel: widget.analysis.riskLevel,
         recipient: _recipients.first, // V2: Tek bir alıcı
         subject: subject,
+        correctiveActions: widget.analysis.correctiveActions, // Gemini'den gelen düzeltici aksiyonlar
       );
 
       final response = await _reportDataSource.sendReport(request);

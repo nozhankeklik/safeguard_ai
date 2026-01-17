@@ -9,6 +9,7 @@ class SendReportRequest {
   final String riskLevel;
   final String recipient; // Tek bir alıcı email
   final String subject; // Email başlığı
+  final List<String>? correctiveActions; // Gemini'den gelen düzeltici aksiyonlar
 
   SendReportRequest({
     required this.imagePath,
@@ -16,6 +17,7 @@ class SendReportRequest {
     required this.riskLevel,
     required this.recipient,
     required this.subject,
+    this.correctiveActions,
   });
 
   Map<String, dynamic> toJson() {
@@ -31,6 +33,7 @@ class SendReportRequest {
       'riskLevel': riskLevel,
       'recipient': recipient,
       'subject': subject,
+      'corrective_actions': correctiveActions,
     };
   }
 }

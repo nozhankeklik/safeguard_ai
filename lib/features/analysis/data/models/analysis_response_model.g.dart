@@ -12,6 +12,9 @@ _$AnalysisResponseModelImpl _$$AnalysisResponseModelImplFromJson(
       success: json['success'] as bool,
       analysis: json['analysis'] as String,
       riskLevel: json['risk_level'] as String,
+      correctiveActions: (json['corrective_actions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$$AnalysisResponseModelImplToJson(
@@ -20,4 +23,5 @@ Map<String, dynamic> _$$AnalysisResponseModelImplToJson(
       'success': instance.success,
       'analysis': instance.analysis,
       'risk_level': instance.riskLevel,
+      'corrective_actions': instance.correctiveActions,
     };

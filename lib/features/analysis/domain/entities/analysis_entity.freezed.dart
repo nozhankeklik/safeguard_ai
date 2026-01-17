@@ -19,6 +19,7 @@ mixin _$AnalysisEntity {
   bool get success => throw _privateConstructorUsedError;
   String get analysisText => throw _privateConstructorUsedError;
   String get riskLevel => throw _privateConstructorUsedError;
+  List<String>? get correctiveActions => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $AnalysisEntityCopyWith<AnalysisEntity> get copyWith =>
@@ -31,7 +32,11 @@ abstract class $AnalysisEntityCopyWith<$Res> {
           AnalysisEntity value, $Res Function(AnalysisEntity) then) =
       _$AnalysisEntityCopyWithImpl<$Res, AnalysisEntity>;
   @useResult
-  $Res call({bool success, String analysisText, String riskLevel});
+  $Res call(
+      {bool success,
+      String analysisText,
+      String riskLevel,
+      List<String>? correctiveActions});
 }
 
 /// @nodoc
@@ -50,6 +55,7 @@ class _$AnalysisEntityCopyWithImpl<$Res, $Val extends AnalysisEntity>
     Object? success = null,
     Object? analysisText = null,
     Object? riskLevel = null,
+    Object? correctiveActions = freezed,
   }) {
     return _then(_value.copyWith(
       success: null == success
@@ -64,6 +70,10 @@ class _$AnalysisEntityCopyWithImpl<$Res, $Val extends AnalysisEntity>
           ? _value.riskLevel
           : riskLevel // ignore: cast_nullable_to_non_nullable
               as String,
+      correctiveActions: freezed == correctiveActions
+          ? _value.correctiveActions
+          : correctiveActions // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ) as $Val);
   }
 }
@@ -76,7 +86,11 @@ abstract class _$$AnalysisEntityImplCopyWith<$Res>
       __$$AnalysisEntityImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool success, String analysisText, String riskLevel});
+  $Res call(
+      {bool success,
+      String analysisText,
+      String riskLevel,
+      List<String>? correctiveActions});
 }
 
 /// @nodoc
@@ -93,6 +107,7 @@ class __$$AnalysisEntityImplCopyWithImpl<$Res>
     Object? success = null,
     Object? analysisText = null,
     Object? riskLevel = null,
+    Object? correctiveActions = freezed,
   }) {
     return _then(_$AnalysisEntityImpl(
       success: null == success
@@ -107,6 +122,10 @@ class __$$AnalysisEntityImplCopyWithImpl<$Res>
           ? _value.riskLevel
           : riskLevel // ignore: cast_nullable_to_non_nullable
               as String,
+      correctiveActions: freezed == correctiveActions
+          ? _value._correctiveActions
+          : correctiveActions // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }
@@ -117,7 +136,9 @@ class _$AnalysisEntityImpl implements _AnalysisEntity {
   const _$AnalysisEntityImpl(
       {required this.success,
       required this.analysisText,
-      required this.riskLevel});
+      required this.riskLevel,
+      final List<String>? correctiveActions})
+      : _correctiveActions = correctiveActions;
 
   @override
   final bool success;
@@ -125,10 +146,20 @@ class _$AnalysisEntityImpl implements _AnalysisEntity {
   final String analysisText;
   @override
   final String riskLevel;
+  final List<String>? _correctiveActions;
+  @override
+  List<String>? get correctiveActions {
+    final value = _correctiveActions;
+    if (value == null) return null;
+    if (_correctiveActions is EqualUnmodifiableListView)
+      return _correctiveActions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'AnalysisEntity(success: $success, analysisText: $analysisText, riskLevel: $riskLevel)';
+    return 'AnalysisEntity(success: $success, analysisText: $analysisText, riskLevel: $riskLevel, correctiveActions: $correctiveActions)';
   }
 
   @override
@@ -140,12 +171,14 @@ class _$AnalysisEntityImpl implements _AnalysisEntity {
             (identical(other.analysisText, analysisText) ||
                 other.analysisText == analysisText) &&
             (identical(other.riskLevel, riskLevel) ||
-                other.riskLevel == riskLevel));
+                other.riskLevel == riskLevel) &&
+            const DeepCollectionEquality()
+                .equals(other._correctiveActions, _correctiveActions));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, success, analysisText, riskLevel);
+  int get hashCode => Object.hash(runtimeType, success, analysisText, riskLevel,
+      const DeepCollectionEquality().hash(_correctiveActions));
 
   @JsonKey(ignore: true)
   @override
@@ -159,7 +192,8 @@ abstract class _AnalysisEntity implements AnalysisEntity {
   const factory _AnalysisEntity(
       {required final bool success,
       required final String analysisText,
-      required final String riskLevel}) = _$AnalysisEntityImpl;
+      required final String riskLevel,
+      final List<String>? correctiveActions}) = _$AnalysisEntityImpl;
 
   @override
   bool get success;
@@ -167,6 +201,8 @@ abstract class _AnalysisEntity implements AnalysisEntity {
   String get analysisText;
   @override
   String get riskLevel;
+  @override
+  List<String>? get correctiveActions;
   @override
   @JsonKey(ignore: true)
   _$$AnalysisEntityImplCopyWith<_$AnalysisEntityImpl> get copyWith =>

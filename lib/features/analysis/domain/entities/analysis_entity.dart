@@ -9,6 +9,7 @@ class AnalysisEntity with _$AnalysisEntity {
     required bool success,
     required String analysisText,
     required String riskLevel,
+    List<String>? correctiveActions,
   }) = _AnalysisEntity;
 }
 
