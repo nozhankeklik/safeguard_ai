@@ -244,60 +244,72 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
 
   /// Başarı dialogu göster ve History'e yönlendir
   void _showSuccessDialogAndNavigate() {
+    if (!mounted) return; // Güvenlik kontrolü
+
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 32),
-            const SizedBox(width: AppConstants.spacingMedium),
-            const Text('Başarılı!'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Rapor başarıyla oluşturuldu ve gönderildi.', style: TextStyle(fontSize: 16)),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.email, color: Theme.of(context).colorScheme.primary, size: 20),
-                const SizedBox(width: 8),
-                Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.cloud_done, color: Theme.of(context).colorScheme.primary, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text('Google Drive\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.go('/home');
-            },
-            child: const Text('Ana Sayfa'),
+      builder: (dialogContext) {
+        // Dialog içinde kullanılacak theme'i önceden al
+        final theme = Theme.of(dialogContext);
+
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 32),
+              const SizedBox(width: AppConstants.spacingMedium),
+              const Text('Başarılı!'),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.go('/history');
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: RiskColors.lowRiskPrimary, foregroundColor: Colors.white),
-            child: const Text('Geçmişi Gör'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Rapor başarıyla oluşturuldu ve gönderildi.', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(Icons.email, color: theme.colorScheme.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.cloud_done, color: theme.colorScheme.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text('Google Drive\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                // Dialog context ile navigation
+                dialogContext.go('/home');
+              },
+              child: const Text('Ana Sayfa'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                // Dialog context ile navigation
+                dialogContext.go('/history');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: RiskColors.lowRiskPrimary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Geçmişi Gör'),
+            ),
+          ],
+        );
+      },
     );
   }
 
