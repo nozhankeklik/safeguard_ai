@@ -1,18 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:safeguard_ai/core/init/injection_container.dart' as di;
-import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
-import 'package:safeguard_ai/features/analysis/presentation/pages/analysis_page.dart';
-import 'package:safeguard_ai/features/analysis/presentation/pages/report_detail_page.dart';
-import 'package:safeguard_ai/features/analysis/presentation/pages/report_preview_page.dart';
-import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dart';
-import 'package:safeguard_ai/features/history/presentation/pages/history_page.dart';
-import 'package:safeguard_ai/features/home/presentation/pages/home_page.dart';
-import 'package:safeguard_ai/features/home/presentation/pages/main_shell_page.dart';
+import '../init/injection_container.dart' as di;
+import '../../features/analysis/data/models/report_hive_model.dart';
+import '../../features/analysis/domain/entities/analysis_entity.dart';
+import '../../features/analysis/presentation/bloc/analysis_bloc.dart';
+import '../../features/analysis/presentation/pages/analysis_page.dart';
+import '../../features/analysis/presentation/pages/report_detail_page.dart';
+import '../../features/analysis/presentation/pages/report_preview_page.dart';
+import '../../features/history/presentation/bloc/history_bloc.dart';
+import '../../features/history/presentation/pages/history_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/home/presentation/pages/main_shell_page.dart';
 import 'package:safeguard_ai/features/intro/splash_page.dart'; // EĞER DOSYA YOLUN FARKLIYSA BURAYI DÜZELT
-import 'package:safeguard_ai/features/settings/presentation/pages/settings_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 
 class AppRouter {
   AppRouter._();

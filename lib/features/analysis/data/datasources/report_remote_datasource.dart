@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:safeguard_ai/core/constants/api_constants.dart';
-import 'package:safeguard_ai/features/analysis/data/models/send_report_request.dart';
-import 'package:safeguard_ai/features/analysis/data/models/send_report_response.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../models/send_report_request.dart';
+import '../models/send_report_response.dart';
 
 /// n8n'e rapor gönderme datasource
 abstract class ReportRemoteDataSource {

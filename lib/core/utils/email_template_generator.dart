@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:safeguard_ai/core/services/default_recipients_service.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
+import '../services/default_recipients_service.dart';
+import '../../features/analysis/domain/entities/analysis_entity.dart';
 
 /// Mail şablonları oluşturan yardımcı sınıf
 class EmailTemplateGenerator {
@@ -24,10 +24,7 @@ class EmailTemplateGenerator {
   }
 
   /// Risk seviyesine göre mail içeriği oluştur
-  static String generateBody(
-    AnalysisEntity analysis,
-    DateTime timestamp,
-  ) {
+  static String generateBody(AnalysisEntity analysis, DateTime timestamp) {
     final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
     final formattedDate = dateFormat.format(timestamp);
 
@@ -98,26 +95,15 @@ Tarih: $formattedDate
     switch (riskLevel.toUpperCase()) {
       case 'YÜKSEK':
       case 'HIGH':
-        return [
-          'ozhankeklik2001@gmail.com',
-          'nozhankeklik@gmail.com',
-          'nihatozhan.keklik@agu.edu.tr',
-        ];
+        return ['ozhankeklik2001@gmail.com', 'nozhankeklik@gmail.com', 'nihatozhan.keklik@agu.edu.tr'];
       case 'ORTA':
       case 'MEDIUM':
-        return [
-          'ozhankeklik2001@gmail.com',
-          'nozhankeklik@gmail.com',
-        ];
+        return ['ozhankeklik2001@gmail.com', 'nozhankeklik@gmail.com'];
       case 'DÜŞÜK':
       case 'LOW':
-        return [
-          'ozhankeklik2001@gmail.com',
-        ];
+        return ['ozhankeklik2001@gmail.com'];
       default:
-        return [
-          'ozhankeklik2001@gmail.com',
-        ];
+        return ['ozhankeklik2001@gmail.com'];
     }
   }
 
@@ -128,9 +114,7 @@ Tarih: $formattedDate
 
   /// Email validasyonu
   static bool isValidEmail(String email) {
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailRegex.hasMatch(email.trim());
   }
 }

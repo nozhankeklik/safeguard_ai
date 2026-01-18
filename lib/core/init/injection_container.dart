@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:safeguard_ai/core/constants/api_constants.dart';
-import 'package:safeguard_ai/core/utils/platform_config.dart';
-import 'package:safeguard_ai/features/analysis/data/datasources/analysis_remote_datasource.dart';
-import 'package:safeguard_ai/features/analysis/data/datasources/analysis_mock_datasource.dart';
-import 'package:safeguard_ai/features/analysis/data/datasources/report_remote_datasource.dart';
-import 'package:safeguard_ai/features/analysis/data/repositories/analysis_repository_impl.dart';
-import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
-import 'package:safeguard_ai/features/analysis/domain/repositories/analysis_repository.dart';
-import 'package:safeguard_ai/features/analysis/domain/usecases/analyze_image_usecase.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
-import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dart';
+import '../constants/api_constants.dart';
+import '../utils/platform_config.dart';
+import '../../features/analysis/data/datasources/analysis_remote_datasource.dart';
+import '../../features/analysis/data/datasources/analysis_mock_datasource.dart';
+import '../../features/analysis/data/datasources/report_remote_datasource.dart';
+import '../../features/analysis/data/repositories/analysis_repository_impl.dart';
+import '../../features/analysis/data/repositories/report_local_repository.dart';
+import '../../features/analysis/domain/repositories/analysis_repository.dart';
+import '../../features/analysis/domain/usecases/analyze_image_usecase.dart';
+import '../../features/analysis/presentation/bloc/analysis_bloc.dart';
+import '../../features/history/presentation/bloc/history_bloc.dart';
 
 final sl = GetIt.instance;
 

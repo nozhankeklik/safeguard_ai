@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
+import '../../data/models/report_hive_model.dart';
 
 /// Rapor detay sayfası - Modern & Uyumlu Tasarım
 class ReportDetailPage extends StatelessWidget {

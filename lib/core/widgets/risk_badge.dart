@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:safeguard_ai/core/constants/app_constants.dart';
+import '../constants/app_constants.dart';
 
 /// Reusable risk level badge component
-/// 
+///
 /// Displays risk level with appropriate color coding
 /// and iconography for visual consistency.
 class RiskBadge extends StatelessWidget {
   final String riskLevel;
   final bool isCompact;
 
-  const RiskBadge({
-    super.key,
-    required this.riskLevel,
-    this.isCompact = false,
-  });
+  const RiskBadge({super.key, required this.riskLevel, this.isCompact = false});
 
   Color _getRiskColor(BuildContext context, String riskLevel) {
     return Theme.of(context).colorScheme.primary;
@@ -38,10 +34,7 @@ class RiskBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppConstants.spacingSmall,
-        vertical: AppConstants.spacingXSmall,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: AppConstants.spacingSmall, vertical: AppConstants.spacingXSmall),
       decoration: BoxDecoration(
         color: _getRiskColor(context, riskLevel),
         borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
@@ -49,20 +42,12 @@ class RiskBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: isCompact ? MainAxisSize.min : MainAxisSize.max,
         children: [
-          Icon(
-            _getRiskIcon(riskLevel),
-            color: Colors.white,
-            size: isCompact ? 14 : 16,
-          ),
+          Icon(_getRiskIcon(riskLevel), color: Colors.white, size: isCompact ? 14 : 16),
           if (!isCompact) ...[
             const SizedBox(width: 4),
             Text(
               riskLevel,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
             ),
           ],
         ],

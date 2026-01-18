@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
+import '../../../analysis/data/repositories/report_local_repository.dart';
 import 'history_event.dart';
 import 'history_state.dart';
 

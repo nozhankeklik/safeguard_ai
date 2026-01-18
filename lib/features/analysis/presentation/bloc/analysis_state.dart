@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
+import '../../domain/entities/analysis_entity.dart';
 
 part 'analysis_state.freezed.dart';
 
@@ -10,4 +10,3 @@ class AnalysisState with _$AnalysisState {
   const factory AnalysisState.success(AnalysisEntity entity) = _Success;
   const factory AnalysisState.failure(String message) = _Failure;
 }
-

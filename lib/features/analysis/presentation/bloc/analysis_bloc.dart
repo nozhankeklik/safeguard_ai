@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:safeguard_ai/core/errors/failures.dart';
-import 'package:safeguard_ai/features/analysis/domain/usecases/analyze_image_usecase.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_event.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_state.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/usecases/analyze_image_usecase.dart';
+import 'analysis_event.dart';
+import 'analysis_state.dart';
 
 class AnalysisBloc extends Bloc<AnalysisEvent, AnalysisState> {
   final AnalyzeImageUseCase analyzeImageUseCase;

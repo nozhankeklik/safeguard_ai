@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:safeguard_ai/core/constants/api_constants.dart';
-import 'package:safeguard_ai/core/errors/exceptions.dart';
-import 'package:safeguard_ai/features/analysis/data/models/analysis_response_model.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../models/analysis_response_model.dart';
 
 abstract class AnalysisRemoteDataSource {
   Future<AnalysisResponseModel> analyzeImage(String imagePath);
@@ -15,22 +15,14 @@ class AnalysisRemoteDataSourceImpl implements AnalysisRemoteDataSource {
   @override
   Future<AnalysisResponseModel> analyzeImage(String imagePath) async {
     try {
-      final formData = FormData.fromMap({
-        'data': await MultipartFile.fromFile(
-          imagePath,
-          filename: 'upload.jpg',
-        ),
-      });
+      final formData = FormData.fromMap({'data': await MultipartFile.fromFile(imagePath, filename: 'upload.jpg')});
 
-      final response = await dio.post(
-        ApiConstants.analyzeEndpoint,
-        data: formData,
-      );
+      final response = await dio.post(ApiConstants.analyzeEndpoint, data: formData);
 
       return AnalysisResponseModel.fromJson(response.data);
     } on DioException catch (e) {
       String errorMessage = 'Analiz hatası: ';
-      
+
       if (e.response?.statusCode == 404) {
         errorMessage += 'Endpoint bulunamadı (404). n8n webhook path\'ini kontrol edin.';
       } else if (e.type == DioExceptionType.connectionTimeout) {
@@ -40,11 +32,10 @@ class AnalysisRemoteDataSourceImpl implements AnalysisRemoteDataSource {
       } else {
         errorMessage += e.message ?? 'Bilinmeyen hata';
       }
-      
+
       throw ServerException(errorMessage);
     } catch (e) {
       throw ServerException('Analiz hatası: $e');
     }
   }
 }
-

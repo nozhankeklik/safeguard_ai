@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
+import '../models/report_hive_model.dart';
 
 /// Local Repository - Hive ile CRUD işlemleri
 class ReportLocalRepository {
@@ -21,9 +21,7 @@ class ReportLocalRepository {
 
   /// Risk seviyesine göre filtrele
   List<ReportHiveModel> getReportsByRiskLevel(String riskLevel) {
-    final reports = _box.values
-        .where((report) => report.riskLevel.toUpperCase() == riskLevel.toUpperCase())
-        .toList();
+    final reports = _box.values.where((report) => report.riskLevel.toUpperCase() == riskLevel.toUpperCase()).toList();
     reports.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return reports;
   }
@@ -59,11 +57,7 @@ class ReportLocalRepository {
 
   /// İstatistikler - Risk seviyesine göre sayı
   Map<String, int> getRiskLevelStatistics() {
-    final stats = <String, int>{
-      'YÜKSEK': 0,
-      'ORTA': 0,
-      'DÜŞÜK': 0,
-    };
+    final stats = <String, int>{'YÜKSEK': 0, 'ORTA': 0, 'DÜŞÜK': 0};
 
     for (final report in _box.values) {
       final level = report.riskLevel.toUpperCase();

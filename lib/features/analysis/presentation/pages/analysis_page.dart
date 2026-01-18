@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_bloc.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_event.dart';
-import 'package:safeguard_ai/features/analysis/presentation/bloc/analysis_state.dart';
+import '../../domain/entities/analysis_entity.dart';
+import '../bloc/analysis_bloc.dart';
+import '../bloc/analysis_event.dart';
+import '../bloc/analysis_state.dart';
 
 class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});

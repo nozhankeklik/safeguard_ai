@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
+import 'analysis_entity.dart';
 
 part 'report_entity.freezed.dart';
 

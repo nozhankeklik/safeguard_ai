@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
-import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
+import '../../features/analysis/data/models/report_hive_model.dart';
+import '../../features/analysis/data/repositories/report_local_repository.dart';
 import 'package:uuid/uuid.dart';
 
 /// 🎭 Demo Data Seeder - Sunum için örnek raporlar oluşturur

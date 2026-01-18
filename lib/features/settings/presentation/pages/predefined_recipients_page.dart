@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:safeguard_ai/core/services/default_recipients_service.dart';
-import 'package:safeguard_ai/core/utils/email_template_generator.dart';
+import '../../../../core/services/default_recipients_service.dart';
+import '../../../../core/utils/email_template_generator.dart';
 
 /// Önceden Tanımlı Alıcılar Sayfası - Modern & Uyumlu Tasarım
 class PredefinedRecipientsPage extends StatefulWidget {

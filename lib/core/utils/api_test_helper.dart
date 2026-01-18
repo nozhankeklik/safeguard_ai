@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:safeguard_ai/core/utils/platform_config.dart';
-import 'package:safeguard_ai/core/constants/api_constants.dart';
+import 'platform_config.dart';
+import '../constants/api_constants.dart';
 
 /// Backend API'nin çalışıp çalışmadığını test etmek için helper sınıf
 /// Bu sınıf sadece development/debug sırasında kullanılmalıdır
@@ -9,14 +9,11 @@ class ApiTestHelper {
   ApiTestHelper._();
 
   /// Backend bağlantısını test eder
-  /// 
+  ///
   /// Returns: Bağlantı durumu ve mesaj
   static Future<Map<String, dynamic>> testConnection() async {
     if (!kDebugMode) {
-      return {
-        'success': false,
-        'message': 'Bu fonksiyon sadece debug modda çalışır'
-      };
+      return {'success': false, 'message': 'Bu fonksiyon sadece debug modda çalışır'};
     }
 
     try {
@@ -29,12 +26,12 @@ class ApiTestHelper {
       );
 
       debugPrint('🔍 Testing connection to: ${PlatformConfig.getActiveBaseUrl()}');
-      
+
       // Basit bir GET isteği ile backend'in erişilebilir olup olmadığını kontrol et
       final response = await dio.get('/');
-      
+
       debugPrint('✅ Connection successful! Status: ${response.statusCode}');
-      
+
       return {
         'success': true,
         'message': 'Backend\'e başarıyla bağlandı',
@@ -43,7 +40,7 @@ class ApiTestHelper {
       };
     } on DioException catch (e) {
       String errorMessage;
-      
+
       switch (e.type) {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
@@ -59,9 +56,9 @@ class ApiTestHelper {
         default:
           errorMessage = 'Bilinmeyen hata: ${e.message}';
       }
-      
+
       debugPrint('❌ Connection failed: $errorMessage');
-      
+
       return {
         'success': false,
         'message': errorMessage,
@@ -70,22 +67,15 @@ class ApiTestHelper {
       };
     } catch (e) {
       debugPrint('❌ Unexpected error: $e');
-      
-      return {
-        'success': false,
-        'message': 'Beklenmeyen hata: $e',
-        'baseUrl': PlatformConfig.getActiveBaseUrl(),
-      };
+
+      return {'success': false, 'message': 'Beklenmeyen hata: $e', 'baseUrl': PlatformConfig.getActiveBaseUrl()};
     }
   }
 
   /// Webhook endpoint'ini test eder (gerçek bir analiz isteği göndermeden)
   static Future<Map<String, dynamic>> testWebhookEndpoint() async {
     if (!kDebugMode) {
-      return {
-        'success': false,
-        'message': 'Bu fonksiyon sadece debug modda çalışır'
-      };
+      return {'success': false, 'message': 'Bu fonksiyon sadece debug modda çalışır'};
     }
 
     try {
@@ -99,12 +89,12 @@ class ApiTestHelper {
 
       final fullUrl = '${PlatformConfig.getActiveBaseUrl()}${ApiConstants.analyzeEndpoint}';
       debugPrint('🔍 Testing webhook: $fullUrl');
-      
+
       // HEAD request ile endpoint'in var olup olmadığını kontrol et
       final response = await dio.head(ApiConstants.analyzeEndpoint);
-      
+
       debugPrint('✅ Webhook endpoint accessible! Status: ${response.statusCode}');
-      
+
       return {
         'success': true,
         'message': 'Webhook endpoint\'e erişilebilir',
@@ -116,7 +106,7 @@ class ApiTestHelper {
       if (e.response?.statusCode == 404 || e.response?.statusCode == 405) {
         final fullUrl = '${PlatformConfig.getActiveBaseUrl()}${ApiConstants.analyzeEndpoint}';
         debugPrint('⚠️ Endpoint exists but needs POST request (normal behavior)');
-        
+
         return {
           'success': true,
           'message': 'Webhook endpoint mevcut (POST isteği bekliyor)',
@@ -124,9 +114,9 @@ class ApiTestHelper {
           'statusCode': e.response?.statusCode,
         };
       }
-      
+
       debugPrint('❌ Webhook test failed: ${e.message}');
-      
+
       return {
         'success': false,
         'message': 'Webhook endpoint\'e erişilemiyor: ${e.message}',
@@ -134,7 +124,7 @@ class ApiTestHelper {
       };
     } catch (e) {
       debugPrint('❌ Unexpected error: $e');
-      
+
       return {
         'success': false,
         'message': 'Beklenmeyen hata: $e',
@@ -146,7 +136,7 @@ class ApiTestHelper {
   /// Platform ve bağlantı bilgilerini ekrana yazdırır
   static void printConnectionInfo() {
     if (!kDebugMode) return;
-    
+
     debugPrint('');
     debugPrint('═══════════════════════════════════════');
     debugPrint('📡 API CONNECTION INFO');
@@ -159,4 +149,3 @@ class ApiTestHelper {
     debugPrint('');
   }
 }
-

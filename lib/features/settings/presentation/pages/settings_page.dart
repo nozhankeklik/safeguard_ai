@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:safeguard_ai/core/init/injection_container.dart' as di;
-import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
-import 'package:safeguard_ai/features/settings/presentation/pages/predefined_recipients_page.dart';
-import 'package:safeguard_ai/main.dart' show themeNotifier;
+import '../../../../core/init/injection_container.dart' as di;
+import '../../../analysis/data/repositories/report_local_repository.dart';
+import 'predefined_recipients_page.dart';
+import '../../../../main.dart' show themeNotifier;
 
 /// Ayarlar Sayfası - Modern & Uyumlu Tasarım
 class SettingsPage extends StatefulWidget {

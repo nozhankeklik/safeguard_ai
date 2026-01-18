@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
-import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dart';
-import 'package:safeguard_ai/features/history/presentation/bloc/history_event.dart';
-import 'package:safeguard_ai/features/history/presentation/bloc/history_state.dart';
+import '../../../analysis/data/models/report_hive_model.dart';
+import '../bloc/history_bloc.dart';
+import '../bloc/history_event.dart';
+import '../bloc/history_state.dart';
 
 /// Geçmiş Raporlar Sayfası - Modern & Uyumlu Tasarım
 class HistoryPage extends StatefulWidget {

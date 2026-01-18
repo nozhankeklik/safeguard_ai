@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:safeguard_ai/core/constants/api_constants.dart';
+import '../constants/api_constants.dart';
 
 /// Platform-specific configuration helper
 /// Android Emulator ve diğer platformlar için base URL yönetimi
@@ -8,7 +8,7 @@ class PlatformConfig {
   PlatformConfig._();
 
   /// Platform ve çalışma ortamına göre uygun base URL'i döndürür
-  /// 
+  ///
   /// - Android Emulator: 10.0.2.2 (localhost'un emulator'deki karşılığı)
   /// - iOS Simulator: localhost
   /// - Fiziksel Cihaz: Local network IP kullanmanız gerekir
@@ -20,7 +20,7 @@ class PlatformConfig {
         return ApiConstants.baseUrlAndroidEmulator;
       }
     }
-    
+
     // Diğer durumlar için standart base URL
     return ApiConstants.baseUrl;
   }
@@ -42,4 +42,3 @@ class PlatformConfig {
     return _customBaseUrl ?? getBaseUrl();
   }
 }
-

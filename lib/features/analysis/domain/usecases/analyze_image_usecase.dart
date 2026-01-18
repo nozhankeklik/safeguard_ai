@@ -1,8 +1,8 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:safeguard_ai/core/errors/failures.dart';
-import 'package:safeguard_ai/core/utils/usecase.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
-import 'package:safeguard_ai/features/analysis/domain/repositories/analysis_repository.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/utils/usecase.dart';
+import '../entities/analysis_entity.dart';
+import '../repositories/analysis_repository.dart';
 
 class AnalyzeImageUseCase implements UseCase<AnalysisEntity, String> {
   final AnalysisRepository repository;

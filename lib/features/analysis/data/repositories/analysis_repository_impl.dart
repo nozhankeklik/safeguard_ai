@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:safeguard_ai/core/errors/exceptions.dart';
-import 'package:safeguard_ai/core/errors/failures.dart';
-import 'package:safeguard_ai/features/analysis/data/datasources/analysis_remote_datasource.dart';
-import 'package:safeguard_ai/features/analysis/data/models/analysis_response_model.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
-import 'package:safeguard_ai/features/analysis/domain/repositories/analysis_repository.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/errors/failures.dart';
+import '../datasources/analysis_remote_datasource.dart';
+import '../models/analysis_response_model.dart';
+import '../../domain/entities/analysis_entity.dart';
+import '../../domain/repositories/analysis_repository.dart';
 
 class AnalysisRepositoryImpl implements AnalysisRepository {
   final AnalysisRemoteDataSource remoteDataSource;
@@ -32,4 +32,3 @@ class AnalysisRepositoryImpl implements AnalysisRepository {
     }
   }
 }
-

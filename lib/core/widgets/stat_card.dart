@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:safeguard_ai/core/constants/app_constants.dart';
+import '../constants/app_constants.dart';
 
 /// Reusable statistics card widget
-/// 
+///
 /// Displays statistical information in a consistent card format
 /// Used across Dashboard and other summary screens.
 class StatCard extends StatelessWidget {
@@ -11,13 +11,7 @@ class StatCard extends StatelessWidget {
   final IconData icon;
   final Color? color;
 
-  const StatCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-    this.color,
-  });
+  const StatCard({super.key, required this.title, required this.value, required this.icon, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +31,7 @@ class StatCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey.shade600,
-                        ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
                   ),
                 ),
               ],
@@ -47,10 +39,9 @@ class StatCard extends StatelessWidget {
             const SizedBox(height: AppConstants.spacingSmall),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: cardColor,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: cardColor),
             ),
           ],
         ),

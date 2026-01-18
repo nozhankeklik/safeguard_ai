@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:safeguard_ai/core/constants/app_constants.dart';
-import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../analysis/data/repositories/report_local_repository.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

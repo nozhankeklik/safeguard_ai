@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:safeguard_ai/features/analysis/domain/entities/analysis_entity.dart';
+import '../../domain/entities/analysis_entity.dart';
 
 part 'analysis_response_model.freezed.dart';
 part 'analysis_response_model.g.dart';
@@ -20,8 +20,7 @@ class AnalysisResponseModel with _$AnalysisResponseModel {
     @JsonKey(name: 'corrective_actions') List<String>? correctiveActions,
   }) = _AnalysisResponseModel;
 
-  factory AnalysisResponseModel.fromJson(Map<String, dynamic> json) =>
-      _$AnalysisResponseModelFromJson(json);
+  factory AnalysisResponseModel.fromJson(Map<String, dynamic> json) => _$AnalysisResponseModelFromJson(json);
 }
 
 // Extension for mapping to Entity
@@ -35,4 +34,3 @@ extension AnalysisResponseModelExtension on AnalysisResponseModel {
     );
   }
 }
-

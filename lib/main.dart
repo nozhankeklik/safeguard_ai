@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:safeguard_ai/core/init/injection_container.dart' as di;
-import 'package:safeguard_ai/core/router/app_router.dart';
-import 'package:safeguard_ai/core/theme/app_theme.dart';
-import 'package:safeguard_ai/core/utils/api_test_helper.dart';
-import 'package:safeguard_ai/core/utils/demo_data_seeder.dart';
-import 'package:safeguard_ai/core/utils/theme_notifier.dart';
-import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
-import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
+import 'core/init/injection_container.dart' as di;
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+import 'core/utils/api_test_helper.dart';
+import 'core/utils/demo_data_seeder.dart';
+import 'core/utils/theme_notifier.dart';
+import 'features/analysis/data/models/report_hive_model.dart';
+import 'features/analysis/data/repositories/report_local_repository.dart';
 
 // Global tema notifier (Erişim kolaylığı için)
 late final ThemeNotifier themeNotifier;
