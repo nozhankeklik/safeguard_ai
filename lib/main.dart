@@ -9,48 +9,36 @@ import 'package:safeguard_ai/core/utils/demo_data_seeder.dart';
 import 'package:safeguard_ai/core/utils/theme_notifier.dart';
 import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
 import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
-// Fiziksel cihaz için custom URL gerektiğinde uncomment edin:
-// import 'package:safeguard_ai/core/utils/platform_config.dart';
 
-// Global tema notifier
+// Global tema notifier (Erişim kolaylığı için)
 late final ThemeNotifier themeNotifier;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔧 FİZİKSEL CİHAZ İÇİN BURAYA LOCAL IP GİRİN
-  // import 'package:safeguard_ai/core/utils/platform_config.dart'; ekleyin ve uncomment edin:
-  // PlatformConfig.useCustomBaseUrl('http://192.168.1.100:5678');
-
-  // 🌙 Tema yönetimi - kaydedilmiş temayı yükle
+  // 1. Tema Tercihini Yükle
   final savedThemeMode = await ThemeNotifier.loadThemeMode();
   themeNotifier = ThemeNotifier(savedThemeMode);
 
-  // 📦 Hive initialization
+  // 2. Local Veritabanı (Hive) Başlat
   await Hive.initFlutter();
-
-  // Hive adapters
   Hive.registerAdapter(ReportHiveModelAdapter());
-
-  // Hive boxes
   await Hive.openBox<ReportHiveModel>('reports');
 
-  // Dependency Injection setup
+  // 3. Bağımlılıkları Enjekte Et (DI)
   await di.init();
 
-  // 🎭 Demo data seeding (ilk açılışta)
+  // 4. (Sadece Debug) Demo Veri ve Testler
   if (kDebugMode) {
+    // Demo verileri tohumla (Eğer hiç rapor yoksa)
     final repository = ReportLocalRepository();
-    final seeder = DemoDataSeeder(repository);
-    await seeder.seedDemoReports(count: 15); // 15 demo rapor oluştur
-  }
+    if (repository.getAllReports().isEmpty) {
+      final seeder = DemoDataSeeder(repository);
+      await seeder.seedDemoReports(count: 5);
+    }
 
-  // Debug modda API bağlantı bilgilerini göster
-  if (kDebugMode) {
+    // API bağlantı bilgisini konsola bas
     ApiTestHelper.printConnectionInfo();
-
-    // Opsiyonel: Başlangıçta bağlantıyı test et
-    // await ApiTestHelper.testConnection();
   }
 
   runApp(const SafeGuardApp());
@@ -61,17 +49,20 @@ class SafeGuardApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ValueListenableBuilder ile tema değişikliklerini dinle
+    // Tema değişikliklerini dinleyerek anlık güncelleme sağlar
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (context, themeMode, child) {
         return MaterialApp.router(
           routerConfig: AppRouter.router,
           title: 'SafeGuard AI',
+          debugShowCheckedModeBanner: false,
+
+          // --- TEMA AYARLARI ---
+          // Indigo/Mavi tabanlı Material 3 temaları
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: themeMode, // Dinamik tema
-          debugShowCheckedModeBanner: false,
+          themeMode: themeMode,
         );
       },
     );

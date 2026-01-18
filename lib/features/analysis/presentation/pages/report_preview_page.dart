@@ -24,42 +24,34 @@ class ReportPreviewPage extends StatefulWidget {
 
 class _ReportPreviewPageState extends State<ReportPreviewPage> {
   late TextEditingController _subjectController;
-  late TextEditingController _finalMessageController; // V2: Sadece final_message (analiz metni)
+  late TextEditingController _finalMessageController;
   late List<String> _recipients;
   bool _isLoading = false;
 
-  // Dependencies
   late final ReportRemoteDataSource _reportDataSource;
   late final ReportLocalRepository _reportRepository;
 
   @override
   void initState() {
     super.initState();
-
-    // Dependencies
     _reportDataSource = di.sl<ReportRemoteDataSource>();
     _reportRepository = di.sl<ReportLocalRepository>();
 
-    // V2: Basitleştirilmiş - sadece gerekli alanlar
     final subject = EmailTemplateGenerator.generateSubject(widget.analysis.riskLevel);
-    // Default recipients için sync versiyon kullan (initState async olamaz)
     final defaultRecipients = EmailTemplateGenerator.getDefaultRecipientsSync(widget.analysis.riskLevel);
 
     _subjectController = TextEditingController(text: subject);
     _finalMessageController = TextEditingController(text: widget.analysis.analysisText);
     _recipients = List.from(defaultRecipients);
 
-    // Async olarak SharedPreferences'tan güncel değerleri yükle
     _loadDefaultRecipients();
   }
 
-  /// SharedPreferences'tan default recipients'ları yükle
   Future<void> _loadDefaultRecipients() async {
     final defaultRecipients = await EmailTemplateGenerator.getDefaultRecipients(widget.analysis.riskLevel);
     if (mounted) {
       setState(() {
-        // Eğer recipients boşsa veya sadece eski default değerler varsa, yeni değerlerle güncelle
-        if (_recipients.isEmpty || _recipients.length == 1 && _recipients.first == 'raporlama@sirket.com') {
+        if (_recipients.isEmpty || (_recipients.length == 1 && _recipients.first.contains('raporlama'))) {
           _recipients = List.from(defaultRecipients);
         }
       });
@@ -73,562 +65,533 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     super.dispose();
   }
 
-  /// Risk seviyesine göre primary renk döndürür (monokrom - primary color)
-  Color _getRiskColor(String riskLevel) {
-    return Theme.of(context).colorScheme.primary;
-  }
-
-  /// Risk seviyesine göre arka plan rengi (monokrom - light gray)
-  Color _getRiskBackgroundColor(String riskLevel) {
-    return Colors.grey.shade50;
+  // --- RENK YARDIMCILARI ---
+  Color _getRiskColor(String riskLevel, bool isDark) {
+    switch (riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+        return Theme.of(context).colorScheme.error;
+      case 'ORTA':
+        return isDark ? Colors.orangeAccent : Colors.orange.shade800;
+      default:
+        return isDark ? Colors.greenAccent : Colors.green.shade700;
+    }
   }
 
   IconData _getRiskIcon(String riskLevel) {
     switch (riskLevel.toUpperCase()) {
       case 'YÜKSEK':
-      case 'HIGH':
-        return Icons.dangerous;
-      case 'ORTA':
-      case 'MEDIUM':
         return Icons.warning_amber_rounded;
-      case 'DÜŞÜK':
-      case 'LOW':
-        return Icons.check_circle;
+      case 'ORTA':
+        return Icons.report_gmailerrorred_rounded;
       default:
-        return Icons.info;
+        return Icons.check_circle_outline_rounded;
     }
   }
+
+  // --- İŞLEM FONKSİYONLARI ---
 
   Future<void> _addRecipient() async {
     await showDialog(
       context: context,
-      builder: (dialogContext) {
-        return _AddRecipientDialog(
-          existingRecipients: _recipients,
-          onAdd: (email) {
-            setState(() {
-              _recipients.add(email);
-            });
-            Navigator.pop(dialogContext);
-            _showSuccessSnackBar('Alıcı eklendi: $email');
-          },
-        );
-      },
-    );
-  }
-
-  /// Hata mesajı göster
-  void _showErrorSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
+      builder: (context) => _AddRecipientDialog(
+        existingRecipients: _recipients,
+        onAdd: (email) {
+          setState(() => _recipients.add(email));
+          Navigator.pop(context);
+          _showSuccessSnackBar('Alıcı eklendi');
+        },
       ),
     );
   }
 
-  /// Başarı mesajı göster
-  void _showSuccessSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_outline, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  /// V2 Backend - Raporu gönder (basitleştirilmiş validasyonlarla)
   Future<void> _sendReport() async {
-    // Validasyon 1: Alıcı kontrolü
     if (_recipients.isEmpty) {
-      _showErrorSnackBar('En az bir alıcı eklemelisiniz');
+      _showErrorSnackBar('En az bir alıcı gereklidir.');
+      return;
+    }
+    if (_subjectController.text.isEmpty) {
+      _showErrorSnackBar('Başlık boş olamaz.');
+      return;
+    }
+    if (_finalMessageController.text.isEmpty) {
+      _showErrorSnackBar('Analiz metni boş olamaz.');
       return;
     }
 
-    // Validasyon 2: Mail başlığı kontrolü
-    final subject = _subjectController.text.trim();
-    if (subject.isEmpty) {
-      _showErrorSnackBar('Mail başlığı boş olamaz');
-      return;
-    }
-    if (subject.length < AppConstants.minCharactersSubject) {
-      _showErrorSnackBar('Mail başlığı en az ${AppConstants.minCharactersSubject} karakter olmalı');
-      return;
-    }
-
-    // Validasyon 3: Final message (analiz metni) kontrolü
-    final finalMessage = _finalMessageController.text.trim();
-    if (finalMessage.isEmpty) {
-      _showErrorSnackBar('Analiz metni boş olamaz');
-      return;
-    }
-    if (finalMessage.length < AppConstants.minCharactersBody) {
-      _showErrorSnackBar('Analiz metni en az ${AppConstants.minCharactersBody} karakter olmalı');
-      return;
-    }
-
-    // Validasyon 4: Resim dosyası kontrolü
-    final imageFile = File(widget.imagePath);
-    if (!imageFile.existsSync()) {
-      _showErrorSnackBar('Resim dosyası bulunamadı');
-      return;
-    }
-
-    // Loading başlat
     setState(() => _isLoading = true);
 
     try {
-      // V2 Backend - Basitleştirilmiş request
       final request = SendReportRequest(
         imagePath: widget.imagePath,
-        finalMessage: finalMessage, // Kullanıcının düzenlediği analiz metni
+        finalMessage: _finalMessageController.text.trim(),
         riskLevel: widget.analysis.riskLevel,
-        recipient: _recipients.first, // V2: Tek bir alıcı
-        subject: subject,
-        correctiveActions: widget.analysis.correctiveActions, // Gemini'den gelen düzeltici aksiyonlar
+        recipient: _recipients.first,
+        subject: _subjectController.text.trim(),
+        correctiveActions: widget.analysis.correctiveActions,
       );
 
       final response = await _reportDataSource.sendReport(request);
 
-      // Hive'a kaydet (local history)
-      final reportId = const Uuid().v4();
       final hiveReport = ReportHiveModel(
-        id: reportId,
-        analysis: finalMessage,
+        id: const Uuid().v4(),
+        analysis: _finalMessageController.text.trim(),
         riskLevel: widget.analysis.riskLevel,
         imagePath: widget.imagePath,
         timestamp: DateTime.now(),
-        emailSubject: subject,
-        emailBody: finalMessage, // V2: Email body yok, sadece final_message
+        emailSubject: _subjectController.text.trim(),
+        emailBody: _finalMessageController.text.trim(),
         recipients: _recipients,
-        ccRecipients: [], // V2: CC yok
+        ccRecipients: [],
         emailSent: response.emailSent,
         savedToGoogleDrive: response.driveFileCreated,
-        pdfGenerated: response.pdfGenerated,
+        pdfGenerated: false,
       );
 
       await _reportRepository.saveReport(hiveReport);
 
-      // Success dialog ve History'e git
-      if (mounted) {
-        _showSuccessDialogAndNavigate();
-      }
+      if (mounted) _showSuccessDialogAndNavigate();
     } catch (e) {
-      // ❌ Error handling
-      if (mounted) {
-        _showErrorSnackBar(e.toString());
-      }
+      if (mounted) _showErrorSnackBar('Hata: $e');
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  /// Başarı dialogu göster ve History'e yönlendir
   void _showSuccessDialogAndNavigate() {
-    if (!mounted) return; // Güvenlik kontrolü
-
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) {
-        // Dialog içinde kullanılacak theme'i önceden al
-        final theme = Theme.of(dialogContext);
-
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 32),
-              const SizedBox(width: AppConstants.spacingMedium),
-              const Text('Başarılı!'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Rapor başarıyla oluşturuldu ve gönderildi.', style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Icon(Icons.email, color: theme.colorScheme.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Text('Email gönderildi', style: TextStyle(color: Colors.grey.shade700)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.cloud_done, color: theme.colorScheme.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text('Google Drive\'a kaydedildi', style: TextStyle(color: Colors.grey.shade700)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                // Dialog context ile navigation
-                dialogContext.go('/home');
-              },
-              child: const Text('Ana Sayfa'),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.all(24),
+        // Custom içerik yapısı
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // İkon
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.check_circle_rounded, size: 56, color: Colors.green),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                // Dialog context ile navigation
-                dialogContext.go('/history');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: RiskColors.lowRiskPrimary,
-                foregroundColor: Colors.white,
+            const SizedBox(height: 24),
+            // Başlık
+            const Text(
+              'Rapor Gönderildi',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 12),
+            // Açıklama
+            const Text(
+              'Analiz raporu başarıyla işlendi, ilgili kişilere e-posta atıldı ve Google Drive\'a yedeklendi.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black54, height: 1.4),
+            ),
+            const SizedBox(height: 32),
+
+            // --- BUTONLAR (Dikey ve Geniş) ---
+
+            // 1. Ana Aksiyon: Ana Sayfaya Dön
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go('/home');
+                },
+                style: FilledButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: const Text('Ana Sayfaya Dön', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
-              child: const Text('Geçmişi Gör'),
+            ),
+
+            const SizedBox(height: 12),
+
+            // 2. İkincil Aksiyon: Geçmişi Gör
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go('/history');
+                },
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                ),
+                child: const Text('Geçmişi Görüntüle'),
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green.shade700,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // --- UI ---
+
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final riskColor = _getRiskColor(widget.analysis.riskLevel, isDark);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Rapor Önizleme'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Yardım'),
-                  content: const Text(
-                    'Bu sayfada:\n\n'
-                    '• Analiz metnini düzenleyebilirsiniz\n'
-                    '• Mail başlığını değiştirebilirsiniz\n'
-                    '• Alıcı ekleyip çıkarabilirsiniz\n\n'
-                    'Rapor gönderildiğinde otomatik olarak:\n'
-                    '• Google Drive\'a kaydedilir\n\n'
-                    'Rapor hazır olduğunda "Gönder" butonuna basın.',
-                  ),
-                  actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tamam'))],
-                ),
-              );
-            },
+      backgroundColor: colorScheme.surface,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // 1. HEADER
+          SliverAppBar(
+            pinned: true,
+            title: Text(
+              'Rapor Önizleme',
+              style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+            ),
+            centerTitle: false,
+            backgroundColor: colorScheme.surface,
+            surfaceTintColor: colorScheme.surfaceTint,
+            iconTheme: IconThemeData(color: colorScheme.onSurface),
+            actions: [
+              IconButton(icon: const Icon(Icons.help_outline_rounded), onPressed: () => _showHelpDialog(context)),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Fotoğraf Önizleme
-              Card(
-                elevation: 4,
-                child: Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                      child: Image.file(File(widget.imagePath), width: double.infinity, height: 200, fit: BoxFit.cover),
+
+          // 2. İÇERİK
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+
+                  // FOTOĞRAF KARTI
+                  Container(
+                    width: double.infinity,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: colorScheme.surfaceContainerHighest,
+                      image: DecorationImage(image: FileImage(File(widget.imagePath)), fit: BoxFit.cover),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      alignment: Alignment.bottomLeft,
                       child: Row(
                         children: [
-                          Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
-                          const SizedBox(width: 4),
+                          const Icon(Icons.camera_alt, color: Colors.white70, size: 16),
+                          const SizedBox(width: 8),
                           Text(
-                            dateFormat.format(DateTime.now()),
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now()),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+                  ),
 
-              // Risk Seviyesi Badge
-              Container(
-                padding: const EdgeInsets.all(AppConstants.spacingLarge),
-                decoration: BoxDecoration(
-                  color: _getRiskBackgroundColor(widget.analysis.riskLevel),
-                  borderRadius: const BorderRadius.all(Radius.circular(AppConstants.radiusMedium)),
-                  border: Border.all(color: _getRiskColor(widget.analysis.riskLevel), width: 2),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _getRiskIcon(widget.analysis.riskLevel),
-                      color: _getRiskColor(widget.analysis.riskLevel),
-                      size: AppConstants.iconSizeLarge,
+                  const SizedBox(height: 24),
+
+                  // RİSK SEVİYESİ
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: riskColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: riskColor.withOpacity(0.3)),
                     ),
-                    const SizedBox(width: AppConstants.spacingMedium),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Risk Seviyesi',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade700,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(color: riskColor.withOpacity(0.2), shape: BoxShape.circle),
+                          child: Icon(_getRiskIcon(widget.analysis.riskLevel), color: riskColor, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Risk Seviyesi',
+                              style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                             ),
-                          ),
-                          Text(
-                            widget.analysis.riskLevel,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: _getRiskColor(widget.analysis.riskLevel),
+                            Text(
+                              widget.analysis.riskLevel.toUpperCase(),
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: riskColor,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
+                  ),
 
-              // Mail Başlığı
-              Text(
-                'Mail Başlığı',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _subjectController,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
-                decoration: InputDecoration(
-                  hintText: 'Mail başlığını girin',
-                  filled: true,
-                  fillColor: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.grey.shade900
-                      : Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
-                  ),
-                  prefixIcon: const Icon(Icons.title),
-                ),
-              ),
-              const SizedBox(height: 20),
+                  const SizedBox(height: 32),
 
-              // V2: Analiz Metni (Final Message) - Düzenlenebilir
-              Text(
-                'Analiz Metni',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'AI tarafından oluşturulan analiz metnini buradan düzenleyebilirsiniz.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _finalMessageController,
-                maxLines: 8,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.5),
-                decoration: InputDecoration(
-                  hintText: 'Analiz metnini buradan düzenleyin...',
-                  filled: true,
-                  fillColor: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.grey.shade900
-                      : Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                    borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
-                  ),
-                  alignLabelWithHint: true,
-                  contentPadding: const EdgeInsets.all(AppConstants.spacingLarge),
-                ),
-              ),
-              const SizedBox(height: 20),
+                  // FORM ALANLARI
+                  _SectionHeader(title: 'Rapor İçeriği'),
 
-              // Alıcılar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Alıcılar',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  _buildModernTextField(
+                    context: context,
+                    controller: _subjectController,
+                    label: 'E-posta Konusu',
+                    icon: Icons.title_rounded,
+                    maxLines: 1,
                   ),
-                  TextButton.icon(onPressed: _addRecipient, icon: const Icon(Icons.add), label: const Text('Ekle')),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _recipients.map((email) {
-                  final isDark = Theme.of(context).brightness == Brightness.dark;
-                  return Chip(
-                    label: Text(email, style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
-                    onDeleted: () {
-                      setState(() {
-                        _recipients.remove(email);
-                      });
-                    },
-                    deleteIcon: Icon(Icons.close, size: 18, color: isDark ? Colors.white70 : Colors.black54),
-                    backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
 
-              // Otomatik İşlemler Bilgilendirmesi
-              Card(
-                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 16),
+
+                  _buildModernTextField(
+                    context: context,
+                    controller: _finalMessageController,
+                    label: 'Analiz ve Açıklama',
+                    icon: Icons.description_outlined,
+                    maxLines: 6,
+                    hint: 'AI analiz sonucunu buradan düzenleyebilirsiniz...',
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // ALICILAR
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Otomatik İşlemler',
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Icon(Icons.cloud_done, size: 18, color: Colors.grey.shade700),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Rapor Google Drive\'a kaydedilir',
-                              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                            ),
-                          ),
-                        ],
+                      _SectionHeader(title: 'Alıcılar', padding: EdgeInsets.zero),
+                      TextButton.icon(
+                        onPressed: _addRecipient,
+                        icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                        label: const Text('Ekle'),
+                        style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
+                  const SizedBox(height: 8),
 
-              // Butonlar
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isLoading ? null : () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                      child: const Text('İptal'),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    ),
+                    child: _recipients.isEmpty
+                        ? Center(
+                            child: Text('Henüz alıcı eklenmedi.', style: TextStyle(color: colorScheme.outline)),
+                          )
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _recipients
+                                .map(
+                                  (email) => InputChip(
+                                    label: Text(email),
+                                    labelStyle: TextStyle(fontSize: 13, color: colorScheme.onSurface),
+                                    backgroundColor: colorScheme.surface,
+                                    side: BorderSide(color: colorScheme.outlineVariant),
+                                    onDeleted: () => setState(() => _recipients.remove(email)),
+                                    deleteIconColor: colorScheme.onSurfaceVariant,
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // OTOMATİK İŞLEMLER BİLGİSİ
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.secondaryContainer.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline_rounded, size: 20, color: colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Rapor gönderildiğinde otomatik olarak Google Drive\'a yedeklenir.',
+                            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _sendReport,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: _getRiskColor(widget.analysis.riskLevel),
-                        foregroundColor: Colors.white,
+
+                  const SizedBox(height: 32),
+
+                  // AKSİYON BUTONLARI
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isLoading ? null : () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('İptal'),
+                        ),
                       ),
-                      icon: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Icon(Icons.send),
-                      label: Text(_isLoading ? 'Gönderiliyor...' : 'Gönder'),
-                    ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        // DÜZELTİLDİ: Standard FilledButton ile Custom Child
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _sendReport,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: colorScheme.primary, // Indigo/Mavi
+                            disabledBackgroundColor: colorScheme.primary.withOpacity(0.7),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          // Loading durumunda özel içerik
+                          child: _isLoading
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5, // Daha belirgin
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text('Gönderiliyor...', style: TextStyle(color: Colors.white)),
+                                  ],
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [Icon(Icons.send_rounded), SizedBox(width: 8), Text('Raporu Gönder')],
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 40),
                 ],
               ),
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernTextField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    String? hint,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      style: TextStyle(color: colorScheme.onSurface),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        alignLabelWithHint: true,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.only(bottom: 0),
+          child: Icon(icon, color: colorScheme.primary),
+        ),
+        filled: true,
+        fillColor: colorScheme.surfaceContainerLow,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Yardım'),
+        content: const Text(
+          '• Analiz metnini ve e-posta konusunu düzenleyebilirsiniz.\n'
+          '• "+" butonunu kullanarak yeni alıcılar ekleyebilirsiniz.\n'
+          '• Rapor gönderildiğinde kopya otomatik olarak Drive\'a yüklenir.',
+        ),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tamam'))],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final EdgeInsetsGeometry padding;
+
+  const _SectionHeader({required this.title, this.padding = const EdgeInsets.only(left: 4, bottom: 12)});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: Text(
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
         ),
       ),
     );
   }
 }
 
-/// Alıcı ekleme dialog widget'ı
 class _AddRecipientDialog extends StatefulWidget {
   final List<String> existingRecipients;
   final Function(String) onAdd;
@@ -640,42 +603,23 @@ class _AddRecipientDialog extends StatefulWidget {
 }
 
 class _AddRecipientDialogState extends State<_AddRecipientDialog> {
-  late final TextEditingController _controller;
-  String? _errorMessage;
+  final _controller = TextEditingController();
+  String? _error;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleAdd() {
+  void _submit() {
     final email = _controller.text.trim();
-
-    // Validasyonlar
     if (email.isEmpty) {
-      setState(() => _errorMessage = 'E-posta adresi boş olamaz');
+      setState(() => _error = 'E-posta boş olamaz');
       return;
     }
-
     if (!EmailTemplateGenerator.isValidEmail(email)) {
-      setState(() => _errorMessage = 'Geçersiz e-posta formatı');
+      setState(() => _error = 'Geçersiz e-posta formatı');
       return;
     }
-
-    // Duplicate kontrolü
     if (widget.existingRecipients.contains(email)) {
-      setState(() => _errorMessage = 'Bu e-posta zaten ekli');
+      setState(() => _error = 'Bu e-posta zaten ekli');
       return;
     }
-
-    // Başarılı
     widget.onAdd(email);
   }
 
@@ -683,35 +627,20 @@ class _AddRecipientDialogState extends State<_AddRecipientDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Alıcı Ekle'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              labelText: 'E-posta adresi',
-              hintText: 'ornek@sirket.com',
-              prefixIcon: Icon(Icons.email),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            autofocus: true,
-            onChanged: (_) {
-              // Error'u temizle
-              if (_errorMessage != null) {
-                setState(() => _errorMessage = null);
-              }
-            },
-            onSubmitted: (_) => _handleAdd(),
-          ),
-          if (_errorMessage != null) ...[
-            const SizedBox(height: 8),
-            Text(_errorMessage!, style: TextStyle(color: Colors.red.shade700, fontSize: 12)),
-          ],
-        ],
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        decoration: InputDecoration(
+          labelText: 'E-posta',
+          errorText: _error,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        keyboardType: TextInputType.emailAddress,
+        onSubmitted: (_) => _submit(),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
-        TextButton(onPressed: _handleAdd, child: const Text('Ekle')),
+        FilledButton(onPressed: _submit, child: const Text('Ekle')),
       ],
     );
   }

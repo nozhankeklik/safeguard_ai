@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,100 +16,337 @@ class AnalysisPage extends StatefulWidget {
   State<AnalysisPage> createState() => _AnalysisPageState();
 }
 
-class _AnalysisPageState extends State<AnalysisPage> {
+class _AnalysisPageState extends State<AnalysisPage> with TickerProviderStateMixin {
   final ImagePicker _imagePicker = ImagePicker();
-  String? _lastImagePath; // Seçilen resmin yolunu sakla
+  String? _lastImagePath;
+
+  // Animasyon Kontrolcüleri
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  // Dinamik Metin Kontrolü
+  int _loadingTextIndex = 0;
+  Timer? _textTimer;
+  final List<String> _loadingTexts = [
+    'Görüntü Sunucuya Yükleniyor...',
+    'Yapay Zeka Riskleri Tarıyor...',
+    'Güvenlik Analizi Yapılıyor...',
+    'Rapor Hazırlanıyor...',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Nefes alma (Pulse) animasyonu
+    _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+  }
+
+  void _startTextAnimation() {
+    _loadingTextIndex = 0;
+    _textTimer?.cancel();
+    _textTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (mounted) {
+        setState(() {
+          _loadingTextIndex = (_loadingTextIndex + 1) % _loadingTexts.length;
+        });
+      }
+    });
+  }
+
+  void _stopTextAnimation() {
+    _textTimer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _stopTextAnimation();
+    super.dispose();
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final XFile? file = await _imagePicker.pickImage(source: source);
 
     if (file != null && mounted) {
-      _lastImagePath = file.path; // Resim yolunu sakla
+      _lastImagePath = file.path;
+      // Yükleme başladığında metin animasyonunu başlat
+      _startTextAnimation();
       context.read<AnalysisBloc>().add(AnalysisEvent.analyzeImage(file.path));
     }
   }
 
   void _navigateToReportPreview(AnalysisEntity entity) {
-    if (_lastImagePath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Resim yolu bulunamadı'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    // BLoC'u reset et
+    _stopTextAnimation();
+    if (_lastImagePath == null) return;
     context.read<AnalysisBloc>().add(const AnalysisEvent.reset());
-
-    // Report preview sayfasına git
     context.push('/report-preview', extra: {'analysis': entity, 'imagePath': _lastImagePath!});
+  }
+
+  void _showErrorSnackBar(String message) {
+    _stopTextAnimation();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline_rounded, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('SafeGuard AI'), centerTitle: true),
+      backgroundColor: colorScheme.surface,
       body: BlocConsumer<AnalysisBloc, AnalysisState>(
         listener: (context, state) {
-          state.when(
-            initial: () {},
-            loading: () {},
-            success: (entity) {
-              _navigateToReportPreview(entity);
-            },
-            failure: (message) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(message)),
-                    ],
-                  ),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
+          state.whenOrNull(
+            success: (entity) => _navigateToReportPreview(entity),
+            failure: (message) => _showErrorSnackBar(message),
           );
         },
         builder: (context, state) {
-          return state.maybeWhen(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            orElse: () => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt, size: 20),
-                    label: const Text('Fotoğraf Çek'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      minimumSize: const Size(200, 50),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.photo_library, size: 20),
-                    label: const Text('Galeriden Seç'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      minimumSize: const Size(200, 50),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
-                  ),
-                ],
+          final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
+
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // 1. HEADER
+              SliverAppBar(
+                pinned: true,
+                title: Text(
+                  'Analiz Merkezi',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                ),
+                centerTitle: false,
+                backgroundColor: colorScheme.surface,
+                surfaceTintColor: colorScheme.surfaceTint,
               ),
-            ),
+
+              // 2. İÇERİK
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      isLoading
+                          ? _buildModernLoadingState(colorScheme, theme.textTheme)
+                          : _buildIdleState(colorScheme, theme.textTheme),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
+    );
+  }
+
+  /// ----------------------------------------------------------------
+  /// DURUM 1: Bekleme (Idle) UI - YENİ "AI ÇİPİ" LOGOSU
+  /// ----------------------------------------------------------------
+  Widget _buildIdleState(ColorScheme colorScheme, TextTheme textTheme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // YENİ LOGO KOMBİNASYONU
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            // Arka plan halkası
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.primaryContainer.withOpacity(0.4),
+                border: Border.all(color: colorScheme.primary.withOpacity(0.1), width: 1),
+              ),
+            ),
+            // Ana AI Çipi İkonu
+            Icon(Icons.memory_rounded, size: 72, color: colorScheme.primary),
+            // Köşede AI Işıltısı
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: colorScheme.primary.withOpacity(0.2), blurRadius: 4)],
+                ),
+                child: Icon(Icons.auto_awesome, size: 20, color: colorScheme.primary),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 32),
+
+        Text(
+          'Yeni Bir Analiz Başlat',
+          style: textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: colorScheme.onSurface,
+            letterSpacing: -0.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Yapay zeka asistanımız ortamdaki tehlikeleri tespit etmek için hazır.',
+          style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant, height: 1.5),
+          textAlign: TextAlign.center,
+        ),
+
+        const SizedBox(height: 48),
+
+        // Aksiyon Kartı (Aynı kalıyor)
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.4)),
+          ),
+          color: colorScheme.surfaceContainerLow,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: FilledButton.icon(
+                    onPressed: () => _pickImage(ImageSource.camera),
+                    icon: const Icon(Icons.camera_alt_rounded),
+                    label: const Text('Kamerayı Aç', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.gallery),
+                    icon: const Icon(Icons.photo_library_rounded),
+                    label: const Text('Galeriden Seç', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colorScheme.primary,
+                      side: BorderSide(color: colorScheme.primary.withOpacity(0.5), width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      backgroundColor: colorScheme.surface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  /// ----------------------------------------------------------------
+  /// DURUM 2: Yükleniyor UI - DEĞİŞEN METİNLER (Korundu)
+  /// ----------------------------------------------------------------
+  Widget _buildModernLoadingState(ColorScheme colorScheme, TextTheme textTheme) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Animasyonlu Halka
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            ScaleTransition(
+              scale: _pulseAnimation,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colorScheme.primary.withOpacity(0.05),
+                  border: Border.all(color: colorScheme.primary.withOpacity(0.2), width: 1),
+                ),
+              ),
+            ),
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.surface,
+                boxShadow: [BoxShadow(color: colorScheme.primary.withOpacity(0.15), blurRadius: 20, spreadRadius: 2)],
+              ),
+            ),
+            SizedBox(
+              width: 110,
+              height: 110,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+              ),
+            ),
+            // Yüklenirken de AI ikonunu gösterelim
+            Icon(Icons.auto_awesome, size: 40, color: colorScheme.primary),
+          ],
+        ),
+
+        const SizedBox(height: 48),
+
+        // DEĞİŞEN METİN (AnimatedSwitcher)
+        SizedBox(
+          height: 30, // Yükseklik sabitleme (zıplamayı önler)
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(begin: const Offset(0.0, 0.5), end: Offset.zero).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: Text(
+              _loadingTexts[_loadingTextIndex],
+              key: ValueKey<int>(_loadingTextIndex), // Key değişince animasyon tetiklenir
+              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        Text(
+          'Lütfen bekleyin, işlem biraz zaman alabilir.',
+          textAlign: TextAlign.center,
+          style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+        ),
+      ],
     );
   }
 }

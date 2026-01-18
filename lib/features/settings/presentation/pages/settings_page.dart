@@ -1,12 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:safeguard_ai/core/constants/app_constants.dart';
 import 'package:safeguard_ai/core/init/injection_container.dart' as di;
 import 'package:safeguard_ai/features/analysis/data/repositories/report_local_repository.dart';
 import 'package:safeguard_ai/features/settings/presentation/pages/predefined_recipients_page.dart';
 import 'package:safeguard_ai/main.dart' show themeNotifier;
 
-/// Ayarlar Sayfası
+/// Ayarlar Sayfası - Modern & Uyumlu Tasarım
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -21,7 +20,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    // Tema değişikliklerini dinle
     themeNotifier.addListener(_onThemeChanged);
   }
 
@@ -32,271 +30,295 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _onThemeChanged() {
-    if (mounted) {
-      setState(() {}); // UI'ı yenile
-    }
+    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar'), centerTitle: true),
-      body: ListView(
-        children: [
-          // Email Yönetimi Bölümü
-          _SectionHeader(title: 'Email Yönetimi'),
-          _SettingsTile(
-            icon: Icons.email_outlined,
-            title: 'E-posta Alıcı Yönetimi',
-            subtitle: 'Risk seviyelerine göre otomatik e-posta alıcılarını yönet',
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const PredefinedRecipientsPage()));
-            },
+      backgroundColor: colorScheme.surface,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // 1. HEADER (DÜZELTİLDİ: Large kaldırıldı, Standart yapıldı)
+          SliverAppBar(
+            pinned: true,
+            title: Text(
+              'Ayarlar',
+              // DÜZELTİLDİ: Başlık rengi standartlaştırıldı (Siyah/Gri)
+              style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+            ),
+            centerTitle: false,
+            backgroundColor: colorScheme.surface,
+            surfaceTintColor: colorScheme.surfaceTint,
           ),
 
-          const Divider(height: 32),
-
-          // Uygulama Ayarları
-          _SectionHeader(title: 'Uygulama Ayarları'),
-          _SettingsSwitchTile(
-            icon: themeNotifier.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-            title: 'Karanlık Mod',
-            subtitle: themeNotifier.isDarkMode ? 'Koyu tema aktif' : 'Açık tema aktif',
-            value: themeNotifier.isDarkMode,
-            onChanged: (value) async {
-              await themeNotifier.toggleTheme();
-              _showSuccessSnackBar('${themeNotifier.isDarkMode ? "🌙 Karanlık" : "☀️ Açık"} tema aktif!');
-            },
-          ),
-
-          const Divider(height: 32),
-
-          // Veri Yönetimi
-          _SectionHeader(title: 'Veri Yönetimi'),
-          _SettingsTile(
-            icon: Icons.delete_sweep_outlined,
-            title: 'Rapor Geçmişini Temizle',
-            subtitle: 'Tüm kayıtlı raporları sil (${_reportRepository.getAllReports().length} rapor)',
-            onTap: _showClearDataDialog,
-          ),
-
-          const Divider(height: 32),
-
-          // n8n Bağlantı Durumu
-          _SectionHeader(title: 'Backend Bağlantısı'),
-          _SettingsTile(
-            icon: _isTestingConnection ? Icons.sync : Icons.wifi_tethering,
-            title: 'Bağlantı Testi',
-            subtitle: _isTestingConnection ? 'Test ediliyor...' : 'n8n API bağlantısını test et',
-            trailing: _isTestingConnection
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : null,
-            onTap: _isTestingConnection ? null : _testConnection,
-          ),
-
-          const SizedBox(height: 32),
-
-          // Uygulama Versiyonu (Footer)
-          Center(
+          // 2. İÇERİK
+          SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'SafeGuard AI v1.0.0',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey.shade600,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+
+                  // --- İLETİŞİM ---
+                  _SectionHeader(title: 'İletişim'),
+                  Card(
+                    elevation: 0, // Gölge kaldırıldı (Modern Flat)
+                    color: colorScheme.surfaceContainerLow, // Yumuşak zemin
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3)), // İnce kenarlık
                     ),
+                    child: Column(
+                      children: [
+                        _SettingsListTile(
+                          icon: Icons.mark_email_unread_rounded,
+                          title: 'E-posta Alıcıları',
+                          subtitle: 'Raporların gönderileceği kişileri yönet',
+                          iconColor: Colors.blue,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const PredefinedRecipientsPage()),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // --- GÖRÜNÜM ---
+                  _SectionHeader(title: 'Görünüm'),
+                  Card(
+                    elevation: 0,
+                    color: colorScheme.surfaceContainerLow,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      children: [
+                        _SettingsSwitchTile(
+                          icon: themeNotifier.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                          title: 'Karanlık Mod',
+                          subtitle: themeNotifier.isDarkMode ? 'Koyu tema aktif' : 'Açık tema aktif',
+                          iconColor: Colors.purple,
+                          value: themeNotifier.isDarkMode,
+                          onChanged: (value) async {
+                            await themeNotifier.toggleTheme();
+                            if (mounted) setState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // --- SİSTEM ---
+                  _SectionHeader(title: 'Sistem & Bağlantı'),
+                  Card(
+                    elevation: 0,
+                    color: colorScheme.surfaceContainerLow,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      children: [
+                        _SettingsListTile(
+                          icon: _isTestingConnection ? Icons.sync_rounded : Icons.hub_rounded,
+                          title: 'Sunucu Bağlantısı',
+                          subtitle: _isTestingConnection ? 'Kontrol ediliyor...' : 'API durumunu test et',
+                          iconColor: Colors.teal,
+                          trailing: _isTestingConnection
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.primary),
+                                )
+                              : null,
+                          onTap: _isTestingConnection ? null : _testConnection,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // --- VERİ YÖNETİMİ ---
+                  _SectionHeader(title: 'Veri Yönetimi'),
+                  Card(
+                    elevation: 0,
+                    color: colorScheme.surfaceContainerLow,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      children: [
+                        _SettingsListTile(
+                          icon: Icons.delete_forever_rounded,
+                          title: 'Geçmişi Temizle',
+                          subtitle: 'Cihazdaki tüm raporları kalıcı olarak sil',
+                          iconColor: colorScheme.error,
+                          textColor: colorScheme.error,
+                          onTap: _showClearDataDialog,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // --- VERSİYON ---
+                  Center(
+                    child: Text(
+                      'SafeGuard AI v1.0.0',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
+  // --- MANTIK ---
 
-  /// n8n bağlantı testi
   Future<void> _testConnection() async {
     setState(() => _isTestingConnection = true);
-
     try {
       final dio = di.sl<Dio>();
-
-      // Basit bir GET request ile test
-      final response = await dio.get(
-        '/',
-        options: Options(sendTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
-      );
-
-      if (mounted) {
-        _showSuccessSnackBar('✅ Bağlantı başarılı! (Status: ${response.statusCode})');
-      }
-    } on DioException catch (e) {
-      if (mounted) {
-        if (e.type == DioExceptionType.connectionTimeout) {
-          _showErrorSnackBar('❌ Bağlantı zaman aşımına uğradı');
-        } else if (e.type == DioExceptionType.receiveTimeout) {
-          _showErrorSnackBar('❌ Sunucu yanıt vermiyor');
-        } else if (e.response?.statusCode == 404) {
-          // 404 bile bağlantı var demektir
-          _showSuccessSnackBar('✅ Bağlantı başarılı! (Endpoint bulunamadı ama sunucu çalışıyor)');
-        } else {
-          _showErrorSnackBar('❌ Bağlantı başarısız: ${e.message}');
-        }
-      }
+      final response = await dio.get('/', options: Options(sendTimeout: const Duration(seconds: 5)));
+      if (mounted) _showSnackBar('✅ Bağlantı Başarılı! (${response.statusCode})', Colors.green);
     } catch (e) {
-      if (mounted) {
-        _showErrorSnackBar('❌ Beklenmeyen hata: ${e.toString()}');
-      }
+      if (mounted) _showSnackBar('❌ Bağlantı Kurulamadı', Colors.red);
     } finally {
-      if (mounted) {
-        setState(() => _isTestingConnection = false);
-      }
+      if (mounted) setState(() => _isTestingConnection = false);
     }
   }
 
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.green.shade600,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red.shade600,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  /// Veri temizleme dialogu
   void _showClearDataDialog() {
     final reportCount = _reportRepository.getAllReports().length;
-
     if (reportCount == 0) {
-      _showErrorSnackBar('Temizlenecek rapor bulunamadı');
+      _showSnackBar('Silinecek veri yok', Colors.grey);
       return;
     }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Veri Temizleme'),
-          ],
-        ),
-        content: Text(
-          'Tüm rapor geçmişi silinecek ($reportCount rapor).\n\n'
-          'Bu işlem geri alınamaz. Emin misiniz?',
-        ),
+        title: const Text('Emin misiniz?'),
+        content: Text('Toplam $reportCount rapor silinecek. Bu işlem geri alınamaz.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await _clearAllReports();
+              await _reportRepository.deleteAllReports();
+              if (mounted) {
+                _showSnackBar('Geçmiş temizlendi', Colors.green);
+                setState(() {});
+              }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Temizle'),
+            child: const Text('Sil'),
           ),
         ],
       ),
     );
   }
 
-  /// Tüm raporları temizle
-  Future<void> _clearAllReports() async {
-    try {
-      await _reportRepository.deleteAllReports();
-      if (mounted) {
-        _showSuccessSnackBar('Tüm raporlar başarıyla silindi');
-        setState(() {}); // UI'ı yenile (rapor sayısını güncelle)
-      }
-    } catch (e) {
-      if (mounted) {
-        _showErrorSnackBar('Veri temizlenirken hata oluştu: $e');
-      }
-    }
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color, behavior: SnackBarBehavior.floating));
   }
-
 }
 
-/// Bölüm başlığı widget'ı
+// --- YARDIMCI WIDGETLAR ---
+
 class _SectionHeader extends StatelessWidget {
   final String title;
-
   const _SectionHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppConstants.spacingLarge,
-        AppConstants.spacingXLarge,
-        AppConstants.spacingLarge,
-        AppConstants.spacingSmall,
-      ),
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
         style: Theme.of(
           context,
-        ).textTheme.titleSmall?.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600),
+        ).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
-/// Ayar listesi öğesi
-class _SettingsTile extends StatelessWidget {
+class _SettingsListTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final Color iconColor;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final Color? textColor;
 
-  const _SettingsTile({required this.icon, required this.title, required this.subtitle, this.onTap, this.trailing});
+  const _SettingsListTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.iconColor,
+    this.onTap,
+    this.trailing,
+    this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: trailing ?? const Icon(Icons.chevron_right),
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Padding biraz artırıldı
+      leading: Container(
+        padding: const EdgeInsets.all(10), // İkon kutusu büyütüldü
+        decoration: BoxDecoration(color: iconColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, color: iconColor, size: 22),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(fontWeight: FontWeight.w600, color: textColor ?? Theme.of(context).colorScheme.onSurface),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4.0),
+        child: Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+      ),
+      trailing:
+          trailing ?? Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.outline.withOpacity(0.5)),
     );
   }
 }
 
-/// Switch'li ayar öğesi
 class _SettingsSwitchTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final Color iconColor;
   final bool value;
   final ValueChanged<bool> onChanged;
 
@@ -304,18 +326,26 @@ class _SettingsSwitchTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.iconColor,
     required this.value,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile(
-      secondary: Icon(icon),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      value: value,
-      onChanged: onChanged,
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: iconColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, color: iconColor, size: 22),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4.0),
+        child: Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+      ),
+      trailing: Switch(value: value, onChanged: onChanged, activeColor: Theme.of(context).colorScheme.primary),
     );
   }
 }

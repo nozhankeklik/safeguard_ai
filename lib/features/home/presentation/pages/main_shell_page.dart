@@ -20,16 +20,11 @@ class _MainShellPageState extends State<MainShellPage> {
   }
 
   void _handleNavigation(int index, BuildContext context) {
-    // Eğer detay sayfasındaysak (report-detail veya report-preview), önce kapat
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/report-detail') || location.startsWith('/report-preview')) {
-      // Stack'ten çıkar (pop)
-      if (context.canPop()) {
-        context.pop();
-      }
+      if (context.canPop()) context.pop();
     }
 
-    // Yeni sayfaya git
     switch (index) {
       case 0:
         context.go('/home');
@@ -50,34 +45,44 @@ class _MainShellPageState extends State<MainShellPage> {
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final currentIndex = _getCurrentIndex(location);
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) => _handleNavigation(index, context),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Ana Sayfa',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Analiz',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Geçmiş',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ayarlar',
-          ),
-        ],
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Theme.of(context).bottomAppBarTheme.color ?? Theme.of(context).cardColor,
+      // Navigasyon Bar
+      bottomNavigationBar: Container(
+        // PROFESYONEL DOKUNUŞ: Üst tarafa ince çizgi (Border)
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor, // Çentik arkası uyumu
+          border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant.withOpacity(0.2), width: 1)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: currentIndex,
+          onTap: (index) => _handleNavigation(index, context),
+          // Tema dosyasındaki ayarları kullanır, ekstra renk vermeye gerek yok
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home_rounded), // Seçilince dolgulu ikon
+              label: 'Ana Sayfa',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.document_scanner_outlined),
+              activeIcon: Icon(Icons.document_scanner_rounded),
+              label: 'Analiz',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_outlined),
+              activeIcon: Icon(Icons.history_rounded),
+              label: 'Geçmiş',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings_rounded),
+              label: 'Ayarlar',
+            ),
+          ],
+        ),
       ),
     );
   }

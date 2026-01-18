@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:safeguard_ai/core/constants/app_constants.dart';
 import 'package:safeguard_ai/features/analysis/data/models/report_hive_model.dart';
 import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dart';
 import 'package:safeguard_ai/features/history/presentation/bloc/history_event.dart';
 import 'package:safeguard_ai/features/history/presentation/bloc/history_state.dart';
 
-/// Geçmiş Raporlar Sayfası
+/// Geçmiş Raporlar Sayfası - Modern & Uyumlu Tasarım
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
 
@@ -23,153 +22,185 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     super.initState();
-    // Sayfa yüklendiğinde raporları getir
     context.read<HistoryBloc>().add(const HistoryEvent.loadReports());
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Geçmiş Raporlar'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Arama özelliği eklenecek
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Filtre Chips
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.spacingLarge,
-              vertical: AppConstants.spacingSmall,
+      backgroundColor: colorScheme.surface,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // 1. HEADER (DÜZELTİLDİ: Large kaldırıldı, Standart boyut)
+          SliverAppBar(
+            pinned: true, // Aşağı kaydırınca sabit kalsın
+            title: Text(
+              'Geçmiş Raporlar',
+              // DÜZELTİLDİ: Başlık rengi diğer sayfalarla aynı
+              style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
             ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _FilterChip(
-                    label: 'Tümü',
-                    isSelected: _selectedFilter == 'Tümü',
-                    onSelected: () {
-                      setState(() => _selectedFilter = 'Tümü');
-                      context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel(null));
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Yüksek Risk',
-                    isSelected: _selectedFilter == 'Yüksek Risk',
-                    onSelected: () {
-                      setState(() => _selectedFilter = 'Yüksek Risk');
-                      context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel('YÜKSEK'));
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Orta Risk',
-                    isSelected: _selectedFilter == 'Orta Risk',
-                    onSelected: () {
-                      setState(() => _selectedFilter = 'Orta Risk');
-                      context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel('ORTA'));
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'Düşük Risk',
-                    isSelected: _selectedFilter == 'Düşük Risk',
-                    onSelected: () {
-                      setState(() => _selectedFilter = 'Düşük Risk');
-                      context.read<HistoryBloc>().add(const HistoryEvent.filterByRiskLevel('DÜŞÜK'));
-                    },
-                  ),
-                ],
+            centerTitle: false,
+            backgroundColor: colorScheme.surface,
+            surfaceTintColor: colorScheme.surfaceTint,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.search_rounded, color: colorScheme.onSurfaceVariant),
+                onPressed: () {
+                  // TODO: Arama özelliği
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+
+          // 2. FİLTRE ÇİPLERİ
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16), // Üst boşluk ayarlandı
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: [
+                    _ModernFilterChip(
+                      label: 'Tümü',
+                      isSelected: _selectedFilter == 'Tümü',
+                      onSelected: () => _applyFilter('Tümü', null),
+                    ),
+                    const SizedBox(width: 8),
+                    _ModernFilterChip(
+                      label: 'Yüksek Risk',
+                      isSelected: _selectedFilter == 'Yüksek Risk',
+                      color: colorScheme.error,
+                      onSelected: () => _applyFilter('Yüksek Risk', 'YÜKSEK'),
+                    ),
+                    const SizedBox(width: 8),
+                    _ModernFilterChip(
+                      label: 'Orta Risk',
+                      isSelected: _selectedFilter == 'Orta Risk',
+                      color: Colors.orange,
+                      onSelected: () => _applyFilter('Orta Risk', 'ORTA'),
+                    ),
+                    const SizedBox(width: 8),
+                    _ModernFilterChip(
+                      label: 'Düşük Risk',
+                      isSelected: _selectedFilter == 'Düşük Risk',
+                      color: Colors.green,
+                      onSelected: () => _applyFilter('Düşük Risk', 'DÜŞÜK'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
 
-          // Liste
-          Expanded(
-            child: BlocBuilder<HistoryBloc, HistoryState>(
-              builder: (context, state) {
-                return state.when(
-                  initial: () => const Center(child: Text('Başlatılıyor...')),
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  loaded: (reports, currentFilter) => _buildReportsList(reports),
-                  empty: () => _buildEmptyState(),
-                  failure: (message) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline, size: 64, color: Colors.grey.shade400),
-                        const SizedBox(height: 16),
-                        Text(message, style: TextStyle(color: Colors.grey.shade700)),
-                      ],
+          // 3. LİSTE İÇERİĞİ
+          BlocBuilder<HistoryBloc, HistoryState>(
+            builder: (context, state) {
+              return state.when(
+                initial: () => const SliverFillRemaining(child: SizedBox.shrink()),
+                loading: () => SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(color: colorScheme.primary)),
+                ),
+                loaded: (reports, currentFilter) => SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _ReportCard(report: reports[index]),
+                      ),
+                      childCount: reports.length,
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+                empty: () => SliverFillRemaining(child: _buildEmptyState(context)),
+                failure: (message) => SliverFillRemaining(child: _buildErrorState(context, message)),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  /// Raporlar listesi
-  Widget _buildReportsList(List<ReportHiveModel> reports) {
-    return ListView.builder(
-      padding: EdgeInsets.all(AppConstants.spacingLarge),
-      itemCount: reports.length,
-      itemBuilder: (context, index) {
-        final report = reports[index];
-        return _ReportCard(report: report);
-      },
+  void _applyFilter(String label, String? riskLevel) {
+    setState(() => _selectedFilter = label);
+    context.read<HistoryBloc>().add(HistoryEvent.filterByRiskLevel(riskLevel));
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.folder_open_rounded, size: 64, color: colorScheme.secondary),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Henüz Rapor Bulunamadı',
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Geçmiş analizlerinizi burada görebilirsiniz.\nYeni bir analiz başlatarak başlayın.',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () => context.go('/analyze'),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Yeni Analiz'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  /// Boş durum gösterimi
-  Widget _buildEmptyState() {
+  Widget _buildErrorState(BuildContext context, String message) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.folder_open_outlined, size: 80, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          Text(
-            'Henüz rapor yok',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(color: Colors.grey.shade600, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'İlk analizinizi yapmak için\n"Yeni Analiz" sekmesine gidin',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade500),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              // Ana shell'deki index'i değiştir
-              // TODO: Navigation ile çöz
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Yeni Analiz Yap'),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline_rounded, size: 48, color: Theme.of(context).colorScheme.error),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Rapor kartı
+/// Modern Rapor Kartı
 class _ReportCard extends StatelessWidget {
   final ReportHiveModel report;
 
@@ -178,143 +209,179 @@ class _ReportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd MMM yyyy, HH:mm');
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
-    return Card(
-      margin: EdgeInsets.only(bottom: AppConstants.spacingMedium),
-      child: InkWell(
-        onTap: () {
-          context.push(
-            '/report-detail',
-            extra: {'report': report},
-          );
-        },
-        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-        child: Padding(
-          padding: EdgeInsets.all(AppConstants.spacingMedium),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Resim thumbnail (eğer varsa)
-              if (report.imagePath.isNotEmpty && !report.imagePath.startsWith('demo'))
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                  child: Image.file(
-                    File(report.imagePath),
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholderImage(context);
-                    },
+    // Risk Rengi Belirleme
+    Color riskColor;
+    switch (report.riskLevel.toUpperCase()) {
+      case 'YÜKSEK':
+        riskColor = colorScheme.error;
+        break;
+      case 'ORTA':
+        riskColor = isDark ? Colors.orangeAccent : Colors.orange.shade800;
+        break;
+      default:
+        riskColor = isDark ? Colors.greenAccent : Colors.green.shade700;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow, // Modern kart arka planı
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/report-detail', extra: {'report': report}),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. GÖRSEL (THUMBNAIL)
+                Hero(
+                  tag: 'report_img_${report.id}',
+                  child: Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: colorScheme.surfaceContainerHighest,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: (report.imagePath.isNotEmpty && !report.imagePath.startsWith('demo'))
+                          ? Image.file(
+                              File(report.imagePath),
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _buildPlaceholderIcon(colorScheme),
+                            )
+                          : _buildPlaceholderIcon(colorScheme),
+                    ),
                   ),
-                )
-              else
-                _buildPlaceholderImage(context),
-
-              SizedBox(width: AppConstants.spacingMedium),
-
-              // Detaylar
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Risk badge
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppConstants.spacingSmall,
-                        vertical: AppConstants.spacingXSmall,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-                      ),
-                      child: Text(
-                        report.riskLevel,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                    ),
-
-                    SizedBox(height: AppConstants.spacingSmall),
-
-                    // Analiz metni (kısaltılmış)
-                    Text(
-                      report.analysis,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-
-                    SizedBox(height: AppConstants.spacingSmall),
-
-                    // Tarih ve durum ikonları
-                    Row(
-                      children: [
-                        Icon(Icons.access_time, size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
-                        Text(
-                          dateFormat.format(report.timestamp),
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                        ),
-                        const Spacer(),
-                        if (report.emailSent) Icon(Icons.email, size: 16, color: Colors.green.shade600),
-                        if (report.savedToGoogleDrive)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Icon(Icons.cloud_done, size: 16, color: Colors.blue.shade600),
-                          ),
-                        if (report.pdfGenerated)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Icon(Icons.picture_as_pdf, size: 16, color: Colors.red.shade600),
-                          ),
-                      ],
-                    ),
-                  ],
                 ),
-              ),
 
-              // Sil butonu
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                onPressed: () {
-                  _showDeleteDialog(context, report.id);
-                },
-              ),
-            ],
+                const SizedBox(width: 16),
+
+                // 2. DETAYLAR
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Başlık ve Tarih
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Risk Rozeti
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: riskColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              report.riskLevel,
+                              style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 11),
+                            ),
+                          ),
+                          // Tarih
+                          Text(
+                            dateFormat.format(report.timestamp),
+                            style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Analiz Özeti
+                      Text(
+                        report.analysis,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface, height: 1.3),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Durum İkonları ve Silme Butonu
+                      Row(
+                        children: [
+                          _StatusIcon(
+                            icon: Icons.mark_email_read_rounded,
+                            isActive: report.emailSent,
+                            activeColor: Colors.green,
+                          ),
+                          const SizedBox(width: 8),
+                          _StatusIcon(
+                            icon: Icons.cloud_done_rounded,
+                            isActive: report.savedToGoogleDrive,
+                            activeColor: Colors.blue,
+                          ),
+                          const Spacer(),
+                          // Silme Butonu
+                          SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                Icons.delete_outline_rounded,
+                                size: 20,
+                                color: colorScheme.error.withOpacity(0.7),
+                              ),
+                              onPressed: () => _showDeleteDialog(context, report.id),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPlaceholderImage(BuildContext context) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
-      ),
-      child: Icon(Icons.image, size: 40, color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
+  Widget _buildPlaceholderIcon(ColorScheme colorScheme) {
+    return Center(
+      child: Icon(Icons.image_not_supported_outlined, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
     );
   }
-
 
   void _showDeleteDialog(BuildContext context, String reportId) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Raporu Sil'),
-        content: const Text('Bu raporu silmek istediğinize emin misiniz?'),
+        content: const Text('Bu işlem geri alınamaz. Devam etmek istiyor musunuz?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('İptal')),
-          TextButton(
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+          FilledButton.tonal(
             onPressed: () {
               context.read<HistoryBloc>().add(HistoryEvent.deleteReport(reportId));
-              Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rapor silindi')));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Rapor silindi'),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                  width: 200,
+                ),
+              );
             },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text('Sil'),
           ),
         ],
@@ -323,37 +390,60 @@ class _ReportCard extends StatelessWidget {
   }
 }
 
-/// Filtre chip widget'ı
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onSelected;
+class _StatusIcon extends StatelessWidget {
+  final IconData icon;
+  final bool isActive;
+  final Color activeColor;
 
-  const _FilterChip({required this.label, required this.isSelected, required this.onSelected});
+  const _StatusIcon({required this.icon, required this.isActive, required this.activeColor});
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (!isActive) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: activeColor.withOpacity(0.1), shape: BoxShape.circle),
+      child: Icon(icon, size: 14, color: activeColor),
+    );
+  }
+}
 
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (_) => onSelected(),
-      backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-      selectedColor: isDark
-          ? primaryColor.withOpacity(0.2)
-          : primaryColor.withOpacity(0.1),
-      checkmarkColor: primaryColor,
-      labelStyle: TextStyle(
-        color: isSelected
-            ? primaryColor
-            : (isDark ? Colors.grey.shade300 : Colors.grey.shade700),
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-      ),
-      side: BorderSide(
-        color: isSelected ? primaryColor : (isDark ? Colors.grey.shade600 : Colors.grey.shade300),
-        width: isSelected ? 1.5 : 1,
+class _ModernFilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onSelected;
+  final Color? color;
+
+  const _ModernFilterChip({required this.label, required this.isSelected, required this.onSelected, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Aktif renk belirleme
+    final activeColor = color ?? colorScheme.primary;
+    final backgroundColor = isSelected
+        ? activeColor.withOpacity(0.15)
+        : colorScheme.surfaceContainerHighest.withOpacity(0.5);
+    final borderColor = isSelected ? activeColor : Colors.transparent;
+    final textColor = isSelected ? activeColor : colorScheme.onSurfaceVariant;
+
+    return InkWell(
+      onTap: onSelected,
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borderColor, width: 1.5),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(color: textColor, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, fontSize: 13),
+        ),
       ),
     );
   }
