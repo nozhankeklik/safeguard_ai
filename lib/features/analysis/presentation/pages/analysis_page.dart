@@ -159,40 +159,55 @@ class _AnalysisPageState extends State<AnalysisPage> with TickerProviderStateMix
   }
 
   /// ----------------------------------------------------------------
-  /// DURUM 1: Bekleme (Idle) UI - YENİ "AI ÇİPİ" LOGOSU
+  /// DURUM 1: Bekleme (Idle) UI - YENİLENMİŞ "AKILLI TARAMA" İKONU
   /// ----------------------------------------------------------------
   Widget _buildIdleState(ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // YENİ LOGO KOMBİNASYONU
+        // YENİ GÖRSEL: AKILLI TARAMA LENSİ
         Stack(
           alignment: Alignment.center,
           children: [
-            // Arka plan halkası
+            // Dış Hareli Halka
             Container(
-              width: 120,
-              height: 120,
+              width: 130,
+              height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.primaryContainer.withOpacity(0.4),
-                border: Border.all(color: colorScheme.primary.withOpacity(0.1), width: 1),
+                color: colorScheme.primary.withOpacity(0.05),
+                border: Border.all(color: colorScheme.primary.withOpacity(0.1), width: 2),
               ),
             ),
-            // Ana AI Çipi İkonu
-            Icon(Icons.memory_rounded, size: 72, color: colorScheme.primary),
-            // Köşede AI Işıltısı
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: colorScheme.primary.withOpacity(0.2), blurRadius: 4)],
+            // Orta Katman (Lens Çerçevesi)
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [colorScheme.primaryContainer, colorScheme.surface],
                 ),
-                child: Icon(Icons.auto_awesome, size: 20, color: colorScheme.primary),
+                boxShadow: [
+                  BoxShadow(color: colorScheme.primary.withOpacity(0.2), blurRadius: 15, offset: const Offset(0, 5)),
+                ],
+              ),
+              child: Icon(Icons.camera, size: 50, color: colorScheme.primary),
+            ),
+            // Üst Katman (Tarama Efekti / Köşe Işıltısı)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: colorScheme.surface, width: 3),
+                ),
+                child: Icon(Icons.qr_code_scanner_rounded, size: 20, color: colorScheme.onPrimary),
               ),
             ),
           ],
@@ -218,7 +233,7 @@ class _AnalysisPageState extends State<AnalysisPage> with TickerProviderStateMix
 
         const SizedBox(height: 48),
 
-        // Aksiyon Kartı (Aynı kalıyor)
+        // Aksiyon Kartı
         Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -270,7 +285,7 @@ class _AnalysisPageState extends State<AnalysisPage> with TickerProviderStateMix
   }
 
   /// ----------------------------------------------------------------
-  /// DURUM 2: Yükleniyor UI - DEĞİŞEN METİNLER (Korundu)
+  /// DURUM 2: Yükleniyor UI
   /// ----------------------------------------------------------------
   Widget _buildModernLoadingState(ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
@@ -316,9 +331,9 @@ class _AnalysisPageState extends State<AnalysisPage> with TickerProviderStateMix
 
         const SizedBox(height: 48),
 
-        // DEĞİŞEN METİN (AnimatedSwitcher)
+        // DEĞİŞEN METİN
         SizedBox(
-          height: 30, // Yükseklik sabitleme (zıplamayı önler)
+          height: 30,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
             transitionBuilder: (Widget child, Animation<double> animation) {
@@ -332,7 +347,7 @@ class _AnalysisPageState extends State<AnalysisPage> with TickerProviderStateMix
             },
             child: Text(
               _loadingTexts[_loadingTextIndex],
-              key: ValueKey<int>(_loadingTextIndex), // Key değişince animasyon tetiklenir
+              key: ValueKey<int>(_loadingTextIndex),
               style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
               textAlign: TextAlign.center,
             ),

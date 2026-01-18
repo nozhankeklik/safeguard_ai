@@ -11,14 +11,22 @@ import 'package:safeguard_ai/features/history/presentation/bloc/history_bloc.dar
 import 'package:safeguard_ai/features/history/presentation/pages/history_page.dart';
 import 'package:safeguard_ai/features/home/presentation/pages/home_page.dart';
 import 'package:safeguard_ai/features/home/presentation/pages/main_shell_page.dart';
+import 'package:safeguard_ai/features/intro/splash_page.dart'; // EĞER DOSYA YOLUN FARKLIYSA BURAYI DÜZELT
 import 'package:safeguard_ai/features/settings/presentation/pages/settings_page.dart';
 
 class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: '/home',
+    // 1. DEĞİŞİKLİK: Başlangıç rotası artık Splash ('/')
+    initialLocation: '/',
+
     routes: [
+      // 2. DEĞİŞİKLİK: Splash Rotası (ShellRoute'un DIŞINA eklendi)
+      // Böylece giriş ekranında alt navigasyon barı görünmeyecek.
+      GoRoute(path: '/', builder: (context, state) => const SplashPage()),
+
+      // Mevcut Ana Uygulama İskeleti (Bottom Navigation Bar)
       ShellRoute(
         builder: (context, state, child) {
           return MainShellPage(child: child);
@@ -26,34 +34,28 @@ class AppRouter {
         routes: [
           GoRoute(
             path: '/home',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: HomePage(),
-            ),
+            pageBuilder: (context, state) => const NoTransitionPage(child: HomePage()),
           ),
           GoRoute(
             path: '/analyze',
             pageBuilder: (context, state) => NoTransitionPage(
-              child: BlocProvider(
-                create: (context) => di.sl<AnalysisBloc>(),
-                child: const AnalysisPage(),
-              ),
+              child: BlocProvider(create: (context) => di.sl<AnalysisBloc>(), child: const AnalysisPage()),
             ),
           ),
           GoRoute(
             path: '/history',
             pageBuilder: (context, state) => NoTransitionPage(
-              child: BlocProvider(
-                create: (context) => di.sl<HistoryBloc>(),
-                child: const HistoryPage(),
-              ),
+              child: BlocProvider(create: (context) => di.sl<HistoryBloc>(), child: const HistoryPage()),
             ),
           ),
           GoRoute(
             path: '/settings',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: SettingsPage(),
-            ),
+            pageBuilder: (context, state) => const NoTransitionPage(child: SettingsPage()),
           ),
+          // Not: Preview ve Detail sayfaları Shell içinde bırakıldı.
+          // Eğer bu sayfalarda alt barın görünmesini istemiyorsan,
+          // bunları da ShellRoute'un dışına (Splash'in yanına) taşıyabilirsin.
+          // Şimdilik mevcut yapını bozmadım.
           GoRoute(
             path: '/report-preview',
             pageBuilder: (context, state) {
@@ -64,10 +66,7 @@ class AppRouter {
               final analysis = extra['analysis'] as AnalysisEntity;
               final imagePath = extra['imagePath'] as String;
               return NoTransitionPage(
-                child: ReportPreviewPage(
-                  analysis: analysis,
-                  imagePath: imagePath,
-                ),
+                child: ReportPreviewPage(analysis: analysis, imagePath: imagePath),
               );
             },
           ),
@@ -79,9 +78,7 @@ class AppRouter {
                 return const NoTransitionPage(child: HomePage());
               }
               final report = extra['report'] as ReportHiveModel;
-              return NoTransitionPage(
-                child: ReportDetailPage(report: report),
-              );
+              return NoTransitionPage(child: ReportDetailPage(report: report));
             },
           ),
         ],
