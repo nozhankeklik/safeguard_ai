@@ -22,7 +22,7 @@ A Proof-of-Concept (PoC) mobile application demonstrating AI-driven safety analy
 To make UI and architecture testing easier without setting up the n8n backend or API keys locally, the app includes a **Mock Mode**. 
 
 ```bash
-git clone [https://github.com/nozhankeklik/safeguard_ai.git](https://github.com/nozhankeklik/safeguard_ai.git)
+git clone https://github.com/nozhankeklik/safeguard_ai.git
 cd safeguard_ai
 flutter pub get
 flutter run
